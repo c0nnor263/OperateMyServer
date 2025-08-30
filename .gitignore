@@ -18,3 +18,4 @@ classes/
 *.launch
 /src/generated/resources/.cache/
 /.kotlin
+/test/

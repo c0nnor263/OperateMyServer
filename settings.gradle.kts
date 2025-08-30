@@ -7,5 +7,8 @@ pluginManagement {
     }
 }
 
+include(":common")
+include(":feature:autorestart")
+include(":feature:lowtps")
 
-rootProject.name = "restart-my-server"
+rootProject.name = "operate-my-server"
