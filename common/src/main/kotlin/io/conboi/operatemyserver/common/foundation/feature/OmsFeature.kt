@@ -6,7 +6,6 @@ import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.event.server.ServerStoppingEvent
 
 // TODO: Add Feature Priority for execution order in OmsFeatureManager.tickAll
-// TODO: Create verify feature fields
 abstract class OmsFeature<out T : FeatureConfigBase>(val featureConfig: T, val featureInfo: FeatureInfo) {
     fun isEnabled(): Boolean = featureConfig.enabled.get()
 

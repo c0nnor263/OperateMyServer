@@ -3,7 +3,7 @@ package io.conboi.operatemyserver.feature.autorestart.elements.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import io.conboi.operatemyserver.common.content.StopManager
-import io.conboi.operatemyserver.common.foundation.StopState
+import io.conboi.operatemyserver.common.foundation.reason.ManualStop
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 
@@ -13,7 +13,7 @@ class RestartCommand {
         return Commands.literal("restart")
             .executes { ctx ->
                 val server = ctx.source.server
-                StopManager.stop(server, StopState.MANUAL)
+                StopManager.stop(server, ManualStop)
                 Command.SINGLE_SUCCESS
             }
     }

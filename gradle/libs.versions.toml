@@ -22,7 +22,7 @@ kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-j
 mixin-forge = { module = "io.github.llamalad7:mixinextras-forge", version.ref = "mixin" }
 
 [plugins]
-kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin = { id = "org.jetbrains.kotlin.jvm" }
 modDevGradle = { id = "net.neoforged.moddev.legacyforge", version.ref = "modDevGradle" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 benManesVersions = { id = "com.github.ben-manes.versions", version.ref = "benManesVersion" }

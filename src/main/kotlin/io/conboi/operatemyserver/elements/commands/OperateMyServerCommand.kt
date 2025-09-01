@@ -3,7 +3,7 @@ package io.conboi.operatemyserver.elements.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import io.conboi.operatemyserver.common.content.StopManager
-import io.conboi.operatemyserver.common.foundation.StopState
+import io.conboi.operatemyserver.common.foundation.reason.CommonStop
 import io.conboi.operatemyserver.feature.autorestart.elements.commands.RestartCommand
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -29,7 +29,7 @@ class OperateMyServerCommand {
                 .requires { source -> source.hasPermission(4) }
                 .executes { context ->
                     val source = context.source
-                    StopManager.writeReason(StopState.STOP)
+                    StopManager.writeReason(CommonStop)
                     source.sendSuccess({ Component.translatable("commands.stop.stopping") }, true)
                     source.server.halt(false)
                     Command.SINGLE_SUCCESS

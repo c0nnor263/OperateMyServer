@@ -1,36 +1,44 @@
 package io.conboi.operatemyserver.common.content
 
-import io.conboi.operatemyserver.common.foundation.StopState
-import io.conboi.operatemyserver.common.infrastructure.file.StopLog
+import io.conboi.operatemyserver.common.foundation.TimeHelper
+import io.conboi.operatemyserver.common.foundation.reason.CrashStop
+import io.conboi.operatemyserver.common.foundation.reason.StopReason
+import io.conboi.operatemyserver.common.infrastructure.OMSJson
+import io.conboi.operatemyserver.common.infrastructure.file.FileUtil
+import io.conboi.operatemyserver.common.infrastructure.file.OMSPaths
+import io.conboi.operatemyserver.common.infrastructure.file.StopEntry
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
+import java.util.*
 
 object StopManager {
-    private var explicitStopState: StopState? = null
+    private var explicitStopReason: StopReason? = null
 
     fun isServerStopping(): Boolean {
-        return explicitStopState != null
+        return explicitStopReason != null
     }
 
     fun installHook() {
         Runtime.getRuntime().addShutdownHook(
             Thread({
-                if (explicitStopState == null) {
-                    StopLog().write(StopState.CRASH)
+                if (explicitStopReason == null) {
+                    writeReason(CrashStop)
                 }
             }, this::class.java.name + " ShutdownHook")
         )
     }
 
-    fun stop(server: MinecraftServer, reason: StopState, force: Boolean = true) {
+    fun stop(server: MinecraftServer, reason: StopReason) {
         writeReason(reason)
 
-        server.playerList.broadcastSystemMessage(Component.literal("Restarting server... ($reason)"), false)
+        server.playerList.broadcastSystemMessage(Component.translatable(reason.messageId), false)
         server.halt(false)
     }
 
-    fun writeReason(reason: StopState) {
-        explicitStopState = reason
-        StopLog().write(reason)
+    fun writeReason(reason: StopReason) {
+        explicitStopReason = reason
+        val entry = StopEntry(reason.name.uppercase(Locale.getDefault()), TimeHelper.currentTime.toString())
+        val content = OMSJson.encodeToString(StopEntry.serializer(), entry)
+        FileUtil.writeSafe(OMSPaths.stopCause(), content)
     }
 }

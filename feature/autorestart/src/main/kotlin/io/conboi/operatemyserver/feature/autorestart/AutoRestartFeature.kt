@@ -1,11 +1,11 @@
 package io.conboi.operatemyserver.feature.autorestart
 
 import io.conboi.operatemyserver.common.content.StopManager
-import io.conboi.operatemyserver.common.foundation.StopState
 import io.conboi.operatemyserver.common.foundation.TimeFormatter
 import io.conboi.operatemyserver.common.foundation.TimeHelper
 import io.conboi.operatemyserver.common.foundation.feature.FeatureInfo
 import io.conboi.operatemyserver.common.foundation.feature.OmsFeature
+import io.conboi.operatemyserver.common.foundation.reason.ScheduledStop
 import io.conboi.operatemyserver.feature.autorestart.infrastructure.config.CAutoRestartFeature
 import net.minecraft.network.chat.Component
 import net.minecraftforge.event.TickEvent
@@ -21,7 +21,6 @@ class AutoRestartFeature(featureConfig: CAutoRestartFeature) :
 
     private var nextTarget: ZonedDateTime? = null
     override fun onServerTick(event: TickEvent.ServerTickEvent) {
-        if (nextTarget != null) return
         val server = event.server
 
         val times: List<LocalTime> = featureConfig.restartTimes.get()
@@ -34,7 +33,6 @@ class AutoRestartFeature(featureConfig: CAutoRestartFeature) :
             .sortedByDescending { it.inWholeSeconds }
 
         val now = TimeHelper.currentTime
-
         val target = (nextTarget ?: TimeFormatter.pickClosestTarget(now, times)).also { nextTarget = it }
         val remainingSec = TimeFormatter.secondsBetween(now, target)
         warningDurations.forEach { duration ->
@@ -48,7 +46,7 @@ class AutoRestartFeature(featureConfig: CAutoRestartFeature) :
         }
 
         if (remainingSec <= 0) {
-            StopManager.stop(server, StopState.SCHEDULED)
+            StopManager.stop(server, ScheduledStop)
             nextTarget = null
 
             // TODO: Set isServerRestarting to true to prevent other features from executing

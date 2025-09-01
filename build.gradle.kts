@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 plugins {
     alias(libs.plugins.kotlin)
@@ -7,10 +8,18 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     idea
 }
+apply<ModDevPlugin>()
 
-evaluationDependsOn(":common")
-evaluationDependsOn(":feature:autorestart")
-evaluationDependsOn(":feature:lowtps")
+val dependentProjects = rootProject.subprojects.filter {
+    it.path != project.path && (
+            it.path == ":common" || it.path.startsWith(":feature:")
+            )
+}
+val mergedLangDir = layout.buildDirectory.dir("generated/resources/assets/operatemyserver/lang")
+
+dependentProjects.forEach {
+    evaluationDependsOn(it.path)
+}
 
 val modId: String by project
 val modVersion: String by project
@@ -32,13 +41,6 @@ mixin {
     config("$modId.mixins.json")
 }
 
-idea {
-    module {
-        isDownloadSources = true
-        isDownloadJavadoc = true
-    }
-}
-
 legacyForge {
     version = libs.versions.forge.get()
 
@@ -50,9 +52,9 @@ legacyForge {
     mods {
         create(modId) {
             sourceSet(sourceSets.main.get())
-            sourceSet(project(":common").sourceSets.main.get())
-            sourceSet(project(":feature:autorestart").sourceSets.main.get())
-            sourceSet(project(":feature:lowtps").sourceSets.main.get())
+            dependentProjects.forEach {
+                sourceSet(project(it.path).sourceSets.main.get())
+            }
         }
     }
 
@@ -61,8 +63,6 @@ legacyForge {
             systemProperty("forge.logging.markers", "REGISTRIES")
             logLevel = org.slf4j.event.Level.DEBUG
 
-//            systemProperty("forge.logging.markers", "")
-//            systemProperty("forge.logging.console.level", "info")
             jvmArgument("-XX:+IgnoreUnrecognizedVMOptions")
             jvmArgument("-XX:+UnlockExperimentalVMOptions")
 
@@ -72,6 +72,8 @@ legacyForge {
             programArgument("-mixin.config=$modId.mixins.json")
             systemProperty("mixin.env.remapRefMap", "true")
             systemProperty("mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg")
+            // TODO: Test
+            systemProperty("debug", "true")
         }
 
         create("client") {
@@ -101,33 +103,10 @@ legacyForge {
     }
 }
 
-
-//val localRuntime: Configuration by configurations.creating
-//
-//configurations {
-//    configurations.named("runtimeClasspath") {
-//        extendsFrom(localRuntime)
-//    }
-//}
-//
-//obfuscation {
-//    createRemappingConfiguration(localRuntime)
-//}
-
-repositories {
-    mavenCentral()
-    maven {
-        url = uri("https://thedarkcolour.github.io/KotlinForForge/")
-        content { includeGroup("thedarkcolour") }
-    }
-    maven("https://maven.parchmentmc.org") // Parchment mappings
-    maven("https://raw.githubusercontent.com/Fuzss/modresources/main/maven/") // Forge Config API Port
-}
-
 dependencies {
-    modImplementation(projects.common)
-    modImplementation(projects.feature.autorestart)
-    modImplementation(projects.feature.lowtps)
+    dependentProjects.forEach {
+        modImplementation(it)
+    }
 
     // Kotlin For Forge
     implementation(libs.kotlinforforge)
@@ -139,7 +118,15 @@ dependencies {
 
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 }
+
 tasks.processResources {
+    dependsOn(mergeLangFiles)
+
+    // assets/lang
+    from(mergedLangDir) {
+        into("assets/operatemyserver/lang")
+    }
+
     // set up properties for filling into metadata
     val properties = mapOf(
         "mod_id" to modId,
@@ -157,37 +144,58 @@ tasks.processResources {
     filesMatching("META-INF/mods.toml") {
         expand(properties)
     }
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+subprojects {
+    tasks.matching { it.name == "processResources" }.configureEach {
+        (this as ProcessResources).exclude("assets/operatemyserver/lang/*.json")
+    }
+
+    val generateBuildConstants by tasks.registering {
+        val outputDir = layout.buildDirectory.dir("generated/buildConstants")
+
+        outputs.dir(outputDir)
+
+        doLast {
+            val file = outputDir.get().file("$modGroupId/BuildConstants.kt").asFile
+            file.parentFile.mkdirs()
+
+            file.writeText(
+                """
+            package $modGroupId
+
+            object BuildConstants {
+                const val MOD_ID = "$modId"
+                const val VERSION = "${project.version}"
+                val DEBUG = java.lang.Boolean.getBoolean("debug")
+            }
+            """.trimIndent()
+            )
+        }
+    }
+
+    tasks.matching { it.name == "compileKotlin" }.configureEach {
+        dependsOn(generateBuildConstants)
+    }
+
+    extensions.findByName("sourceSets")?.let { ext ->
+        val sourceSets = ext as SourceSetContainer
+        sourceSets.named("main") {
+            java.srcDir(generateBuildConstants.map { it.outputs.files })
+        }
+    }
 }
 
 sourceSets.main.get().resources.srcDir("src/generated/resources")
-tasks.processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-    options.release.set(17)
-}
-
-kotlin {
-    jvmToolchain(17)
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xwhen-guards"))
-}
 
 tasks.named<Jar>("jar") {
-    val commonJar = project(":common").tasks.named<Jar>("jar")
-    val autoRestartJar = project(":feature:autorestart").tasks.named<Jar>("jar")
-    val lowTpsJar = project(":feature:lowtps").tasks.named<Jar>("jar")
-
-    dependsOn(commonJar, autoRestartJar, lowTpsJar)
-
-    from({ zipTree(commonJar.get().archiveFile.get().asFile) })
-    from({ zipTree(autoRestartJar.get().archiveFile.get().asFile) })
-    from({ zipTree(lowTpsJar.get().archiveFile.get().asFile) })
+    dependentProjects.forEach {
+        val jar = project(it.path).tasks.named<Jar>("jar")
+        dependsOn(jar)
+        from({ zipTree(jar.get().archiveFile.get().asFile) })
+    }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest.attributes(
@@ -195,4 +203,51 @@ tasks.named<Jar>("jar") {
             "MixinConfigs" to "$modId.mixins.json"
         )
     )
+}
+
+val mergeLangFiles by tasks.registering {
+    group = "build"
+    description = "Merge all lang JSON files from modules"
+
+    val gson = Gson()
+    val type = object : TypeToken<Map<String, String>>() {}.type
+
+    outputs.dir(mergedLangDir)
+
+    doLast {
+        val langFileTrees = dependentProjects.map {
+            project(it.path).fileTree("src/main/resources/assets/operatemyserver/lang") {
+                include("*.json")
+            }
+        } + listOf(
+            fileTree("src/main/resources/assets/operatemyserver/lang") {
+                include("*.json")
+            }
+        )
+
+        val allLangFiles = files(langFileTrees)
+
+        println("📝 Found lang files:")
+        allLangFiles.files.forEach { println(" - ${it.path}") }
+
+        val localeToEntries = mutableMapOf<String, MutableMap<String, String>>()
+
+        allLangFiles.files.forEach { file ->
+            val locale = file.nameWithoutExtension
+            val content = file.readText()
+            val map: Map<String, String> = gson.fromJson(content, type)
+            val target = localeToEntries.getOrPut(locale) { LinkedHashMap() }
+            target.putAll(map)
+        }
+
+        val outputDir = mergedLangDir.get().asFile
+        outputDir.mkdirs()
+
+        for ((locale, entries) in localeToEntries) {
+            val outFile = File(outputDir, "$locale.json")
+            outFile.writeText(gson.toJson(entries))
+        }
+
+        println("✅ Locales merged: ${localeToEntries.keys}")
+    }
 }

@@ -9,8 +9,7 @@ import io.conboi.operatemyserver.feature.lowtps.LowTpsFeature
 import io.conboi.operatemyserver.feature.lowtps.infrastructure.config.CLowTpsFeature
 import io.conboi.operatemyserver.infrastructure.config.CServer
 import java.util.concurrent.ConcurrentHashMap
-//
-// TODO: Create verify feature fields
+
 object OMSFeatures {
     private val entries = ConcurrentHashMap<FeatureInfo.Type, (CServer) -> OmsFeature<*>>()
 

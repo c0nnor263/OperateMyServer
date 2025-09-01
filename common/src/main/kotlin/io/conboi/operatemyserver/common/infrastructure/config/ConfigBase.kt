@@ -8,7 +8,6 @@ import java.util.function.Function
 import java.util.function.Predicate
 import java.util.function.Supplier
 
-
 abstract class ConfigBase {
     var specification: ForgeConfigSpec? = null
 
@@ -30,8 +29,7 @@ abstract class ConfigBase {
 
     abstract val name: String
 
-    fun interface IValueProvider<V, T : ConfigValue<V>?>
-        : Function<Builder, T>
+    fun interface IValueProvider<V, T : ConfigValue<V>?> : Function<Builder, T>
 
     protected fun b(current: Boolean, name: String, vararg comment: String?): ConfigBool {
         return ConfigBool(name, current, *comment)
@@ -58,9 +56,7 @@ abstract class ConfigBase {
     }
 
     protected fun <T : Enum<T>> e(
-        defaultValue: T,
-        name: String,
-        vararg comment: String?
+        defaultValue: T, name: String, vararg comment: String?
     ): ConfigEnum<T> {
         return ConfigEnum(name, defaultValue, comment)
     }
@@ -70,25 +66,18 @@ abstract class ConfigBase {
     }
 
     protected fun <T> list(
-        def: MutableList<T>,
-        name: String,
-        vararg comment: String,
-        elementValidator: Predicate<T?> = Predicate { true }
+        def: MutableList<T>, name: String, vararg comment: String, elementValidator: Predicate<T?> = Predicate { true }
     ): ListValue<T> = ListValue(name, def, elementValidator, *comment)
 
     protected fun s(
-        def: String,
-        name: String,
-        vararg comment: String,
-        validator: Predicate<String?> = Predicate { true }
+        def: String, name: String, vararg comment: String, validator: Predicate<String?> = Predicate { true }
     ): ConfigString = ConfigString(name, def, validator, *comment)
 
     protected fun <T : ConfigBase> nested(depth: Int, constructor: Supplier<T>, vararg comment: String?): T {
         val config = constructor.get()
         ConfigGroup(config.name, depth, *comment)
         CValue<Boolean, ForgeConfigSpec.BooleanValue>(
-            config.name,
-            { builder: Builder ->
+            config.name, { builder: Builder ->
                 config.depth = depth
                 config.registerAll(builder)
                 if (config.depth > depth) builder.pop(config.depth - depth)
@@ -99,9 +88,7 @@ abstract class ConfigBase {
     }
 
     open inner class CValue<V, T : ConfigValue<V>?>(
-        var name: String,
-        provider: IValueProvider<V, T?>,
-        vararg comment: String?
+        var name: String, provider: IValueProvider<V, T?>, vararg comment: String?
     ) {
         protected var value: ConfigValue<V>? = null
         private val provider: IValueProvider<V, T?>
@@ -140,34 +127,24 @@ abstract class ConfigBase {
     }
 
     inner class ListValue<T>(
-        name: String,
-        def: MutableList<T>,
-        private val validator: Predicate<T?>,
-        vararg comment: String?
+        name: String, def: MutableList<T>, private val validator: Predicate<T?>, vararg comment: String?
     ) : CValue<MutableList<T>, ConfigValue<MutableList<T>>?>(
-        name,
-        IValueProvider<MutableList<T>, ConfigValue<MutableList<T>>?> { builder ->
+        name, IValueProvider<MutableList<T>, ConfigValue<MutableList<T>>?> { builder ->
             val safeValidator = Predicate<Any?> { it == null || validator.test(it as? T) }
             builder.defineList(name, def, safeValidator) as ConfigValue<MutableList<T>>
-        },
-        comment = comment
+        }, comment = comment
     ) {
         @Suppress("UNCHECKED_CAST")
         fun getStrings(): MutableList<String> = get() as MutableList<String>
     }
 
     inner class ConfigString(
-        name: String,
-        def: String,
-        private val validator: Predicate<String?>,
-        vararg comment: String?
+        name: String, def: String, private val validator: Predicate<String?>, vararg comment: String?
     ) : CValue<String, ConfigValue<String>?>(
-        name,
-        IValueProvider { builder ->
+        name, IValueProvider { builder ->
             val safeValidator = Predicate<Any?> { it is String && validator.test(it) }
             builder.define(name, def, safeValidator) as ConfigValue<String>
-        },
-        comment = comment
+        }, comment = comment
     )
 
     /**
@@ -175,9 +152,7 @@ abstract class ConfigBase {
      */
     inner class ConfigGroup(name: String, private val groupDepth: Int, private vararg val comment: String?) :
         CValue<Boolean?, ForgeConfigSpec.BooleanValue?>(
-            name,
-            IValueProvider { _: Builder? -> null },
-            *comment
+            name, IValueProvider { _: Builder? -> null }, *comment
         ) {
 
         override fun register(builder: Builder) {
@@ -191,35 +166,25 @@ abstract class ConfigBase {
 
     inner class ConfigBool(name: String, def: Boolean, vararg comment: String?) :
         CValue<Boolean, ForgeConfigSpec.BooleanValue>(
-            name,
-            IValueProvider { builder: Builder -> builder.define(name, def) },
-            *comment
+            name, IValueProvider { builder: Builder -> builder.define(name, def) }, *comment
         )
 
     inner class ConfigEnum<T : Enum<T>>(name: String, defaultValue: T, comment: Array<out String?>) :
         CValue<T, ForgeConfigSpec.EnumValue<T>>(
-            name,
-            IValueProvider { builder: Builder ->
+            name, IValueProvider { builder: Builder ->
                 builder.defineEnum<T>(
-                    name,
-                    defaultValue
+                    name, defaultValue
                 )
-            },
-            *comment
+            }, *comment
         )
 
     inner class ConfigFloat(name: String, current: Float, min: Float, max: Float, vararg comment: String?) :
         CValue<Double, ForgeConfigSpec.DoubleValue>(
-            name,
-            IValueProvider { builder: Builder ->
+            name, IValueProvider { builder: Builder ->
                 builder.defineInRange(
-                    name,
-                    current.toDouble(),
-                    min.toDouble(),
-                    max.toDouble()
+                    name, current.toDouble(), min.toDouble(), max.toDouble()
                 )
-            },
-            *comment
+            }, *comment
         ) {
         val f: Float
             get() = get().toFloat()
@@ -227,15 +192,10 @@ abstract class ConfigBase {
 
     inner class ConfigInt(name: String, current: Int, min: Int, max: Int, vararg comment: String?) :
         CValue<Int, ForgeConfigSpec.IntValue>(
-            name,
-            IValueProvider { builder: Builder ->
+            name, IValueProvider { builder: Builder ->
                 builder.defineInRange(
-                    name,
-                    current,
-                    min,
-                    max
+                    name, current, min, max
                 )
-            },
-            *comment
+            }, *comment
         )
 }

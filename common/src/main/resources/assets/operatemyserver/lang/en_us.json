@@ -1,0 +1,6 @@
+{
+  "oms.stopping.scheduled": "Server stopping as scheduled",
+  "oms.stopping.manual": "Server stopping by admin command",
+  "oms.stopping.crash": "Server stopping due to a crash",
+  "oms.stopping.common": "Server stopping due to stop command"
+}
