@@ -18,11 +18,11 @@ start_server() {
 
 read_cause() {
   if [[ -f "$CAUSE_FILE" ]]; then
-    LAST_STATE=$(jq -r '.state' "$CAUSE_FILE" 2>/dev/null)
-    echo "[OMS] Last state: $LAST_STATE"
+    LAST_REASON=$(jq -r '.reason' "$CAUSE_FILE" 2>/dev/null)
+    echo "[OMS] Last reason: $LAST_REASON"
     rm -f "$CAUSE_FILE"
   else
-    LAST_STATE=""
+    LAST_REASON=""
   fi
 }
 
@@ -31,7 +31,7 @@ while true; do
   start_server
   read_cause
 
-  case "$LAST_STATE" in
+  case "$LAST_REASON" in
     STOP)
       echo "[OMS] STOP detected. Exiting loop."
       break
@@ -49,7 +49,7 @@ while true; do
       sleep 5
       ;;
     UNKNOWN)
-      echo "[OMS] UNKNOWN state. Relaunch in 5 seconds..."
+      echo "[OMS] UNKNOWN reason. Relaunch in 5 seconds..."
       sleep 5
       ;;
     "")
@@ -57,7 +57,7 @@ while true; do
       sleep 5
       ;;
     *)
-      echo "[OMS] Unknown state '$LAST_STATE'. Treating as CRASH. Relaunch in 5 seconds..."
+      echo "[OMS] Unknown reason '$LAST_REASON'. Treating as CRASH. Relaunch in 5 seconds..."
       sleep 5
       ;;
   esac
