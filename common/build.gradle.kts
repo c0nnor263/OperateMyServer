@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.modDevGradle)
     alias(libs.plugins.benManesVersions)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.kotest)
     idea
 }
 
@@ -15,17 +16,17 @@ legacyForge {
         mappingsVersion = libs.versions.parchment.get()
         minecraftVersion = libs.versions.minecraft.get()
     }
+
+    addModdingDependenciesTo(sourceSets.test.get())
 }
 
 dependencies {
-    // Kotlin For Forge
     implementation(libs.kotlinforforge)
-
     implementation(libs.kotlinxSerialization)
 
+    implementation(jarJar(libs.mixin.extras.asProvider().get().toString())!!)
+    compileOnly(annotationProcessor(libs.mixin.extras.common.get().toString())!!)
+    annotationProcessor("${libs.mixin.processor.get().module}:${libs.versions.mixin.get()}:processor")
 
-    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")!!)
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${libs.versions.mixin.get()}")!!)
-
-    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+    testImplementation(libs.bundles.testing)
 }

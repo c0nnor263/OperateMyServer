@@ -19,3 +19,4 @@ classes/
 /src/generated/resources/.cache/
 /.kotlin
 /test/
+/*/logs/

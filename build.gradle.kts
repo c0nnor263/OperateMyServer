@@ -6,20 +6,10 @@ plugins {
     alias(libs.plugins.modDevGradle)
     alias(libs.plugins.benManesVersions)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.kotest)
     idea
 }
 apply<ModDevPlugin>()
-
-val dependentProjects = rootProject.subprojects.filter {
-    it.path != project.path && (
-            it.path == ":common" || it.path.startsWith(":feature:")
-            )
-}
-val mergedLangDir = layout.buildDirectory.dir("generated/resources/assets/operatemyserver/lang")
-
-dependentProjects.forEach {
-    evaluationDependsOn(it.path)
-}
 
 val modId: String by project
 val modVersion: String by project
@@ -31,6 +21,17 @@ val modGroupId: String by project
 
 group = modGroupId
 version = "${modVersion}+mc${libs.versions.minecraft.get()}"
+
+val dependentProjects = rootProject.subprojects.filter {
+    it.path != project.path && (
+            it.path == ":common" || it.path.startsWith(":feature:")
+            )
+}
+val mergedLangDir = layout.buildDirectory.dir("generated/resources/assets/$modId/lang")
+
+dependentProjects.forEach {
+    evaluationDependsOn(it.path)
+}
 
 base {
     archivesName = modId
@@ -83,7 +84,7 @@ legacyForge {
 
         create("server") {
             server()
-            programArgument("--nogui")
+//            programArgument("--nogui")
             systemProperty("forge.enabledGameTestNamespaces", modId)
         }
 
@@ -101,6 +102,8 @@ legacyForge {
             )
         }
     }
+
+    addModdingDependenciesTo(sourceSets.test.get())
 }
 
 dependencies {
@@ -108,15 +111,14 @@ dependencies {
         modImplementation(it)
     }
 
-    // Kotlin For Forge
     implementation(libs.kotlinforforge)
-
     implementation(libs.kotlinxSerialization)
 
-    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")!!)
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${libs.versions.mixin.get()}")!!)
+    implementation(jarJar(libs.mixin.extras.asProvider().get().toString())!!)
+    compileOnly(annotationProcessor(libs.mixin.extras.common.get().toString())!!)
+    annotationProcessor("${libs.mixin.processor.get().module}:${libs.versions.mixin.get()}:processor")
 
-    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+    testImplementation(libs.bundles.testing)
 }
 
 tasks.processResources {
@@ -124,7 +126,7 @@ tasks.processResources {
 
     // assets/lang
     from(mergedLangDir) {
-        into("assets/operatemyserver/lang")
+        into("assets/$modId/lang")
     }
 
     // set up properties for filling into metadata
@@ -149,42 +151,14 @@ tasks.processResources {
 }
 
 subprojects {
+//    apply<ModDevPlugin>()
+
     tasks.matching { it.name == "processResources" }.configureEach {
-        (this as ProcessResources).exclude("assets/operatemyserver/lang/*.json")
+        (this as ProcessResources).exclude("assets/$modId/lang/*.json")
     }
 
-    val generateBuildConstants by tasks.registering {
-        val outputDir = layout.buildDirectory.dir("generated/buildConstants")
-
-        outputs.dir(outputDir)
-
-        doLast {
-            val file = outputDir.get().file("$modGroupId/BuildConstants.kt").asFile
-            file.parentFile.mkdirs()
-
-            file.writeText(
-                """
-            package $modGroupId
-
-            object BuildConstants {
-                const val MOD_ID = "$modId"
-                const val VERSION = "${project.version}"
-                val DEBUG = java.lang.Boolean.getBoolean("debug")
-            }
-            """.trimIndent()
-            )
-        }
-    }
-
-    tasks.matching { it.name == "compileKotlin" }.configureEach {
-        dependsOn(generateBuildConstants)
-    }
-
-    extensions.findByName("sourceSets")?.let { ext ->
-        val sourceSets = ext as SourceSetContainer
-        sourceSets.named("main") {
-            java.srcDir(generateBuildConstants.map { it.outputs.files })
-        }
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
     }
 }
 
@@ -216,11 +190,11 @@ val mergeLangFiles by tasks.registering {
 
     doLast {
         val langFileTrees = dependentProjects.map {
-            project(it.path).fileTree("src/main/resources/assets/operatemyserver/lang") {
+            project(it.path).fileTree("src/main/resources/assets/$modId/lang") {
                 include("*.json")
             }
         } + listOf(
-            fileTree("src/main/resources/assets/operatemyserver/lang") {
+            fileTree("src/main/resources/assets/$modId/lang") {
                 include("*.json")
             }
         )

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.conboi.oms.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "oms.refmap.json",
+  "mixins": [
+    "ExampleMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

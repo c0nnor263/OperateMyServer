@@ -1,0 +1,156 @@
+package io.conboi.oms.feature.autorestart
+
+import io.conboi.oms.common.OperateMyServer
+import io.conboi.oms.common.content.StopManager
+import io.conboi.oms.common.foundation.CachedField
+import io.conboi.oms.common.foundation.TimeFormatter
+import io.conboi.oms.common.foundation.TimeHelper
+import io.conboi.oms.common.foundation.feature.FeatureInfo
+import io.conboi.oms.common.foundation.feature.OmsFeature
+import io.conboi.oms.common.foundation.reason.ScheduledStop
+import io.conboi.oms.feature.autorestart.content.SkipResult
+import io.conboi.oms.feature.autorestart.infrastructure.config.CAutoRestartFeature
+import net.minecraft.network.chat.Component
+import net.minecraft.server.MinecraftServer
+import net.minecraftforge.event.TickEvent
+import java.time.LocalTime
+import java.time.ZonedDateTime
+import kotlin.time.Duration
+
+internal class AutoRestartFeature(featureConfig: CAutoRestartFeature, featureInfo: FeatureInfo) :
+    OmsFeature<CAutoRestartFeature>(featureConfig, featureInfo) {
+    companion object {
+        const val SKIP_OFFSET_SECONDS = 10L
+        const val MAX_DAYS_FOR_LOOKAHEAD = 1L
+    }
+
+    private var isScheduledToSkip = false
+    private var isConfigurationUpdated = false
+
+    val restartTimes: CachedField<List<String>, List<LocalTime>> =
+        CachedField(
+            key = { featureConfig.restartTimes.get() },
+            value = {
+                featureConfig.restartTimes.get()
+                    .mapNotNull(TimeFormatter::parseToLocalTimeOrNull)
+                    .sortedBy { it.toSecondOfDay() }
+            },
+            valueValidator = { list ->
+                list.isNotEmpty()
+            },
+            onUpdate = { _, _ ->
+                isConfigurationUpdated = true
+            }
+        )
+
+    val warningTimes: CachedField<List<String>, List<Duration>> =
+        CachedField(
+            key = { featureConfig.warningTimes.get() },
+            value = {
+                featureConfig.warningTimes.get()
+                    .mapNotNull(TimeFormatter::parseToDurationOrNull)
+                    .sortedByDescending { it.inWholeSeconds }
+            },
+            valueValidator = { list ->
+                list.isNotEmpty()
+            },
+        )
+
+    val restartTimeTarget: CachedField<Boolean, ZonedDateTime> =
+        CachedField(
+            key = { isScheduledToSkip },
+            value = ::initRestartTimeTarget
+        )
+
+    override fun onServerTick(event: TickEvent.ServerTickEvent) {
+        val server = event.server
+        val now = TimeHelper.currentTime
+        val remainingSec = TimeHelper.secondsBetween(now, restartTimeTarget.get())
+        checkIfConfigurationUpdated(server)
+        checkWarningTimes(remainingSec, server)
+        checkForRestart(remainingSec, server)
+    }
+
+    private fun checkIfConfigurationUpdated(
+        server: MinecraftServer
+    ) {
+        if (!isConfigurationUpdated) return
+        isConfigurationUpdated = false
+
+        if (isScheduledToSkip) {
+            isScheduledToSkip = false
+            restartTimeTarget.invalidate()
+            server.playerList.broadcastSystemMessage(
+                Component.translatable("oms.warning.autorestart.config_updated_skip_reset"),
+                false
+            )
+        } else {
+            server.playerList.broadcastSystemMessage(
+                Component.translatable("oms.warning.autorestart.config_updated"),
+                false
+            )
+        }
+    }
+
+    private fun initRestartTimeTarget(): ZonedDateTime {
+        val restartTimes = restartTimes.get()
+        return pickClosestTarget(restartTimes).also {
+            OperateMyServer.LOGGER.debug("Next restart time is set to {}", it)
+        }
+    }
+
+    private fun pickClosestTarget(
+        times: List<LocalTime>,
+        now: ZonedDateTime = TimeHelper.currentTime,
+        maxDaysLookahead: Long = MAX_DAYS_FOR_LOOKAHEAD
+    ): ZonedDateTime {
+        val candidates = times.map { time ->
+            TimeHelper.convertLocalTimeToZonedDateTime(now, time)
+        }
+        val closestTime = TimeHelper.closest(now, candidates)
+        return if (closestTime == null && maxDaysLookahead > 0) {
+            pickClosestTarget(times, now.plusDays(1), maxDaysLookahead - 1)
+        } else {
+            closestTime
+        } ?: error("cannot pick closest target")
+    }
+
+    private fun checkWarningTimes(remainingSec: Long, server: MinecraftServer) {
+        if (isScheduledToSkip) return
+        warningTimes.get().forEach { duration ->
+            val seconds = duration.inWholeSeconds
+            if (remainingSec == seconds) {
+                sendWarning(server, duration)
+            }
+        }
+    }
+    private fun sendWarning(server: MinecraftServer, duration: Duration) {
+        server.playerList.broadcastSystemMessage(
+            Component.translatable("oms.warning.restart", TimeFormatter.formatDuration(duration)),
+            false
+        )
+    }
+
+
+    private fun checkForRestart(remainingSec: Long, server: MinecraftServer) {
+        if (remainingSec < 0) {
+            if (isScheduledToSkip) {
+                isScheduledToSkip = false
+                return
+            }
+            StopManager.stop(server, ScheduledStop)
+        }
+    }
+
+    internal fun skip(): SkipResult {
+        val current = restartTimeTarget.get()
+        if (isScheduledToSkip) {
+            return SkipResult.AlreadySkipped(next = current)
+        }
+
+        isScheduledToSkip = true
+        val futureTarget = restartTimeTarget.get().plusSeconds(SKIP_OFFSET_SECONDS)
+        val nextTarget = pickClosestTarget(restartTimes.get(), futureTarget)
+        return SkipResult.Skipped(skipped = current, next = nextTarget)
+    }
+}
