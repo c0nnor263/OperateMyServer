@@ -9,20 +9,17 @@ import io.mockk.mockk
 import java.nio.file.Files
 import java.nio.file.Path
 import net.minecraft.server.MinecraftServer
-import net.minecraftforge.event.server.ServerStartedEvent
 
 class OMSPathsTest : FunSpec({
 
     lateinit var tempDir: Path
 
     val mockServer = mockk<MinecraftServer>()
-    val mockServerStartedEvent = mockk<ServerStartedEvent>()
 
     beforeEach {
-        tempDir = Files.createTempDirectory("oms_test_")
+        tempDir = Files.createTempDirectory("oms_test")
 
         every { mockServer.serverDirectory } returns tempDir.toFile()
-        every { mockServerStartedEvent.server } returns mockServer
     }
 
     afterEach {
@@ -37,7 +34,7 @@ class OMSPathsTest : FunSpec({
 
     context("init") {
         test("should create oms directory and cache root") {
-            OMSPaths.init(mockServerStartedEvent)
+            OMSPaths.init(mockServer)
 
             val expectedPath = tempDir.resolve("oms")
             expectedPath.toFile().exists() shouldBe true
@@ -49,7 +46,7 @@ class OMSPathsTest : FunSpec({
             existingPath.toFile().mkdirs()
             existingPath.toFile().exists() shouldBe true
 
-            OMSPaths.init(mockServerStartedEvent)
+            OMSPaths.init(mockServer)
 
             existingPath.toFile().exists() shouldBe true
             OMSPaths.root() shouldBe existingPath
@@ -58,7 +55,7 @@ class OMSPathsTest : FunSpec({
 
     context("stopCause") {
         test("should resolve stop_cause json") {
-            OMSPaths.init(mockServerStartedEvent)
+            OMSPaths.init(mockServer)
 
             val stopCausePath = OMSPaths.stopCause()
             val expectedStopCausePath = tempDir.resolve("oms").resolve("stop_cause.json")

@@ -12,7 +12,7 @@ class FileUtilTest : FunSpec({
     lateinit var tempDir: Path
 
     beforeEach {
-        tempDir = Files.createTempDirectory("file_util_test_")
+        tempDir = Files.createTempDirectory("file_util_test")
     }
 
     afterEach {

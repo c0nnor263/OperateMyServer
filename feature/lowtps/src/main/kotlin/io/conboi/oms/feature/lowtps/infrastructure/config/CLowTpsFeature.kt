@@ -1,11 +1,15 @@
 package io.conboi.oms.feature.lowtps.infrastructure.config
 
 import io.conboi.oms.common.foundation.TimeFormatter
-import io.conboi.oms.common.infrastructure.config.FeatureConfigBase
+import io.conboi.oms.common.infrastructure.config.FeatureConfigImpl
 import io.conboi.oms.feature.lowtps.foundation.TpsMonitor
 
-class CLowTpsFeature : FeatureConfigBase() {
-    override val name: String = "low_tps"
+class CLowTpsFeature : FeatureConfigImpl() {
+    companion object {
+        const val NAME = "low_tps"
+    }
+
+    override val name: String = NAME
 
     val tpsThreshold = i(
         15,
@@ -28,6 +32,8 @@ class CLowTpsFeature : FeatureConfigBase() {
     }
 
     object Comments {
+        const val LOW_TPS =
+            "This feature monitors the server's TPS (ticks per second) and can trigger a restart if the TPS drops below a defined threshold."
         const val TPS_THRESHOLD =
             "The TPS threshold below which the server is considered to be under low TPS conditions"
         const val TPS_COUNT_TIME =

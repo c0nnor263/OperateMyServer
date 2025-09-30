@@ -11,8 +11,10 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
+include(":oms-api")
 include(":common")
 include(":feature:autorestart")
 include(":feature:lowtps")
+include(":feature:emptyserverrestart")
 
 rootProject.name = "operate-my-server"

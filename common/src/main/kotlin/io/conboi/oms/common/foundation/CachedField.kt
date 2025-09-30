@@ -4,9 +4,9 @@ data class CachedField<K, V>(
     val key: () -> K,
     val value: () -> V,
     val valueValidator: ((V) -> Boolean)? = null,
-    val onUpdate: ((old: V, new: V) -> Unit)? = null,
-    private var cachedKey: K = key.invoke(),
-    private var cachedValue: V = value.invoke()
+    val onUpdate: ((old: V?, new: V) -> Unit)? = null,
+    private var cachedKey: K? = null,
+    private var cachedValue: V? = null
 ) {
     fun get(): V {
         val k = key.invoke()
@@ -21,7 +21,7 @@ data class CachedField<K, V>(
             onUpdate?.invoke(cachedValue, newValue)
             cachedValue = newValue
         }
-        return cachedValue
+        return cachedValue ?: throw IllegalStateException("Cached value is not initialized")
     }
 
     fun invalidate() {

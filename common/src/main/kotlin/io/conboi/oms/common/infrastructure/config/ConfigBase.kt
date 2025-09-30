@@ -1,12 +1,12 @@
 package io.conboi.oms.common.infrastructure.config
 
-import net.minecraftforge.common.ForgeConfigSpec
-import net.minecraftforge.common.ForgeConfigSpec.Builder
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue
 import java.util.function.Consumer
 import java.util.function.Function
 import java.util.function.Predicate
 import java.util.function.Supplier
+import net.minecraftforge.common.ForgeConfigSpec
+import net.minecraftforge.common.ForgeConfigSpec.Builder
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue
 
 abstract class ConfigBase {
     var specification: ForgeConfigSpec? = null
@@ -73,7 +73,7 @@ abstract class ConfigBase {
         def: String, name: String, vararg comment: String, validator: Predicate<String?> = Predicate { true }
     ): ConfigString = ConfigString(name, def, validator, *comment)
 
-    protected fun <T : ConfigBase> nested(depth: Int, constructor: Supplier<T>, vararg comment: String?): T {
+    fun <T : ConfigBase> nested(depth: Int, constructor: Supplier<T>, vararg comment: String?): T {
         val config = constructor.get()
         ConfigGroup(config.name, depth, *comment)
         CValue<Boolean, ForgeConfigSpec.BooleanValue>(

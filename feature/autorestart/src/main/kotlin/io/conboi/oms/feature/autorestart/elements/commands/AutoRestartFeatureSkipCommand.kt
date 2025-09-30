@@ -3,17 +3,17 @@ package io.conboi.oms.feature.autorestart.elements.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import io.conboi.oms.common.OMSFeatureManager
-import io.conboi.oms.common.elements.commands.OMSCommandEntry
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
-import io.conboi.oms.common.foundation.feature.FeatureInfo
 import io.conboi.oms.feature.autorestart.AutoRestartFeature
 import io.conboi.oms.feature.autorestart.content.SkipResult
+import io.conboi.oms.feature.autorestart.foundation.AutoRestartFeatureType
+import java.time.ZonedDateTime
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
-import java.time.ZonedDateTime
 
 class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
 
@@ -24,13 +24,13 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
 
     private fun skip(ctx: CommandContext<CommandSourceStack>): Int {
         val source = ctx.source
-        val feature = OMSFeatureManager.getFeatureByType<AutoRestartFeature>(FeatureInfo.Type.AUTO_RESTART)
-        val featureName = FeatureInfo.Type.AUTO_RESTART.name
+        val feature = OMSFeatureManager.getFeatureByType<AutoRestartFeature>(AutoRestartFeatureType)
+        val featureNameId = AutoRestartFeatureType.localizedNameId
         if (feature == null) {
             source.sendFailure(
                 Component.translatable(
                     "oms.command.feature.not_found",
-                    featureName
+                    Component.translatable(featureNameId)
                 )
             )
             return 0
@@ -40,7 +40,7 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
             source.sendFailure(
                 Component.translatable(
                     "oms.command.feature.not_enabled",
-                    featureName
+                    Component.translatable(featureNameId)
                 )
             )
             return 0

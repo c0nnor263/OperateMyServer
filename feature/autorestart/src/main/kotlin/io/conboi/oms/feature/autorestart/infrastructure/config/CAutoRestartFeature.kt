@@ -1,10 +1,14 @@
 package io.conboi.oms.feature.autorestart.infrastructure.config
 
 import io.conboi.oms.common.foundation.TimeFormatter
-import io.conboi.oms.common.infrastructure.config.FeatureConfigBase
+import io.conboi.oms.common.infrastructure.config.FeatureConfigImpl
 
-class CAutoRestartFeature : FeatureConfigBase() {
-    override val name: String = "auto_restart"
+class CAutoRestartFeature : FeatureConfigImpl() {
+    companion object {
+        const val NAME = "auto_restart"
+    }
+
+    override val name: String = NAME
 
     // TODO: Add minimal required interval between restarts to prevent too frequent restarts
     val restartTimes = list(
@@ -40,6 +44,8 @@ class CAutoRestartFeature : FeatureConfigBase() {
     }
 
     object Comments {
+        const val AUTO_RESTART =
+            "This feature allows the server to automatically restart at specified times or when certain conditions are met."
         const val RESTART_TIMES =
             "Times in 24-hour format on which the server will automatically restart\n" +
                     "e.g. [00:00, 06:00, 12:00, 18:00]"

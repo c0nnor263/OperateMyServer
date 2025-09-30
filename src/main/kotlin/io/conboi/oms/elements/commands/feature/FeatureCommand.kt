@@ -1,7 +1,7 @@
 package io.conboi.oms.elements.commands.feature
 
 import com.mojang.brigadier.builder.ArgumentBuilder
-import io.conboi.oms.common.elements.commands.OMSCommandEntry
+import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 

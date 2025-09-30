@@ -2,9 +2,8 @@ package io.conboi.oms.elements.commands.feature
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
-import io.conboi.oms.common.elements.commands.OMSCommandEntry
-import io.conboi.oms.common.foundation.feature.FeatureInfo
-import io.conboi.oms.feature.autorestart.elements.commands.AutoRestartFeatureSkipCommand
+import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.common.OMSFeatureManager
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 
@@ -14,15 +13,27 @@ class FeatureNameArgumentCommand : OMSCommandEntry() {
         return listOf(
             FeatureEnableCommand(),
             FeatureDisableCommand(),
-            AutoRestartFeatureSkipCommand()
         )
     }
 
     override fun init(): ArgumentBuilder<CommandSourceStack, *> {
-        return Commands.argument("featureName", StringArgumentType.word())
+        val featureArg = Commands.argument("featureName", StringArgumentType.word())
             .suggests { _, builder ->
-                FeatureInfo.Type.entries.forEach { builder.suggest(it.name) }
+                OMSFeatureManager.features.forEach { feature ->
+                    builder.suggest(feature.featureInfo.type.id)
+                }
                 builder.buildFuture()
             }
+
+        OMSFeatureManager.features.forEach { feature ->
+            val literal = Commands.literal(feature.featureInfo.type.id)
+
+            feature.getFeatureCommands().forEach { literal.then(it.build()) }
+
+            println("Registering feature command: ${feature.featureInfo.type.id}")
+            featureArg.then(literal)
+        }
+
+        return featureArg
     }
 }

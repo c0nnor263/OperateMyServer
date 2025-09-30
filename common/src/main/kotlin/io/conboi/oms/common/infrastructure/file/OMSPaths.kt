@@ -1,7 +1,7 @@
 package io.conboi.oms.common.infrastructure.file
 
-import net.minecraftforge.event.server.ServerStartedEvent
 import java.nio.file.Path
+import net.minecraft.server.MinecraftServer
 
 object OMSPaths {
     private var cachedRootPath: Path? = null
@@ -12,8 +12,8 @@ object OMSPaths {
 
     fun stopCause(): Path = root().resolve("stop_cause.json")
 
-    fun init(event: ServerStartedEvent) {
-        val rootPath = event.server.serverDirectory.toPath().resolve("oms")
+    fun init(server: MinecraftServer) {
+        val rootPath = server.serverDirectory.toPath().resolve("oms")
         cachedRootPath = rootPath
         if (!rootPath.toFile().exists()) {
             rootPath.toFile().mkdirs()

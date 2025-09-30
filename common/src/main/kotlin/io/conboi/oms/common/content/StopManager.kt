@@ -6,12 +6,13 @@ import io.conboi.oms.common.foundation.reason.StopReason
 import io.conboi.oms.common.infrastructure.OMSJson
 import io.conboi.oms.common.infrastructure.file.FileUtil
 import io.conboi.oms.common.infrastructure.file.OMSPaths
-import io.conboi.oms.common.infrastructure.file.StopEntry
+import io.conboi.oms.common.infrastructure.file.StopEntryLog
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
-import java.util.*
+import org.jetbrains.annotations.VisibleForTesting
 
 object StopManager {
+    const val HOOK_NAME = "StopManagerShutdownHook"
     private var explicitStopReason: StopReason? = null
 
     fun isServerStopping(): Boolean {
@@ -24,7 +25,7 @@ object StopManager {
                 if (explicitStopReason == null) {
                     writeReason(CrashStop)
                 }
-            }, this::class.java.name + " ShutdownHook")
+            }, HOOK_NAME)
         )
     }
 
@@ -37,8 +38,15 @@ object StopManager {
 
     fun writeReason(reason: StopReason) {
         explicitStopReason = reason
-        val entry = StopEntry(reason.name.uppercase(Locale.getDefault()), TimeHelper.currentTime.toString())
-        val content = OMSJson.encodeToString(StopEntry.serializer(), entry)
+        val reasonName = reason.name.uppercase()
+        val time = TimeHelper.currentTime.toString()
+        val entry = StopEntryLog(reasonName, time)
+        val content = OMSJson.encodeToString(StopEntryLog.serializer(), entry)
         FileUtil.writeSafe(OMSPaths.stopCause(), content)
+    }
+
+    @VisibleForTesting
+    fun clearReason() {
+        explicitStopReason = null
     }
 }

@@ -1,37 +1,41 @@
 package io.conboi.oms.feature.autorestart
 
+import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.foundation.feature.FeatureInfo
+import io.conboi.oms.api.foundation.feature.OmsFeature
 import io.conboi.oms.common.OperateMyServer
 import io.conboi.oms.common.content.StopManager
 import io.conboi.oms.common.foundation.CachedField
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
-import io.conboi.oms.common.foundation.feature.FeatureInfo
-import io.conboi.oms.common.foundation.feature.OmsFeature
 import io.conboi.oms.common.foundation.reason.ScheduledStop
 import io.conboi.oms.feature.autorestart.content.SkipResult
+import io.conboi.oms.feature.autorestart.elements.commands.AutoRestartFeatureSkipCommand
 import io.conboi.oms.feature.autorestart.infrastructure.config.CAutoRestartFeature
-import net.minecraft.network.chat.Component
-import net.minecraft.server.MinecraftServer
-import net.minecraftforge.event.TickEvent
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import kotlin.time.Duration
+import net.minecraft.network.chat.Component
+import net.minecraft.server.MinecraftServer
 
-internal class AutoRestartFeature(featureConfig: CAutoRestartFeature, featureInfo: FeatureInfo) :
-    OmsFeature<CAutoRestartFeature>(featureConfig, featureInfo) {
+internal class AutoRestartFeature(featureInfo: FeatureInfo) :
+    OmsFeature<CAutoRestartFeature>(featureInfo) {
     companion object {
         const val SKIP_OFFSET_SECONDS = 10L
         const val MAX_DAYS_FOR_LOOKAHEAD = 1L
     }
 
     private var isScheduledToSkip = false
+
+    // TODO: Maybe move to OmsFeature?
     private var isConfigurationUpdated = false
 
     val restartTimes: CachedField<List<String>, List<LocalTime>> =
         CachedField(
-            key = { featureConfig.restartTimes.get() },
+            key = { config.restartTimes.get() },
             value = {
-                featureConfig.restartTimes.get()
+                config.restartTimes.get()
                     .mapNotNull(TimeFormatter::parseToLocalTimeOrNull)
                     .sortedBy { it.toSecondOfDay() }
             },
@@ -43,11 +47,12 @@ internal class AutoRestartFeature(featureConfig: CAutoRestartFeature, featureInf
             }
         )
 
+
     val warningTimes: CachedField<List<String>, List<Duration>> =
         CachedField(
-            key = { featureConfig.warningTimes.get() },
+            key = { config.warningTimes.get() },
             value = {
-                featureConfig.warningTimes.get()
+                config.warningTimes.get()
                     .mapNotNull(TimeFormatter::parseToDurationOrNull)
                     .sortedByDescending { it.inWholeSeconds }
             },
@@ -62,7 +67,11 @@ internal class AutoRestartFeature(featureConfig: CAutoRestartFeature, featureInf
             value = ::initRestartTimeTarget
         )
 
-    override fun onServerTick(event: TickEvent.ServerTickEvent) {
+    override fun getFeatureCommands(): List<OMSCommandEntry> = listOf(
+        AutoRestartFeatureSkipCommand()
+    )
+
+    override fun onOmsTick(event: OMSLifecycle.TickingEvent) {
         val server = event.server
         val now = TimeHelper.currentTime
         val remainingSec = TimeHelper.secondsBetween(now, restartTimeTarget.get())
@@ -109,7 +118,9 @@ internal class AutoRestartFeature(featureConfig: CAutoRestartFeature, featureInf
         }
         val closestTime = TimeHelper.closest(now, candidates)
         return if (closestTime == null && maxDaysLookahead > 0) {
-            pickClosestTarget(times, now.plusDays(1), maxDaysLookahead - 1)
+            val tomorrow = now.plusDays(1)
+                .withHour(0).withMinute(0).withSecond(0).withNano(0)
+            pickClosestTarget(times, tomorrow, maxDaysLookahead - 1)
         } else {
             closestTime
         } ?: error("cannot pick closest target")
@@ -124,6 +135,7 @@ internal class AutoRestartFeature(featureConfig: CAutoRestartFeature, featureInf
             }
         }
     }
+
     private fun sendWarning(server: MinecraftServer, duration: Duration) {
         server.playerList.broadcastSystemMessage(
             Component.translatable("oms.warning.restart", TimeFormatter.formatDuration(duration)),

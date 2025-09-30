@@ -1,5 +1,7 @@
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.hypherionmc.modpublisher.properties.CurseEnvironment
+import com.hypherionmc.modpublisher.properties.ModLoader
 
 plugins {
     alias(libs.plugins.kotlin)
@@ -7,6 +9,7 @@ plugins {
     alias(libs.plugins.benManesVersions)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.kotest)
+    alias(libs.plugins.modPublisher)
     idea
 }
 apply<ModDevPlugin>()
@@ -23,10 +26,11 @@ group = modGroupId
 version = "${modVersion}+mc${libs.versions.minecraft.get()}"
 
 val dependentProjects = rootProject.subprojects.filter {
-    it.path != project.path && (
-            it.path == ":common" || it.path.startsWith(":feature:")
-            )
-}
+    it.path != project.path && (it.path.startsWith(":feature:"))
+} + listOf(
+    rootProject.project(":oms-api"),
+    rootProject.project(":common")
+)
 val mergedLangDir = layout.buildDirectory.dir("generated/resources/assets/$modId/lang")
 
 dependentProjects.forEach {
@@ -73,8 +77,6 @@ legacyForge {
             programArgument("-mixin.config=$modId.mixins.json")
             systemProperty("mixin.env.remapRefMap", "true")
             systemProperty("mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg")
-            // TODO: Test
-            systemProperty("debug", "true")
         }
 
         create("client") {
@@ -84,7 +86,6 @@ legacyForge {
 
         create("server") {
             server()
-//            programArgument("--nogui")
             systemProperty("forge.enabledGameTestNamespaces", modId)
         }
 
@@ -224,4 +225,29 @@ val mergeLangFiles by tasks.registering {
 
         println("✅ Locales merged: ${localeToEntries.keys}")
     }
+}
+
+publisher {
+    apiKeys {
+        curseforge(System.getenv("CURSE_FORGE_API_KEY"))
+//        modrinth(System.getenv("MODRINTH_API_KEY"))
+    }
+
+    curseID.set("1341025")
+//    modrinthID.set("")
+    versionType.set("release")
+    changelog.set(file("CHANGELOG.md"))
+    version.set(project.version.toString())
+    displayName.set("$modDisplayName $modVersion")
+    setGameVersions(libs.versions.minecraft.get())
+    setLoaders(ModLoader.FORGE, ModLoader.NEOFORGE)
+    setCurseEnvironment(CurseEnvironment.SERVER)
+    artifact.set("build/libs/${base.archivesName.get()}-${project.version}.jar")
+
+    curseDepends {
+        required("kotlin-for-forge")
+    }
+//    modrinthDepends {
+//        required("kotlin-for-forge")
+//    }
 }

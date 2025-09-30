@@ -4,8 +4,8 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import io.conboi.oms.common.OMSFeatureManager
-import io.conboi.oms.common.elements.commands.OMSCommandEntry
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
@@ -20,7 +20,7 @@ class FeatureEnableCommand : OMSCommandEntry() {
     private fun enableFeature(ctx: CommandContext<CommandSourceStack>): Int {
         val name = StringArgumentType.getString(ctx, "featureName")
         val source = ctx.source
-        val feature = OMSFeatureManager.getFeatureByName(name)
+        val feature = OMSFeatureManager.getFeatureById(name)
 
         if (feature == null) {
             source.sendFailure(Component.translatable("oms.command.feature.not_found", name))

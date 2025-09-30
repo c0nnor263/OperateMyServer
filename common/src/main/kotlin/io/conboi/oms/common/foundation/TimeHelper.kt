@@ -20,10 +20,4 @@ object TimeHelper {
     fun closest(now: ZonedDateTime, candidates: List<ZonedDateTime>): ZonedDateTime? {
         return candidates.firstOrNull { it.isAfter(now) }
     }
-
-    fun isSameTime(dt1: ZonedDateTime?, dt2: ZonedDateTime?, toleranceSeconds: Long = 1): Boolean {
-        if (dt1 == null || dt2 == null) return false
-        val diff = secondsBetween(dt1, dt2)
-        return kotlin.math.abs(diff) <= toleranceSeconds
-    }
 }

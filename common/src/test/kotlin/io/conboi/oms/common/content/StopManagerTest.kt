@@ -1,28 +1,59 @@
 package io.conboi.oms.common.content
 
 import io.conboi.oms.common.foundation.TimeHelper
+import io.conboi.oms.common.foundation.reason.CrashStop
 import io.conboi.oms.common.foundation.reason.StopReason
 import io.conboi.oms.common.infrastructure.OMSJson
 import io.conboi.oms.common.infrastructure.file.FileUtil
 import io.conboi.oms.common.infrastructure.file.OMSPaths
-import io.conboi.oms.common.infrastructure.file.StopEntry
+import io.conboi.oms.common.infrastructure.file.StopEntryLog
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.Runs
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.unmockkObject
 import io.mockk.verify
+import java.nio.file.Files
+import java.nio.file.Path
+import java.time.ZonedDateTime
 import net.minecraft.server.MinecraftServer
 
 class StopManagerTest : FunSpec({
 
+    lateinit var tempDir: Path
+    lateinit var stopCausePath: Path
+
+    val mockReason = mockk<StopReason>()
+    val mockZonedDateTime = mockk<ZonedDateTime>(relaxed = true)
+
+
+    beforeEach {
+        tempDir = Files.createTempDirectory("oms_test")
+        stopCausePath = tempDir.toFile().toPath().resolve("oms").resolve("stop_cause.json")
+
+        StopManager.clearReason()
+
+        mockkObject(OMSJson)
+        mockkObject(TimeHelper)
+        mockkObject(OMSPaths)
+        mockkObject(FileUtil)
+        every { OMSJson.encodeToString(StopEntryLog.serializer(), any()) } returns "json"
+        every { TimeHelper.currentTime } returns mockZonedDateTime
+
+        every { OMSPaths.stopCause() } returns stopCausePath
+        every { FileUtil.writeSafe(stopCausePath, any()) } just Runs
+        every { mockReason.name } returns "test_reason"
+        every { mockReason.messageId } returns "oms.stopping.test_reason"
+    }
+
     afterEach {
-        clearAllMocks()
+        tempDir.toFile().deleteRecursively()
+        unmockkObject(StopManager, OMSJson, TimeHelper, OMSPaths, FileUtil)
     }
 
     context("isServerStopping") {
@@ -31,32 +62,7 @@ class StopManagerTest : FunSpec({
         }
 
         test("should return true when explicit reason is set") {
-            val mockTime = "2024-01-01T00:00:00Z"
-            val reason = mockk<StopReason> {
-                every { name } returns "TestReason"
-            }
-            val mockPath
-            mockkObject(TimeHelper)
-            every { TimeHelper.currentTime } returns mockk {
-                every { toString() } returns mockTime
-            }
-            mockkObject(OMSJson)
-            mockkObject(FileUtil)
-            mockkObject(OMSPaths)
-            val entry = StopEntry("TESTREASON", mockTime)
-            every { OMSJson.encodeToString(StopEntry.serializer(), entry) } returns "json"
-            every { OMSPaths.stopCause() } returns "path"
-            every { FileUtil.writeSafe("path", "json") } just Runs
-
-            StopManager.writeReason(reason)
-
-            verify { FileUtil.writeSafe("path", "json") }
-            unmockkObject(TimeHelper, OMSJson, FileUtil, OMSPaths)
-
-
-
-            val reason = mockk<StopReason>()
-            StopManager.writeReason(reason)
+            StopManager.writeReason(mockReason)
             StopManager.isServerStopping() shouldBe true
         }
     }
@@ -65,35 +71,89 @@ class StopManagerTest : FunSpec({
         test("should add shutdown hook") {
             mockkStatic(Runtime::class)
             val runtime = mockk<Runtime>(relaxed = true)
+            val slot = slot<Thread>()
+
             every { Runtime.getRuntime() } returns runtime
-            every { runtime.addShutdownHook(any()) } just Runs
+            every { runtime.addShutdownHook(capture(slot)) } just Runs
 
             StopManager.installHook()
 
-            verify { runtime.addShutdownHook(any()) }
+            slot.captured.name shouldBe StopManager.HOOK_NAME
+            verify { runtime.addShutdownHook(slot.captured) }
+        }
+
+        @Suppress("CallToThreadRun")
+        test("should write CrashStop when no explicit reason") {
+            mockkStatic(Runtime::class)
+            val runtime = mockk<Runtime>(relaxed = true)
+            val slot = slot<Thread>()
+
+            every { Runtime.getRuntime() } returns runtime
+            every { runtime.addShutdownHook(capture(slot)) } just Runs
+            mockkObject(StopManager)
+            every { StopManager.writeReason(any()) } just Runs
+            StopManager.isServerStopping() shouldBe false
+
+            StopManager.installHook()
+
+            slot.captured.run()
+
+            verify { StopManager.writeReason(ofType<CrashStop>()) }
+        }
+
+        @Suppress("CallToThreadRun")
+        test("should not write CrashStop when explicit reason is present") {
+            mockkStatic(Runtime::class)
+            val runtime = mockk<Runtime>(relaxed = true)
+            val slot = slot<Thread>()
+            every { Runtime.getRuntime() } returns runtime
+            every { runtime.addShutdownHook(capture(slot)) } just Runs
+
+            mockkObject(StopManager)
+            StopManager.writeReason(mockReason)
+            every { StopManager.writeReason(any()) } just Runs
+            StopManager.isServerStopping() shouldBe true
+
+            StopManager.installHook()
+
+            slot.captured.run()
+
+            verify(inverse = true) { StopManager.writeReason(ofType<CrashStop>()) }
         }
     }
 
     context("stop") {
         test("should broadcast message and halt server") {
             val server = mockk<MinecraftServer>(relaxed = true)
-            val reason = mockk<StopReason> {
-                every { messageId } returns "stop.message"
-            }
             mockkObject(StopManager)
-            every { StopManager.writeReason(reason) } just Runs
+            every { StopManager.writeReason(mockReason) } just Runs
 
-            StopManager.stop(server, reason)
+            StopManager.stop(server, mockReason)
 
-            verify { StopManager.writeReason(reason) }
-            verify { server.playerList.broadcastSystemMessage(any(), false) }
+            verify { StopManager.writeReason(mockReason) }
+            verify {
+                server.playerList.broadcastSystemMessage(
+                    match { it.string.contains("oms.stopping.test_reason") },
+                    false
+                )
+            }
             verify { server.halt(false) }
         }
     }
 
     context("writeReason") {
         test("should write stop reason to file") {
+            StopManager.writeReason(mockReason)
 
+            val expectedName = mockReason.name.uppercase()
+            val expectedTime = mockZonedDateTime.toString()
+            verify {
+                OMSJson.encodeToString(StopEntryLog.serializer(), withArg {
+                    it.reason shouldBe expectedName
+                    it.time shouldBe expectedTime
+                })
+            }
+            verify { FileUtil.writeSafe(stopCausePath, any()) }
         }
     }
 })

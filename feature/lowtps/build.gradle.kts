@@ -21,6 +21,7 @@ legacyForge {
 }
 
 dependencies {
+    implementation(projects.omsApi)
     implementation(projects.common)
 
     implementation(libs.kotlinforforge)
