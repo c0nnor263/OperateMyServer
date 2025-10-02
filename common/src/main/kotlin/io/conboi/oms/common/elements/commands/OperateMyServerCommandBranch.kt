@@ -1,16 +1,16 @@
-package io.conboi.oms.elements.commands
+package io.conboi.oms.common.elements.commands
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import io.conboi.oms.api.elements.commands.OMSCommandBranch
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.common.elements.commands.feature.FeatureCommand
 import io.conboi.oms.common.elements.commands.utilities.RestartCommand
-import io.conboi.oms.elements.commands.feature.FeatureCommand
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 
 
-class OperateMyServerCommandBranch : OMSCommandBranch() {
+internal class OperateMyServerCommandBranch : OMSCommandBranch() {
     override fun getCommands(): List<OMSCommandEntry> {
         return listOf(
             RestartCommand(),

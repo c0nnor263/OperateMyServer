@@ -41,6 +41,7 @@ internal object StopManager {
         explicitStopReason = reason
         val reasonName = reason.name.uppercase()
         val reasonMessage = Component.translatable(reason.messageId).string
+
         val time = TimeHelper.currentTime.toString()
         val entry = StopEntryLog(reasonName, reasonMessage, time)
         val content = OMSJson.encodeToString(StopEntryLog.serializer(), entry)

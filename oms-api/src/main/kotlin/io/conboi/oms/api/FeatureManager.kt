@@ -2,7 +2,6 @@ package io.conboi.oms.api
 
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.TickTimer
-import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.FeatureRegistry
 import io.conboi.oms.api.foundation.feature.OmsFeature
 
@@ -53,7 +52,7 @@ abstract class FeatureManager : FeatureRegistry {
      */
     override fun register(feature: OmsFeature<*>) {
         check(!frozen) { "Cannot register features after server has started!" }
-        val id = feature.featureInfo.type.id
+        val id = feature.info.id
         require(!registry.containsKey(id)) {
             "Feature '$id' already registered"
         }
@@ -68,15 +67,12 @@ abstract class FeatureManager : FeatureRegistry {
     fun freeze() {
         if (frozen) return
         frozen = true
-        prioritizedFeatures = registry.values.sortedByDescending { it.featureInfo.priority }
+        prioritizedFeatures = registry.values.sortedByDescending { it.info.priority }
     }
 
-
     @Suppress("UNCHECKED_CAST")
-    fun <T : OmsFeature<*>> getFeatureByType(type: FeatureInfo.Type): T? = registry[type.id] as? T?
-
-    fun getFeatureById(id: String): OmsFeature<*>? {
-        return registry[id]
+    fun <T : OmsFeature<*>> getFeatureById(id: String): T? {
+        return registry[id] as? T?
     }
 
     open fun onStartingEvent(event: OMSLifecycle.StartingEvent) {

@@ -11,10 +11,10 @@ import net.minecraftforge.fml.common.Mod
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 @Mod.EventBusSubscriber(modid = OperateMyServer.MOD_ID)
-object ServerLifecycleEvents {
+internal object ServerLifecycleEvents {
     @SubscribeEvent
     fun onServerStarted(event: ServerStartedEvent) {
-        FORGE_BUS.post(OMSLifecycleInternal.ServerReadyEvent(event.server))
+        FORGE_BUS.post(OMSLifecycleInternal.Server.ReadyEvent(event.server))
     }
 
     @SubscribeEvent
@@ -30,6 +30,6 @@ object ServerLifecycleEvents {
 
     @SubscribeEvent
     fun onServerStopping(event: ServerStoppingEvent) {
-        FORGE_BUS.post(OMSLifecycleInternal.ServerPreShutdownEvent(event.server))
+        FORGE_BUS.post(OMSLifecycleInternal.Server.PreShutdownEvent(event.server))
     }
 }

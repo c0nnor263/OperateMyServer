@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
-class OverrideStopCommand {
+internal class OverrideStopCommand {
     fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
         dispatcher.root.children.removeIf { it.name == "stop" }
 

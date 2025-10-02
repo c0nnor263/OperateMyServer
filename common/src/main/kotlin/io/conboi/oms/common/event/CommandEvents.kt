@@ -1,19 +1,18 @@
-package io.conboi.oms.event
+package io.conboi.oms.common.event
 
 import io.conboi.oms.api.OperateMyServer
+import io.conboi.oms.common.elements.commands.OperateMyServerCommandBranch
 import io.conboi.oms.common.elements.commands.vanilla.OverrideStopCommand
-import io.conboi.oms.common.event.OMSLifecycleInternal
-import io.conboi.oms.elements.commands.OperateMyServerCommandBranch
 import net.minecraftforge.event.RegisterCommandsEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 @Mod.EventBusSubscriber(modid = OperateMyServer.MOD_ID)
-object CommandEvents {
+internal object CommandEvents {
     @SubscribeEvent
     fun onRegisterCommands(event: RegisterCommandsEvent) {
-        FORGE_BUS.post(OMSLifecycleInternal.RegisterFeaturesEvent())
+        FORGE_BUS.post(OMSLifecycleInternal.Feature.RegisterEvent())
         OperateMyServerCommandBranch().register(event.dispatcher)
         OverrideStopCommand().register(event.dispatcher)
     }

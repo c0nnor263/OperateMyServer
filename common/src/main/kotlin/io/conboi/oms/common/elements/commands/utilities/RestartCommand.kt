@@ -9,7 +9,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-class RestartCommand: OMSCommandEntry() {
+internal class RestartCommand : OMSCommandEntry() {
     override fun init(): ArgumentBuilder<CommandSourceStack, *> {
         return Commands.literal("restart")
             .executes { ctx ->

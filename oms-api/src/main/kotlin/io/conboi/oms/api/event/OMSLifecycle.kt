@@ -6,9 +6,11 @@ import net.minecraftforge.eventbus.api.Event
 
 // TODO: Think about whole Feature lifecycle
 abstract class OMSLifecycle() : Event() {
-    data object RegisterFeaturesConfigEvent : OMSLifecycle()
 
-    data object RegisterFeaturesEvent : OMSLifecycle()
+    object Feature {
+        class RegisterConfigEvent : OMSLifecycle()
+        class RegisterEvent : OMSLifecycle()
+    }
 
     data class StartingEvent(
         val server: MinecraftServer,

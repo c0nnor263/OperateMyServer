@@ -1,8 +1,8 @@
 package io.conboi.oms.feature.lowtps.foundation
 
 import io.conboi.oms.common.foundation.TimeHelper
-import net.minecraft.server.MinecraftServer
 import kotlin.time.Duration
+import net.minecraft.server.MinecraftServer
 
 internal object TpsMonitor {
     private val history = ArrayDeque<TpsSnapshot>()

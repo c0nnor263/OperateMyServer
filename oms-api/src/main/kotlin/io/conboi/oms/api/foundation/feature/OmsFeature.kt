@@ -5,13 +5,12 @@ import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.infrastructure.config.FeatureConfig
 
 
-abstract class OmsFeature<out T : FeatureConfig>(
-    //TODO Move to init parameter
-    val featureInfo: FeatureInfo
-) {
+abstract class OmsFeature<out T : FeatureConfig> {
     private var _config: T? = null
     val config: T
         get() = _config ?: throw IllegalStateException("Feature config is not initialized yet.")
+
+    abstract val info: FeatureInfo
 
     fun isEnabled(): Boolean = config.isEnabled()
 

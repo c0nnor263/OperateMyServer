@@ -15,8 +15,12 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-internal class EmptyServerRestartFeature(featureInfo: FeatureInfo) :
-    OmsFeature<CEmptyServerRestartFeature>(featureInfo) {
+internal class EmptyServerRestartFeature : OmsFeature<CEmptyServerRestartFeature>() {
+
+    override val info: FeatureInfo = FeatureInfo(
+        id = CEmptyServerRestartFeature.NAME,
+        priority = FeatureInfo.Priority.COMMON
+    )
 
     val countTime: CachedField<String, Duration> = CachedField(
         key = { config.countTime.get() },
@@ -27,6 +31,7 @@ internal class EmptyServerRestartFeature(featureInfo: FeatureInfo) :
     )
 
     private var emptyServerTime: ZonedDateTime? = null
+
 
     override fun onOmsTick(event: OMSLifecycle.TickingEvent) {
         val server = event.server

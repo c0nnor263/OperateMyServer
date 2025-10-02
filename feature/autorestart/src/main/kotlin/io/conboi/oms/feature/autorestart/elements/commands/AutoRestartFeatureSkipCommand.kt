@@ -9,7 +9,7 @@ import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.feature.autorestart.AutoRestartFeature
 import io.conboi.oms.feature.autorestart.content.SkipResult
-import io.conboi.oms.feature.autorestart.foundation.AutoRestartFeatureType
+import io.conboi.oms.feature.autorestart.infrastructure.config.CAutoRestartFeature
 import java.time.ZonedDateTime
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -24,13 +24,13 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
 
     private fun skip(ctx: CommandContext<CommandSourceStack>): Int {
         val source = ctx.source
-        val feature = OMSFeatureManagers.oms.getFeatureByType<AutoRestartFeature>(AutoRestartFeatureType)
-        val featureNameId = AutoRestartFeatureType.localizedNameId
+        val feature = OMSFeatureManagers.oms.getFeatureById<AutoRestartFeature>(CAutoRestartFeature.NAME)
+        val featureName = feature?.info?.id ?: CAutoRestartFeature.NAME
         if (feature == null) {
             source.sendFailure(
                 Component.translatable(
                     "oms.command.feature.not_found",
-                    Component.translatable(featureNameId)
+                    Component.translatable(featureName)
                 )
             )
             return 0
@@ -40,7 +40,7 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
             source.sendFailure(
                 Component.translatable(
                     "oms.command.feature.not_enabled",
-                    Component.translatable(featureNameId)
+                    Component.translatable(featureName)
                 )
             )
             return 0

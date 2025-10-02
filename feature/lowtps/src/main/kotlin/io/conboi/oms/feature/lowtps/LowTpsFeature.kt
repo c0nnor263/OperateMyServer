@@ -12,8 +12,12 @@ import io.conboi.oms.feature.lowtps.infrastructure.config.CLowTpsFeature
 import kotlin.time.Duration
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-internal class LowTpsFeature(featureInfo: FeatureInfo) :
-    OmsFeature<CLowTpsFeature>(featureInfo) {
+internal class LowTpsFeature : OmsFeature<CLowTpsFeature>() {
+
+    override val info: FeatureInfo = FeatureInfo(
+        id = CLowTpsFeature.NAME,
+        priority = FeatureInfo.Priority.CRITICAL
+    )
 
     val tpsCountTime: CachedField<String, Duration> = CachedField(
         key = { config.tpsCountTime.get() },

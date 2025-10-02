@@ -3,7 +3,7 @@ package io.conboi.oms.feature.emptyserverrestart.event
 import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.OperateMyServer
 import io.conboi.oms.feature.emptyserverrestart.EmptyServerRestartFeature
-import io.conboi.oms.feature.emptyserverrestart.foundation.EmptyServerRestartFeatureType
+import io.conboi.oms.feature.emptyserverrestart.infrastructure.config.CEmptyServerRestartFeature
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -14,7 +14,7 @@ internal object EmptyServerRestartEvents {
 
     @SubscribeEvent
     fun onPlayerLoggedIn(event: PlayerEvent.PlayerLoggedInEvent) {
-        val feature = OMSFeatureManagers.oms.getFeatureByType<EmptyServerRestartFeature>(EmptyServerRestartFeatureType)
+        val feature = OMSFeatureManagers.oms.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
         feature?.clearTime()
         println("Player logged in, cleared empty server timer $feature")
     }
@@ -28,7 +28,7 @@ internal object EmptyServerRestartEvents {
         // TODO: Maybe introduce some options regarding player count threshold
         if (playerCount <= 1) { // because the player who just logged out is still counted in playerCount
             val feature =
-                OMSFeatureManagers.oms.getFeatureByType<EmptyServerRestartFeature>(EmptyServerRestartFeatureType)
+                OMSFeatureManagers.oms.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
             feature?.initTime()
             println("No players online, started empty server timer $feature")
         }

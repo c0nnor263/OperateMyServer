@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.Mod
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 @Mod.EventBusSubscriber(modid = OperateMyServer.MOD_ID)
-object OMSLifecycleListener {
+internal object OMSLifecycleListener {
 
     @SubscribeEvent
     fun onStopRequestedEvent(event: OMSLifecycle.StopRequestedEvent) {
@@ -18,19 +18,19 @@ object OMSLifecycleListener {
     }
 
     @SubscribeEvent
-    fun onRegisterFeaturesEvent(event: OMSLifecycleInternal.RegisterFeaturesEvent) {
-        FORGE_BUS.post(OMSLifecycle.RegisterFeaturesEvent)
+    fun onRegisterFeaturesEvent(event: OMSLifecycleInternal.Feature.RegisterEvent) {
+        FORGE_BUS.post(OMSLifecycle.Feature.RegisterEvent())
         OMSFeatureManagers.runForEach {
             freeze()
         }
     }
 
     @SubscribeEvent
-    fun onServerReadyEvent(event: OMSLifecycleInternal.ServerReadyEvent) {
+    fun onServerReadyEvent(event: OMSLifecycleInternal.Server.ReadyEvent) {
         StopManager.installHook()
         OMSPaths.init(event.server)
 
-        FORGE_BUS.post(OMSLifecycle.RegisterFeaturesConfigEvent)
+        FORGE_BUS.post(OMSLifecycle.Feature.RegisterConfigEvent())
 
         val startingEvent = OMSLifecycle.StartingEvent(event.server)
         OMSFeatureManagers.runForEach {
@@ -47,7 +47,7 @@ object OMSLifecycleListener {
     }
 
     @SubscribeEvent
-    fun onServerPreShutdownEvent(event: OMSLifecycleInternal.ServerPreShutdownEvent) {
+    fun onServerPreShutdownEvent(event: OMSLifecycleInternal.Server.PreShutdownEvent) {
         val stoppingEvent = OMSLifecycle.StoppingEvent(event.server)
         FORGE_BUS.post(stoppingEvent)
         OMSFeatureManagers.runForEach {

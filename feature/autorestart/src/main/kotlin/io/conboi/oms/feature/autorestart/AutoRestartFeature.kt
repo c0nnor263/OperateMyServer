@@ -19,12 +19,16 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-internal class AutoRestartFeature(featureInfo: FeatureInfo) :
-    OmsFeature<CAutoRestartFeature>(featureInfo) {
+internal class AutoRestartFeature : OmsFeature<CAutoRestartFeature>() {
     companion object {
         const val SKIP_OFFSET_SECONDS = 10L
         const val MAX_DAYS_FOR_LOOKAHEAD = 1L
     }
+
+    override val info: FeatureInfo = FeatureInfo(
+        id = CAutoRestartFeature.NAME,
+        priority = FeatureInfo.Priority.COMMON
+    )
 
     private var isScheduledToSkip = false
 
@@ -154,15 +158,19 @@ internal class AutoRestartFeature(featureInfo: FeatureInfo) :
         }
     }
 
+    private fun getNextRestartTime(): ZonedDateTime {
+        val futureTarget = restartTimeTarget.get().plusSeconds(SKIP_OFFSET_SECONDS)
+        return pickClosestTarget(restartTimes.get(), futureTarget)
+    }
+
     internal fun skip(): SkipResult {
         val current = restartTimeTarget.get()
+        val nextTarget = getNextRestartTime()
         if (isScheduledToSkip) {
-            return SkipResult.AlreadySkipped(next = current)
+            return SkipResult.AlreadySkipped(next = nextTarget)
         }
 
         isScheduledToSkip = true
-        val futureTarget = restartTimeTarget.get().plusSeconds(SKIP_OFFSET_SECONDS)
-        val nextTarget = pickClosestTarget(restartTimes.get(), futureTarget)
         return SkipResult.Skipped(skipped = current, next = nextTarget)
     }
 }
