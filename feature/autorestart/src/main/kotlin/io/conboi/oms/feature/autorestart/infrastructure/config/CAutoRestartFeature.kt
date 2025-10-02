@@ -3,9 +3,7 @@ package io.conboi.oms.feature.autorestart.infrastructure.config
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.infrastructure.config.FeatureConfigImpl
 
-fun w() {
-    CAutoRestartFeature.NAME
-}
+
 class CAutoRestartFeature : FeatureConfigImpl() {
     companion object {
         const val NAME = "auto_restart"
