@@ -1,8 +1,9 @@
 package io.conboi.oms.common.content
 
+import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.foundation.reason.StopReason
 import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.foundation.reason.CrashStop
-import io.conboi.oms.common.foundation.reason.StopReason
 import io.conboi.oms.common.infrastructure.OMSJson
 import io.conboi.oms.common.infrastructure.file.FileUtil
 import io.conboi.oms.common.infrastructure.file.OMSPaths
@@ -127,8 +128,9 @@ class StopManagerTest : FunSpec({
             val server = mockk<MinecraftServer>(relaxed = true)
             mockkObject(StopManager)
             every { StopManager.writeReason(mockReason) } just Runs
+            val event = OMSLifecycle.StopRequestedEvent(server, mockReason)
 
-            StopManager.stop(server, mockReason)
+            StopManager.stop(event)
 
             verify { StopManager.writeReason(mockReason) }
             verify {

@@ -4,12 +4,11 @@ import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
-import io.conboi.oms.common.OperateMyServer
-import io.conboi.oms.common.content.StopManager
 import io.conboi.oms.common.foundation.CachedField
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.foundation.reason.ScheduledStop
+import io.conboi.oms.common.infrastructure.LOG
 import io.conboi.oms.feature.autorestart.content.SkipResult
 import io.conboi.oms.feature.autorestart.elements.commands.AutoRestartFeatureSkipCommand
 import io.conboi.oms.feature.autorestart.infrastructure.config.CAutoRestartFeature
@@ -18,6 +17,7 @@ import java.time.ZonedDateTime
 import kotlin.time.Duration
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
+import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 internal class AutoRestartFeature(featureInfo: FeatureInfo) :
     OmsFeature<CAutoRestartFeature>(featureInfo) {
@@ -104,7 +104,7 @@ internal class AutoRestartFeature(featureInfo: FeatureInfo) :
     private fun initRestartTimeTarget(): ZonedDateTime {
         val restartTimes = restartTimes.get()
         return pickClosestTarget(restartTimes).also {
-            OperateMyServer.LOGGER.debug("Next restart time is set to {}", it)
+            LOG.debug("Next restart time is set to {}", it)
         }
     }
 
@@ -150,7 +150,7 @@ internal class AutoRestartFeature(featureInfo: FeatureInfo) :
                 isScheduledToSkip = false
                 return
             }
-            StopManager.stop(server, ScheduledStop)
+            FORGE_BUS.post(OMSLifecycle.StopRequestedEvent(server, ScheduledStop))
         }
     }
 

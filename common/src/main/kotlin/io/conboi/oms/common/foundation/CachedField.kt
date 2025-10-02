@@ -18,7 +18,9 @@ data class CachedField<K, V>(
                 error("Value validation failed")
             }
 
-            onUpdate?.invoke(cachedValue, newValue)
+            if (cachedValue != null) {
+                onUpdate?.invoke(cachedValue, newValue)
+            }
             cachedValue = newValue
         }
         return cachedValue ?: throw IllegalStateException("Cached value is not initialized")

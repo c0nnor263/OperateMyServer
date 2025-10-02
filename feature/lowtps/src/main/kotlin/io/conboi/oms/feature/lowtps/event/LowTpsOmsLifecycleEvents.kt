@@ -1,9 +1,9 @@
 package io.conboi.oms.feature.lowtps.event
 
+import io.conboi.oms.api.OMSFeatureManagers
+import io.conboi.oms.api.OperateMyServer
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
-import io.conboi.oms.common.OMSFeatureManager
-import io.conboi.oms.common.OperateMyServer
 import io.conboi.oms.common.infrastructure.config.CServer
 import io.conboi.oms.feature.lowtps.LowTpsFeature
 import io.conboi.oms.feature.lowtps.foundation.LowTpsFeatureType
@@ -21,13 +21,13 @@ internal object LowTpsOmsLifecycleEvents {
             priority = FeatureInfo.Priority.CRITICAL
         )
         val feature = LowTpsFeature(info)
-        event.registry.register(feature)
+        OMSFeatureManagers.oms.register(feature)
     }
 
     @SubscribeEvent
     fun onRegisterFeaturesConfigEvent(event: OMSLifecycle.RegisterFeaturesConfigEvent) {
         val config = CServer.features.getFeatureConfig<CLowTpsFeature>(CLowTpsFeature.NAME)
-        val feature = OMSFeatureManager.getFeatureByType<LowTpsFeature>(LowTpsFeatureType)
+        val feature = OMSFeatureManagers.oms.getFeatureByType<LowTpsFeature>(LowTpsFeatureType)
         feature?.onOmsRegisterConfig(config)
     }
 }

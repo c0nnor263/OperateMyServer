@@ -3,8 +3,8 @@ package io.conboi.oms.feature.autorestart.elements.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
-import io.conboi.oms.common.OMSFeatureManager
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.feature.autorestart.AutoRestartFeature
@@ -24,7 +24,7 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
 
     private fun skip(ctx: CommandContext<CommandSourceStack>): Int {
         val source = ctx.source
-        val feature = OMSFeatureManager.getFeatureByType<AutoRestartFeature>(AutoRestartFeatureType)
+        val feature = OMSFeatureManagers.oms.getFeatureByType<AutoRestartFeature>(AutoRestartFeatureType)
         val featureNameId = AutoRestartFeatureType.localizedNameId
         if (feature == null) {
             source.sendFailure(

@@ -1,11 +1,8 @@
 #!/bin/bash
 
 ### === SETTINGS ===
-# Path to Java
 JAVA_EXE="java"
-# JVM args
 JAVA_ARGS="@user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.4.0/unix_args.txt"
-# File with stop cause written by OMS
 CAUSE_FILE="oms/stop_cause.json"
 
 ### === FUNCTIONS ===
@@ -18,49 +15,32 @@ start_server() {
 
 read_cause() {
   if [[ -f "$CAUSE_FILE" ]]; then
-    LAST_REASON=$(jq -r '.reason' "$CAUSE_FILE" 2>/dev/null)
-    echo "[OMS] Last reason: $LAST_REASON"
+    LAST_REASON=$(jq -r '.reason // "UNKNOWN"' "$CAUSE_FILE" 2>/dev/null)
+    LAST_MESSAGE=$(jq -r '.message // "No message provided."' "$CAUSE_FILE" 2>/dev/null)
+    echo "[OMS] Reason: $LAST_REASON"
+    echo "[OMS] Message: $LAST_MESSAGE"
     rm -f "$CAUSE_FILE"
   else
-    LAST_REASON=""
+    LAST_REASON="CRASH"
+    LAST_MESSAGE="Cause file not found. Possible crash or force exit."
+    echo "[OMS] Reason: $LAST_REASON"
+    echo "[OMS] Message: $LAST_MESSAGE"
   fi
 }
 
 ### === MAIN LOOP ===
+
 while true; do
   start_server
   read_cause
 
-  case "$LAST_REASON" in
-    STOP)
-      echo "[OMS] STOP detected. Exiting loop."
-      break
-      ;;
-    SCHEDULED)
-      echo "[OMS] Scheduled restart. Relaunch in 5 seconds..."
-      sleep 5
-      ;;
-    MANUAL)
-      echo "[OMS] Manual restart. Relaunch in 5 seconds..."
-      sleep 5
-      ;;
-    CRASH)
-      echo "[OMS] Crash restart. Relaunch in 5 seconds..."
-      sleep 5
-      ;;
-    UNKNOWN)
-      echo "[OMS] UNKNOWN reason. Relaunch in 5 seconds..."
-      sleep 5
-      ;;
-    "")
-      echo "[OMS] Cause file not found. CRASH assumed. Relaunch in 5 seconds..."
-      sleep 5
-      ;;
-    *)
-      echo "[OMS] Unknown reason '$LAST_REASON'. Treating as CRASH. Relaunch in 5 seconds..."
-      sleep 5
-      ;;
-  esac
+  if [[ "$LAST_REASON" == "STOP" ]]; then
+    echo "[OMS] Detected STOP. Exiting loop."
+    break
+  fi
+
+  echo "[OMS] Relaunching server in 5 seconds..."
+  sleep 5
 done
 
-echo "[OMS] Done"
+echo "[OMS] Server script finished."

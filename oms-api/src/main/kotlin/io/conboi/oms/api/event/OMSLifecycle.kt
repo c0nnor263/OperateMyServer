@@ -1,26 +1,30 @@
 package io.conboi.oms.api.event
 
-import io.conboi.oms.api.foundation.feature.FeatureRegistry
+import io.conboi.oms.api.foundation.reason.StopReason
 import net.minecraft.server.MinecraftServer
 import net.minecraftforge.eventbus.api.Event
 
 // TODO: Think about whole Feature lifecycle
 abstract class OMSLifecycle() : Event() {
-    class RegisterFeaturesConfigEvent() : OMSLifecycle()
+    data object RegisterFeaturesConfigEvent : OMSLifecycle()
 
-    class RegisterFeaturesEvent(
-        val registry: FeatureRegistry
-    ) : OMSLifecycle()
+    data object RegisterFeaturesEvent : OMSLifecycle()
 
-    class StartingEvent(
+    data class StartingEvent(
         val server: MinecraftServer,
     ) : OMSLifecycle()
 
-    class TickingEvent(
+    data class TickingEvent(
+        val server: MinecraftServer,
+        val isServerStopping: Boolean
+    ) : OMSLifecycle()
+
+    data class StoppingEvent(
         val server: MinecraftServer,
     ) : OMSLifecycle()
 
-    class StoppingEvent(
+    data class StopRequestedEvent(
         val server: MinecraftServer,
+        val reason: StopReason,
     ) : OMSLifecycle()
 }

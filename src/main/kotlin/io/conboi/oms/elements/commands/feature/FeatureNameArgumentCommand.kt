@@ -2,8 +2,8 @@ package io.conboi.oms.elements.commands.feature
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
+import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
-import io.conboi.oms.common.OMSFeatureManager
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 
@@ -19,13 +19,13 @@ class FeatureNameArgumentCommand : OMSCommandEntry() {
     override fun init(): ArgumentBuilder<CommandSourceStack, *> {
         val featureArg = Commands.argument("featureName", StringArgumentType.word())
             .suggests { _, builder ->
-                OMSFeatureManager.features.forEach { feature ->
+                OMSFeatureManagers.oms.prioritizedFeatures?.forEach { feature ->
                     builder.suggest(feature.featureInfo.type.id)
                 }
                 builder.buildFuture()
             }
 
-        OMSFeatureManager.features.forEach { feature ->
+        OMSFeatureManagers.oms.prioritizedFeatures?.forEach { feature ->
             val literal = Commands.literal(feature.featureInfo.type.id)
 
             feature.getFeatureCommands().forEach { literal.then(it.build()) }

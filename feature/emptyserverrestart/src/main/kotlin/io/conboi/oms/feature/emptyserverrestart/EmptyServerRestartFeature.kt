@@ -3,17 +3,17 @@ package io.conboi.oms.feature.emptyserverrestart
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
-import io.conboi.oms.common.OperateMyServer
-import io.conboi.oms.common.content.StopManager
 import io.conboi.oms.common.foundation.CachedField
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
+import io.conboi.oms.common.infrastructure.LOG
 import io.conboi.oms.feature.emptyserverrestart.foundation.reason.EmptyServerRestartStop
 import io.conboi.oms.feature.emptyserverrestart.infrastructure.config.CEmptyServerRestartFeature
 import java.time.ZonedDateTime
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 internal class EmptyServerRestartFeature(featureInfo: FeatureInfo) :
     OmsFeature<CEmptyServerRestartFeature>(featureInfo) {
@@ -32,24 +32,26 @@ internal class EmptyServerRestartFeature(featureInfo: FeatureInfo) :
         val server = event.server
 
         emptyServerTime?.let { time ->
+            println("Empty server time: $time")
             val now = TimeHelper.currentTime
-            val elapsedSec = TimeHelper.secondsBetween(now, time)
+            val elapsedSec = TimeHelper.secondsBetween(time, now)
+            println("Elapsed seconds: $elapsedSec, Count time seconds: ${countTime.get().inWholeSeconds}")
             if (elapsedSec >= countTime.get().inWholeSeconds) {
                 val elapsedDuration = elapsedSec.toDuration(DurationUnit.SECONDS)
-                OperateMyServer.LOGGER.info("No players detected for ${TimeFormatter.formatDuration(elapsedDuration)}")
-                StopManager.stop(server, EmptyServerRestartStop)
+                LOG.info("No players detected for ${TimeFormatter.formatDuration(elapsedDuration)}")
+                FORGE_BUS.post(OMSLifecycle.StopRequestedEvent(server, EmptyServerRestartStop))
                 clearTime()
             }
         }
     }
 
     fun initTime() {
-        OperateMyServer.LOGGER.debug("EmptyServerRestart timer started")
+        LOG.debug("EmptyServerRestart timer started")
         emptyServerTime = TimeHelper.currentTime
     }
 
     fun clearTime() {
-        OperateMyServer.LOGGER.debug("EmptyServerRestart timer cleared")
+        LOG.debug("EmptyServerRestart timer cleared")
         emptyServerTime = null
     }
 }

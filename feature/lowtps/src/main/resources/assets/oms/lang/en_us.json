@@ -1,3 +1,3 @@
 {
-  "oms.stopping.low_tps": "Server stopping due to low TPS"
+  "oms.stop_reason.low_tps": "Server stopping due to low TPS"
 }

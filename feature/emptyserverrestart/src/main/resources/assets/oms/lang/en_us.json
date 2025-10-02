@@ -1,3 +1,3 @@
 {
-  "oms.stopping.empty_server_restart": "Server stopping due to inactivity"
+  "oms.stop_reason.empty_server_restart": "Server stopping due to inactivity"
 }

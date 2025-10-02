@@ -1,8 +1,8 @@
-package io.conboi.oms.event
+package io.conboi.oms.common.event
 
+import io.conboi.oms.api.OperateMyServer
 import io.conboi.oms.api.event.OMSLifecycle
-import io.conboi.oms.common.OperateMyServer
-import io.conboi.oms.common.event.OMSLifecycleInternal
+import io.conboi.oms.common.content.StopManager
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.event.server.ServerStoppingEvent
@@ -20,7 +20,12 @@ object ServerLifecycleEvents {
     @SubscribeEvent
     fun onServerTick(event: TickEvent.ServerTickEvent) {
         if (event.phase != TickEvent.Phase.END) return
-        FORGE_BUS.post(OMSLifecycle.TickingEvent(event.server))
+        FORGE_BUS.post(
+            OMSLifecycle.TickingEvent(
+                server = event.server,
+                isServerStopping = StopManager.isServerStopping()
+            )
+        )
     }
 
     @SubscribeEvent

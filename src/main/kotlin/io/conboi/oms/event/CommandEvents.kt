@@ -1,9 +1,9 @@
 package io.conboi.oms.event
 
-import io.conboi.oms.common.OperateMyServer
+import io.conboi.oms.api.OperateMyServer
+import io.conboi.oms.common.elements.commands.vanilla.OverrideStopCommand
 import io.conboi.oms.common.event.OMSLifecycleInternal
 import io.conboi.oms.elements.commands.OperateMyServerCommandBranch
-import io.conboi.oms.elements.commands.vanilla.OverrideStopCommand
 import net.minecraftforge.event.RegisterCommandsEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod

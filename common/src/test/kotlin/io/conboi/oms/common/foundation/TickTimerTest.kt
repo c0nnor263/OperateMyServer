@@ -1,5 +1,6 @@
 package io.conboi.oms.common.foundation
 
+import io.conboi.oms.api.foundation.TickTimer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

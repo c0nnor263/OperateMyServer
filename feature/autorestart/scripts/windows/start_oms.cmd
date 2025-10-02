@@ -9,15 +9,23 @@ set "CAUSE_FILE=oms\stop_cause.json"
 REM === FUNCTIONS ===
 
 :read_cause
+set "LAST_REASON=UNKNOWN"
+set "LAST_MESSAGE=No message provided."
+
 if exist "%CAUSE_FILE%" (
   for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command ^
     "(Get-Content -Raw '%CAUSE_FILE%') | ConvertFrom-Json | Select-Object -ExpandProperty reason"`) do (
     set "LAST_REASON=%%i"
   )
-  echo [OMS] Last reason: !LAST_REASON!
+  for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command ^
+    "(Get-Content -Raw '%CAUSE_FILE%') | ConvertFrom-Json | Select-Object -ExpandProperty message"`) do (
+    set "LAST_MESSAGE=%%i"
+  )
+  echo [OMS] Reason: !LAST_REASON!
+  echo [OMS] Message: !LAST_MESSAGE!
   del "%CAUSE_FILE%" >nul 2>&1
 ) else (
-  set "LAST_REASON="
+  echo [OMS] No cause file found. Assuming CRASH.
 )
 
 REM === MAIN LOOP ===
@@ -34,37 +42,7 @@ if /I "!LAST_REASON!"=="STOP" (
   goto end
 )
 
-if /I "!LAST_REASON!"=="SCHEDULED" (
-  echo [OMS] Scheduled restart. Relaunch in 5 seconds...
-  timeout /t 5 /nobreak >nul
-  goto main_loop
-)
-
-if /I "!LAST_REASON!"=="MANUAL" (
-  echo [OMS] Manual restart. Relaunch in 5 seconds...
-  timeout /t 5 /nobreak >nul
-  goto main_loop
-)
-
-if /I "!LAST_REASON!"=="CRASH" (
-  echo [OMS] Crash restart. Relaunch in 5 seconds...
-  timeout /t 5 /nobreak >nul
-  goto main_loop
-)
-
-if /I "!LAST_REASON!"=="UNKNOWN" (
-  echo [OMS] UNKNOWN reason. Relaunch in 5 seconds...
-  timeout /t 5 /nobreak >nul
-  goto main_loop
-)
-
-if "!LAST_REASON!"=="" (
-  echo [OMS] Cause file not found. CRASH assumed. Relaunch in 5 seconds...
-  timeout /t 5 /nobreak >nul
-  goto main_loop
-)
-
-echo [OMS] Unknown reason "!LAST_REASON!". Treating as CRASH. Relaunch in 5 seconds...
+echo [OMS] Relaunching server in 5 seconds...
 timeout /t 5 /nobreak >nul
 goto main_loop
 

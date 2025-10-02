@@ -1,9 +1,9 @@
 package io.conboi.oms.feature.autorestart.event
 
+import io.conboi.oms.api.OMSFeatureManagers
+import io.conboi.oms.api.OperateMyServer
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
-import io.conboi.oms.common.OMSFeatureManager
-import io.conboi.oms.common.OperateMyServer
 import io.conboi.oms.common.infrastructure.config.CServer
 import io.conboi.oms.feature.autorestart.AutoRestartFeature
 import io.conboi.oms.feature.autorestart.foundation.AutoRestartFeatureType
@@ -21,13 +21,13 @@ internal object AutoRestartOmsLifecycleEvents {
             priority = FeatureInfo.Priority.COMMON
         )
         val feature = AutoRestartFeature(info)
-        event.registry.register(feature)
+        OMSFeatureManagers.oms.register(feature)
     }
 
     @SubscribeEvent
     fun onRegisterFeaturesConfigEvent(event: OMSLifecycle.RegisterFeaturesConfigEvent) {
         val config = CServer.features.getFeatureConfig<CAutoRestartFeature>(CAutoRestartFeature.NAME)
-        val feature = OMSFeatureManager.getFeatureByType<AutoRestartFeature>(AutoRestartFeatureType)
+        val feature = OMSFeatureManagers.oms.getFeatureByType<AutoRestartFeature>(AutoRestartFeatureType)
         feature?.onOmsRegisterConfig(config)
     }
 }
