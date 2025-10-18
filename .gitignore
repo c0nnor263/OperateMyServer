@@ -1,6 +1,6 @@
 build/
 *.ipr
-run/
+oms/run/
 *.iws
 out/
 *.iml
@@ -16,7 +16,7 @@ classes/
 .vscode
 .settings
 *.launch
-/src/generated/resources/.cache/
+/oms/src/generated/resources/.cache/
 /.kotlin
-/test/
+/oms/test/
 /*/logs/
