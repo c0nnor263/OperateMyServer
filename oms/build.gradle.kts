@@ -16,9 +16,9 @@ apply<ModDevPlugin>()
 val modId = OperateMyServer.ID
 val modVersion = OperateMyServer.VERSION
 val modDisplayName = OperateMyServer.DISPLAY_NAME
-val modAuthors = OperateMyServer.MOD_AUTHORS
+val modAuthors = OperateMyServer.AUTHOR
 val modDescription = OperateMyServer.DESCRIPTION
-val modLicense = OperateMyServer.MOD_LICENSE
+val modLicense = OperateMyServer.LICENSE
 val modGroupId = OperateMyServer.GROUP_ID
 
 group = modGroupId

@@ -4,7 +4,6 @@ import io.conboi.oms.api.foundation.reason.StopReason
 import net.minecraft.server.MinecraftServer
 import net.minecraftforge.eventbus.api.Event
 
-// TODO: Think about whole Feature lifecycle
 abstract class OMSLifecycle() : Event() {
 
     object Feature {

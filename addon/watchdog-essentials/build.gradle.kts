@@ -14,9 +14,9 @@ apply<ModDevPlugin>()
 val modId = WatchdogEssentials.ID
 val modVersion = WatchdogEssentials.VERSION
 val modDisplayName = WatchdogEssentials.DISPLAY_NAME
-val modAuthors = WatchdogEssentials.MOD_AUTHORS
+val modAuthors = WatchdogEssentials.AUTHOR
 val modDescription = WatchdogEssentials.DESCRIPTION
-val modLicense = WatchdogEssentials.MOD_LICENSE
+val modLicense = WatchdogEssentials.LICENSE
 val modGroupId = WatchdogEssentials.GROUP_ID
 
 group = modGroupId

@@ -42,10 +42,9 @@ abstract class FeatureManager : FeatureRegistry {
      */
     private var frozen = false
 
-    // TODO: Check comment and edit if needed. Specifically, what does "before the OMS starts" mean?
     /**
      * Registers a feature with the manager.
-     * Must be called before the OMS starts (before freeze() is called).
+     * Must be called before the OMS's event [OMSLifecycle.StartingEvent].
      * @param feature The feature to register
      * @throws IllegalStateException if the manager is frozen
      * @throws IllegalArgumentException if a feature with the same ID is already registered
@@ -59,10 +58,9 @@ abstract class FeatureManager : FeatureRegistry {
         registry[id] = feature
     }
 
-    // TODO: Check comment and edit if needed. Specifically, what does "before the OMS starts" mean?
     /**
      * Freezes the feature manager, preventing any further feature registrations and sorting features by priority.
-     * This should be called once, after all features have been registered and before the OMS starts
+     * This should be called once, after all features have been registered and before the OMS's event [OMSLifecycle.StartingEvent].
      */
     fun freeze() {
         if (frozen) return
