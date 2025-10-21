@@ -8,8 +8,8 @@ import io.conboi.oms.addon.bundled.scheduledrestart.content.SkipResult
 import io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config.CAutoRestartFeature
 import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
-import io.conboi.oms.core.foundation.TimeFormatter
-import io.conboi.oms.core.foundation.TimeHelper
+import io.conboi.oms.utils.foundation.TimeFormatter
+import io.conboi.oms.utils.foundation.TimeHelper
 import java.time.ZonedDateTime
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands

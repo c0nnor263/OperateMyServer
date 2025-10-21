@@ -7,11 +7,11 @@ import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
-import io.conboi.oms.core.foundation.CachedField
-import io.conboi.oms.core.foundation.TimeFormatter
-import io.conboi.oms.core.foundation.TimeHelper
 import io.conboi.oms.core.foundation.reason.ScheduledStop
 import io.conboi.oms.core.infrastructure.LOG
+import io.conboi.oms.utils.foundation.CachedField
+import io.conboi.oms.utils.foundation.TimeFormatter
+import io.conboi.oms.utils.foundation.TimeHelper
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import kotlin.time.Duration
@@ -26,7 +26,7 @@ internal class AutoRestartFeature : OmsFeature<CAutoRestartFeature>() {
     }
 
     override val info: FeatureInfo = FeatureInfo(
-        id = CAutoRestartFeature.Companion.NAME,
+        id = CAutoRestartFeature.NAME,
         priority = FeatureInfo.Priority.COMMON
     )
 

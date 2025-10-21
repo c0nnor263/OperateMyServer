@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.conboi.oms.watchdogessentials",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "watchdogessentials.refmap.json",
+  "mixins": [
+    "io.conboi.oms.watchdogessentials.mixin.ExampleMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

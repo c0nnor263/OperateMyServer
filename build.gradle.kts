@@ -8,16 +8,10 @@ plugins {
     idea
 }
 
-val modId: String by project
-
 tasks.register("generateTemplates") {
 }
 
 subprojects {
-    tasks.matching { it.name == "processResources" }.configureEach {
-        (this as ProcessResources).exclude("assets/$modId/lang/*.json")
-    }
-
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
     }

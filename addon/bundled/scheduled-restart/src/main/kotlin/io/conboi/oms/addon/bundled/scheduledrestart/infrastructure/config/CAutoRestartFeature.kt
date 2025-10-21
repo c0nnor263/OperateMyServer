@@ -1,8 +1,7 @@
 package io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config
 
-import io.conboi.oms.core.foundation.TimeFormatter
-import io.conboi.oms.core.infrastructure.config.FeatureConfigImpl
-
+import io.conboi.oms.utils.foundation.TimeFormatter
+import io.conboi.oms.utils.infrastructure.config.FeatureConfigImpl
 
 class CAutoRestartFeature : FeatureConfigImpl() {
     companion object {

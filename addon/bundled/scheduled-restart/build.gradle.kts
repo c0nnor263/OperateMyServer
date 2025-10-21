@@ -23,6 +23,7 @@ legacyForge {
 dependencies {
     implementation(projects.omsApi)
     implementation(projects.omsCore)
+    implementation(projects.omsUtils)
 
     implementation(libs.kotlinforforge)
     implementation(libs.kotlinxSerialization)

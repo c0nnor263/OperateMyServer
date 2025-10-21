@@ -1,5 +1,7 @@
 package io.conboi.oms.core.infrastructure.config
 
+import io.conboi.oms.utils.infrastructure.config.ConfigBase
+
 
 object CServer : ConfigBase() {
     override val name: String = "server"

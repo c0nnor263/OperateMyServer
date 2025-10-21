@@ -1,6 +1,7 @@
 package io.conboi.oms.core.infrastructure.config
 
 import io.conboi.oms.api.infrastructure.config.FeatureConfig
+import io.conboi.oms.utils.infrastructure.config.ConfigBase
 
 object CFeatures : ConfigBase() {
     override val name: String = "features"

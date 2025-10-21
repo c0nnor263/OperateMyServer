@@ -1,7 +1,6 @@
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.hypherionmc.modpublisher.properties.CurseEnvironment
 import com.hypherionmc.modpublisher.properties.ModLoader
+import tasks.MergeLangFilesTask
 
 plugins {
     alias(libs.plugins.kotlin)
@@ -14,24 +13,22 @@ plugins {
 }
 apply<ModDevPlugin>()
 
-val modId: String by project
-val modVersion: String by project
-val modDisplayName: String by project
-val modAuthors: String by project
-val modDescription: String by project
-val modLicense: String by project
-val modGroupId: String by project
+val modId = OperateMyServer.ID
+val modVersion = OperateMyServer.VERSION
+val modDisplayName = OperateMyServer.DISPLAY_NAME
+val modAuthors = OperateMyServer.MOD_AUTHORS
+val modDescription = OperateMyServer.DESCRIPTION
+val modLicense = OperateMyServer.MOD_LICENSE
+val modGroupId = OperateMyServer.GROUP_ID
 
 group = modGroupId
 version = "${modVersion}+mc${libs.versions.minecraft.get()}"
 
-val dependentProjects = rootProject.subprojects.filter {
-    it.path != project.path && (it.path.startsWith(":addon:bundled:"))
-} + listOf(
-    rootProject.project(":oms-api"),
-    rootProject.project(":oms-core")
+val dependentProjects = listOf(
+    rootProject.project(":oms-core"),
+    rootProject.project(":oms-utils"),
+    rootProject.project(":addon:bundled:scheduled-restart"),
 )
-val mergedLangDir = layout.buildDirectory.dir("generated/resources/assets/$modId/lang")
 
 dependentProjects.forEach {
     evaluationDependsOn(it.path)
@@ -115,6 +112,8 @@ dependencies {
     implementation(libs.kotlinforforge)
     implementation(libs.kotlinxSerialization)
 
+    modImplementation(projects.omsApi)
+
     implementation(jarJar(libs.mixin.extras.asProvider().get().toString())!!)
     compileOnly(annotationProcessor(libs.mixin.extras.common.get().toString())!!)
     annotationProcessor("${libs.mixin.processor.get().module}:${libs.versions.mixin.get()}:processor")
@@ -122,6 +121,7 @@ dependencies {
     testImplementation(libs.bundles.testing)
 }
 
+val mergedLangDir = layout.buildDirectory.dir("generated/resources/assets/$modId/lang")
 tasks.processResources {
     dependsOn(mergeLangFiles)
 
@@ -168,51 +168,10 @@ tasks.named<Jar>("jar") {
     )
 }
 
-val mergeLangFiles by tasks.registering {
-    group = "build"
-    description = "Merge all lang JSON files from modules"
-
-    val gson = Gson()
-    val type = object : TypeToken<Map<String, String>>() {}.type
-
-    outputs.dir(mergedLangDir)
-
-    doLast {
-        val langFileTrees = dependentProjects.map {
-            project(it.path).fileTree("src/main/resources/assets/$modId/lang") {
-                include("*.json")
-            }
-        } + listOf(
-            fileTree("src/main/resources/assets/$modId/lang") {
-                include("*.json")
-            }
-        )
-
-        val allLangFiles = files(langFileTrees)
-
-        println("📝 Found lang files:")
-        allLangFiles.files.forEach { println(" - ${it.path}") }
-
-        val localeToEntries = mutableMapOf<String, MutableMap<String, String>>()
-
-        allLangFiles.files.forEach { file ->
-            val locale = file.nameWithoutExtension
-            val content = file.readText()
-            val map: Map<String, String> = gson.fromJson(content, type)
-            val target = localeToEntries.getOrPut(locale) { LinkedHashMap() }
-            target.putAll(map)
-        }
-
-        val outputDir = mergedLangDir.get().asFile
-        outputDir.mkdirs()
-
-        for ((locale, entries) in localeToEntries) {
-            val outFile = File(outputDir, "$locale.json")
-            outFile.writeText(gson.toJson(entries))
-        }
-
-        println("✅ Locales merged: ${localeToEntries.keys}")
-    }
+val mergeLangFiles by tasks.registering(MergeLangFilesTask::class) {
+    modId.set(OperateMyServer.ID)
+    outputDir.set(mergedLangDir)
+    projectPaths.set(dependentProjects.map { it.path })
 }
 
 publisher {
@@ -238,4 +197,10 @@ publisher {
 //    modrinthDepends {
 //        required("kotlin-for-forge")
 //    }
+}
+
+dependentProjects.forEach { project ->
+    project.tasks.matching { it.name == "processResources" }.configureEach {
+        (this as ProcessResources).exclude("assets/$modId/lang/*.json")
+    }
 }
