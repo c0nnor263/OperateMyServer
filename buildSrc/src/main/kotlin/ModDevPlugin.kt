@@ -29,6 +29,7 @@ class ModDevPlugin : Plugin<Project> {
             }
             maven("https://maven.parchmentmc.org") // Parchment mappings
             maven("https://raw.githubusercontent.com/Fuzss/modresources/main/maven/") // Forge Config API Port
+            maven("https://c0nnor263.github.io/OperateMyServer/oms-api/")
         }
 
         extensions.configure<KotlinJvmProjectExtension>("kotlin") {

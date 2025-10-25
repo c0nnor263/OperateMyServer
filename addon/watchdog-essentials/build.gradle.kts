@@ -23,7 +23,6 @@ group = modGroupId
 version = "${modVersion}+mc${libs.versions.minecraft.get()}"
 
 val dependentProjects = listOf(
-    rootProject.project(":oms-utils"),
     rootProject.project(":addon:watchdog-essentials:core"),
     rootProject.project(":addon:watchdog-essentials:addon:empty-server-restart"),
     rootProject.project(":addon:watchdog-essentials:addon:low-tps"),
@@ -36,11 +35,6 @@ dependentProjects.forEach {
 
 base {
     archivesName = modId
-}
-
-mixin {
-    add(sourceSets.main.get(), "$modId.refmap.json")
-    config("$modId.mixins.json")
 }
 
 legacyForge {
@@ -67,13 +61,6 @@ legacyForge {
 
             jvmArgument("-XX:+IgnoreUnrecognizedVMOptions")
             jvmArgument("-XX:+UnlockExperimentalVMOptions")
-
-            systemProperty("mixin.debug.export", "true")
-            systemProperty("mixin.debug.verbose", "true")
-
-            programArgument("-mixin.config=$modId.mixins.json")
-            systemProperty("mixin.env.remapRefMap", "true")
-            systemProperty("mixin.env.refMapRemappingFile", "${projectDir}/build/createSrgToMcp/output.srg")
         }
 
         create("client") {
@@ -106,17 +93,12 @@ legacyForge {
 
 dependencies {
     dependentProjects.forEach {
-        modImplementation(it)
+        implementation(it)
     }
-
-    modImplementation(projects.omsApi)
+    modImplementation(projects.oms)
+    implementation(projects.omsUtils)
 
     implementation(libs.kotlinforforge)
-    implementation(libs.kotlinxSerialization)
-
-    implementation(jarJar(libs.mixin.extras.asProvider().get().toString())!!)
-    compileOnly(annotationProcessor(libs.mixin.extras.common.get().toString())!!)
-    annotationProcessor("${libs.mixin.processor.get().module}:${libs.versions.mixin.get()}:processor")
 
     testImplementation(libs.bundles.testing)
 }
@@ -153,18 +135,13 @@ tasks.processResources {
 sourceSets.main.get().resources.srcDir("src/generated/resources")
 
 tasks.named<Jar>("jar") {
-    dependentProjects.forEach {
-        val jar = project(it.path).tasks.named<Jar>("jar")
-        dependsOn(jar)
-        from({ zipTree(jar.get().archiveFile.get().asFile) })
+    sourceSets {
+        dependentProjects.forEach {
+            from(it.sourceSets.main.get().output)
+        }
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    manifest.attributes(
-        hashMapOf(
-            "MixinConfigs" to "$modId.mixins.json"
-        )
-    )
 }
 
 val mergeLangFiles by tasks.registering(MergeLangFilesTask::class) {

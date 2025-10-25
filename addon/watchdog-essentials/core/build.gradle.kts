@@ -21,14 +21,8 @@ legacyForge {
 }
 
 dependencies {
-    implementation(projects.omsApi)
+    implementation("io.conboi.oms:oms-api:1.0.0")
     implementation(projects.omsUtils)
-    implementation(libs.kotlinforforge)
-    implementation(libs.kotlinxSerialization)
-
-    implementation(jarJar(libs.mixin.extras.asProvider().get().toString())!!)
-    compileOnly(annotationProcessor(libs.mixin.extras.common.get().toString())!!)
-    annotationProcessor("${libs.mixin.processor.get().module}:${libs.versions.mixin.get()}:processor")
 
     testImplementation(libs.bundles.testing)
 }

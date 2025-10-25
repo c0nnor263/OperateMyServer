@@ -25,6 +25,7 @@ group = modGroupId
 version = "${modVersion}+mc${libs.versions.minecraft.get()}"
 
 val dependentProjects = listOf(
+    rootProject.project(":oms-api"),
     rootProject.project(":oms-core"),
     rootProject.project(":oms-utils"),
     rootProject.project(":addon:bundled:scheduled-restart"),
@@ -106,13 +107,11 @@ legacyForge {
 
 dependencies {
     dependentProjects.forEach {
-        modImplementation(it)
+        implementation(it)
     }
 
     implementation(libs.kotlinforforge)
     implementation(libs.kotlinxSerialization)
-
-    modImplementation(projects.omsApi)
 
     implementation(jarJar(libs.mixin.extras.asProvider().get().toString())!!)
     compileOnly(annotationProcessor(libs.mixin.extras.common.get().toString())!!)
@@ -154,10 +153,10 @@ tasks.processResources {
 sourceSets.main.get().resources.srcDir("src/generated/resources")
 
 tasks.named<Jar>("jar") {
-    dependentProjects.forEach {
-        val jar = project(it.path).tasks.named<Jar>("jar")
-        dependsOn(jar)
-        from({ zipTree(jar.get().archiveFile.get().asFile) })
+    sourceSets {
+        dependentProjects.forEach {
+            from(it.sourceSets.main.get().output)
+        }
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

@@ -16,11 +16,18 @@ modId = "forge"
 mandatory = true
 versionRange = "[${forge_version},)"
 ordering = "NONE"
-side = "BOTH"
+side = "SERVER"
 
 [[dependencies.${ mod_id }]]
 modId = "minecraft"
 mandatory = true
 versionRange = "${minecraft_version}"
 ordering = "NONE"
-side = "BOTH"
+side = "SERVER"
+
+[[dependencies.${ mod_id }]]
+modId = "oms"
+mandatory = true
+versionRange = "[1.0.0,)"
+ordering = "AFTER"
+side = "SERVER"
