@@ -1,5 +1,7 @@
 package io.conboi.oms.api
 
+import io.conboi.oms.api.foundation.feature.FeatureManager
+
 object OMSFeatureManagers {
     private var registry = mutableMapOf<String, FeatureManager>()
 

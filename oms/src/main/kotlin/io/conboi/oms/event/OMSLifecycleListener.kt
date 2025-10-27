@@ -3,8 +3,8 @@ package io.conboi.oms.event
 import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.OperateMyServer
 import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.infrastructure.file.OMSRootPath
 import io.conboi.oms.content.StopManager
-import io.conboi.oms.core.infrastructure.file.OMSPaths
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
@@ -23,7 +23,7 @@ internal object OMSLifecycleListener {
     @SubscribeEvent
     fun onServerReadyEvent(event: OMSLifecycleInternal.Server.ReadyEvent) {
         StopManager.installHook()
-        OMSPaths.init(event.server)
+        OMSRootPath.init(event.server)
 
         FORGE_BUS.post(OMSLifecycle.Feature.RegisterConfigEvent())
 

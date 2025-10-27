@@ -2,9 +2,10 @@ package io.conboi.oms.core.content
 
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.reason.StopReason
+import io.conboi.oms.api.infrastructure.file.OMSRootPath
 import io.conboi.oms.content.StopManager
 import io.conboi.oms.core.foundation.reason.CrashStop
-import io.conboi.oms.core.infrastructure.file.OMSPaths
+import io.conboi.oms.infrastructure.file.OMSPaths
 import io.conboi.oms.infrastructure.file.StopEntryLog
 import io.conboi.oms.utils.foundation.TimeHelper
 import io.conboi.oms.utils.infrastructure.OMSJson
@@ -42,12 +43,12 @@ class StopManagerTest : FunSpec({
 
         mockkObject(OMSJson)
         mockkObject(TimeHelper)
-        mockkObject(OMSPaths)
+        mockkObject(OMSRootPath)
         mockkObject(FileUtil)
         every { OMSJson.encodeToString(StopEntryLog.serializer(), any()) } returns "json"
         every { TimeHelper.currentTime } returns mockZonedDateTime
 
-        every { OMSPaths.stopCause() } returns stopCausePath
+        every { OMSPaths.common.resolve("stop_cause.json") } returns stopCausePath
         every { FileUtil.writeSafe(stopCausePath, any()) } just Runs
         every { mockReason.name } returns "test_reason"
         every { mockReason.messageId } returns "oms.stopping.test_reason"
@@ -55,7 +56,7 @@ class StopManagerTest : FunSpec({
 
     afterEach {
         tempDir.toFile().deleteRecursively()
-        unmockkObject(StopManager, OMSJson, TimeHelper, OMSPaths, FileUtil)
+        unmockkObject(StopManager, OMSJson, TimeHelper, OMSRootPath, FileUtil)
     }
 
     context("isServerStopping") {

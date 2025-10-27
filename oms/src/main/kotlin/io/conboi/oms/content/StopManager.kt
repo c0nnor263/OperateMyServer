@@ -3,11 +3,12 @@ package io.conboi.oms.content
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.reason.StopReason
 import io.conboi.oms.core.foundation.reason.CrashStop
-import io.conboi.oms.core.infrastructure.file.OMSPaths
+import io.conboi.oms.infrastructure.file.OMSPaths
 import io.conboi.oms.infrastructure.file.StopEntryLog
 import io.conboi.oms.utils.foundation.TimeHelper
 import io.conboi.oms.utils.infrastructure.OMSJson
 import io.conboi.oms.utils.infrastructure.file.FileUtil
+import java.nio.file.Path
 import net.minecraft.network.chat.Component
 import org.jetbrains.annotations.VisibleForTesting
 
@@ -45,7 +46,9 @@ internal object StopManager {
         val time = TimeHelper.currentTime.toString()
         val entry = StopEntryLog(reasonName, reasonMessage, time)
         val content = OMSJson.encodeToString(StopEntryLog.serializer(), entry)
-        FileUtil.writeSafe(OMSPaths.stopCause(), content)
+        val stopCauseFile: Path = OMSPaths.common.resolve("stop_cause.json")
+
+        FileUtil.writeSafe(stopCauseFile, content)
     }
 
     @VisibleForTesting

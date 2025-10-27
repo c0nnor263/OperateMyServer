@@ -1,9 +1,7 @@
-package io.conboi.oms.api
+package io.conboi.oms.api.foundation.feature
 
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.TickTimer
-import io.conboi.oms.api.foundation.feature.FeatureRegistry
-import io.conboi.oms.api.foundation.feature.OmsFeature
 
 abstract class FeatureManager : FeatureRegistry {
     /**
@@ -44,7 +42,7 @@ abstract class FeatureManager : FeatureRegistry {
 
     /**
      * Registers a feature with the manager.
-     * Must be called before the OMS's event [OMSLifecycle.StartingEvent].
+     * Must be called before the OMS's event [io.conboi.oms.api.event.OMSLifecycle.StartingEvent].
      * @param feature The feature to register
      * @throws IllegalStateException if the manager is frozen
      * @throws IllegalArgumentException if a feature with the same ID is already registered
@@ -60,7 +58,7 @@ abstract class FeatureManager : FeatureRegistry {
 
     /**
      * Freezes the feature manager, preventing any further feature registrations and sorting features by priority.
-     * This should be called once, after all features have been registered and before the OMS's event [OMSLifecycle.StartingEvent].
+     * This should be called once, after all features have been registered and before the OMS's event [io.conboi.oms.api.event.OMSLifecycle.StartingEvent].
      */
     fun freeze() {
         if (frozen) return
