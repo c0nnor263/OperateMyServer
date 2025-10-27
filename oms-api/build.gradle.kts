@@ -70,8 +70,8 @@ publishing {
 }
 
 val generateIndexHtmlTask = tasks.register<GenerateIndexHtmlTask>("generateIndexHtml") {
-    title.set("Index of /oms-api")
-    outputDir.set(rootProject.projectDir.resolve("docs/oms-api"))
+    title.set("Index of /docs")
+    outputDir.set(rootProject.projectDir.resolve("docs"))
 }
 
 tasks.named("publishOmsApiPublicationToOperateMyServerDocsRepository") {

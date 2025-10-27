@@ -46,33 +46,85 @@ abstract class GenerateIndexHtmlTask @Inject constructor() : DefaultTask() {
         }
     }
 
-    fun processDirectory(root: File, dir: File) {
-        val files = dir.listFiles()?.sortedBy { it.name }?.filterNot {
-            it.extension in listOf("md5", "sha1", "sha256", "sha512") || it.name.endsWith(".module")
-        } ?: return
+    private fun processDirectory(root: File, dir: File) {
+        val files = processFiles(dir) ?: return
         val relativePath = dir.relativeTo(root).invariantSeparatorsPath
-        val titleText = if (relativePath.isEmpty()) title.get() else "Index of /$relativePath"
+        val titleHtml = generateTitle(relativePath)
 
         val html = buildString {
             appendLine("<!DOCTYPE html>")
-            appendLine("<html><head><meta charset=\"utf-8\"><title>$titleText</title></head><body>")
-            appendLine("<h1>$titleText</h1>")
+            appendLine("<html><head><meta charset=\"utf-8\"><title>Index</title>")
+            appendLine(
+                """
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 1em;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 1em;
+        }
+        li {
+            margin: 0.25em 0;
+        }
+        a {
+            text-decoration: none;
+            color: #1565c0;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        h1 {
+            font-size: 1.4em;
+        }
+        h1 a {
+            font-weight: normal;
+        }
+    </style>
+""".trimIndent()
+            )
+            appendLine("</head><body>")
+            appendLine("<h1>$titleHtml</h1>")
             appendLine("<ul>")
             if (dir != root) {
                 appendLine("""<li><a href="../">../</a></li>""")
             }
             files.forEach {
                 val name = it.name + if (it.isDirectory) "/" else ""
-                if (name != "index.html") {
-                    appendLine("""<li><a href="$name">$name</a></li>""")
-                }
+                appendLine("""<li><a href="$name">$name</a></li>""")
             }
             appendLine("</ul></body></html>")
         }
 
-        val outFile = File(dir, "index.html")
-        outFile.writeText(html)
+        File(dir, "index.html").writeText(html)
+        logger.lifecycle("index.html generated at: ${dir.relativeTo(root)}")
+    }
 
-        logger.lifecycle("index.html generated at: ${outFile.relativeTo(root)}")
+    private fun processFiles(dir: File): List<File>? {
+        return dir.listFiles()?.sortedBy { it.name }?.filterNot {
+            it.extension in listOf("md5", "sha1", "sha256", "sha512") ||
+                    it.name.endsWith(".module") ||
+                    it.name == "index.html" ||
+                    it.name.startsWith(".")
+        }
+    }
+
+    private fun generateTitle(relativePath: String): String {
+        if (relativePath.isEmpty()) {
+            return """<a href="./">${title.get()}</a>"""
+        }
+
+        val parts = relativePath.split("/").filter { it.isNotEmpty() }
+        val links = mutableListOf<String>()
+        var upLevels = "../".repeat(parts.size)
+
+        parts.forEachIndexed { index, part ->
+            val href = "../".repeat(parts.size - index - 1)
+            links.add("""<a href="$href">$part</a>""")
+        }
+
+        return "Index of / " + links.joinToString(" / ")
     }
 }
