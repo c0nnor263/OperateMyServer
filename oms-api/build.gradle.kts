@@ -1,3 +1,5 @@
+import tasks.GenerateIndexHtmlTask
+
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.modDevGradle)
@@ -65,4 +67,13 @@ publishing {
             url = uri("${rootProject.projectDir}/docs/oms-api")
         }
     }
+}
+
+val generateIndexHtmlTask = tasks.register<GenerateIndexHtmlTask>("generateIndexHtml") {
+    title.set("Index of /oms-api")
+    outputDir.set(rootProject.projectDir.resolve("docs/oms-api"))
+}
+
+tasks.named("publishOmsApiPublicationToOperateMyServerDocsRepository") {
+    finalizedBy(generateIndexHtmlTask)
 }
