@@ -17,7 +17,6 @@ object TimeHelper {
         return now.withHour(time.hour).withMinute(time.minute).withSecond(0).withNano(0)
     }
 
-    fun closest(now: ZonedDateTime, candidates: List<ZonedDateTime>): ZonedDateTime? {
-        return candidates.firstOrNull { it.isAfter(now) }
-    }
+    fun closest(now: ZonedDateTime, candidates: List<ZonedDateTime>): ZonedDateTime? =
+        candidates.filter { it.isAfter(now) }.minOrNull()
 }

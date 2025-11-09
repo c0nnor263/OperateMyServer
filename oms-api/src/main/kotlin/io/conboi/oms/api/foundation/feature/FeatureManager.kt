@@ -26,7 +26,7 @@ abstract class FeatureManager : FeatureRegistry {
      * The registry of features by their unique ID
      */
     protected val registry = mutableMapOf<String, OmsFeature<*>>()
-    var prioritizedFeatures: List<OmsFeature<*>>? = null
+    var prioritizedFeatures: List<OmsFeature<*>> = emptyList()
         private set
 
     /**
@@ -72,14 +72,14 @@ abstract class FeatureManager : FeatureRegistry {
     }
 
     open fun onStartingEvent(event: OMSLifecycle.StartingEvent) {
-        prioritizedFeatures?.forEach { feature ->
+        prioritizedFeatures.forEach { feature ->
             feature.onOmsStarted(event)
         }
     }
 
     open fun onTickingEvent(event: OMSLifecycle.TickingEvent) {
         if (!tickTimer.shouldFire(event.server.tickCount)) return
-        prioritizedFeatures?.forEach { feature ->
+        prioritizedFeatures.forEach { feature ->
             if (event.isServerStopping) return
             if (feature.isEnabled()) {
                 feature.onOmsTick(event)
@@ -88,7 +88,7 @@ abstract class FeatureManager : FeatureRegistry {
     }
 
     open fun onStoppingEvent(event: OMSLifecycle.StoppingEvent) {
-        prioritizedFeatures?.forEach { it.onOmsStopping(event) }
+        prioritizedFeatures.forEach { it.onOmsStopping(event) }
         registry.clear()
     }
 }

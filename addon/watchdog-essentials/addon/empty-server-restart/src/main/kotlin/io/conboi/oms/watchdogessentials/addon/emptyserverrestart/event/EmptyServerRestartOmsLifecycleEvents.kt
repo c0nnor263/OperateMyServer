@@ -23,5 +23,6 @@ internal object EmptyServerRestartOmsLifecycleEvents {
         val config = CServer.features.getFeatureConfig<CEmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
         val feature = OMSFeatureManagers.oms.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
         feature?.onOmsRegisterConfig(config)
+        // TODO: Create own Manager
     }
 }

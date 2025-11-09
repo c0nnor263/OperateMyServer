@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 REM === SETTINGS ===
 set "JAVA_EXE=java"
 set "JAVA_ARGS=@user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.4.0/win_args.txt"
-set "CAUSE_FILE=oms\stop_cause.json"
+set "CAUSE_FILE=oms\oms\common\stop_cause.json"
 
 REM === FUNCTIONS ===
 

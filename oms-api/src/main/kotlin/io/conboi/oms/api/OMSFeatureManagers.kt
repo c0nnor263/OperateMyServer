@@ -31,15 +31,16 @@ object OMSFeatureManagers {
         require(id.all { it.isLowerCase() || it.isDigit() || it == '_' || it == '-' || it == ':' }) {
             "FeatureManager id can only contain lowercase letters, digits, underscores, hyphens and colons"
         }
-        require(!registry.containsKey(id)) {
-            "FeatureManager with id '${id}' is already registered"
-        }
 
         val modId = manager.modId
         val name = manager.name
         require(modId.isNotBlank() && name.isNotBlank()) { "FeatureManager id must be in the format 'modid:name'" }
-        require(modId != OperateMyServer.MOD_ID && name != "main") {
-            "FeatureManager with id '${OperateMyServer.MOD_ID}' cannot be registered, reserved for OMSFeatureManager"
+        require(modId != OperateMyServer.MOD_ID) {
+            "FeatureManager with id '${OperateMyServer.MOD_ID}' cannot be registered, reserved for OMS"
+        }
+
+        require(!registry.containsKey(id)) {
+            "FeatureManager with id '${id}' is already registered"
         }
     }
 

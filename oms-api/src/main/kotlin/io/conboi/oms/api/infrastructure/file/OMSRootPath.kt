@@ -8,9 +8,8 @@ object OMSRootPath {
     private var cachedRootPath: Path? = null
 
     fun init(server: MinecraftServer) {
-        val rootPath = server.serverDirectory.toPath().resolve("oms")
-        Files.createDirectories(rootPath)
-        cachedRootPath = rootPath
+        val serverDirectory = server.serverDirectory.toPath()
+        cachedRootPath = serverDirectory.ensure("oms")
     }
 
     internal val root: Path

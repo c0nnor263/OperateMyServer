@@ -14,7 +14,7 @@ internal class FeatureCommand : OMSCommandEntry() {
 
     override fun init(): ArgumentBuilder<CommandSourceStack, *> {
         val featureArg = Commands.literal("feature")
-        OMSFeatureManagers.oms.prioritizedFeatures?.forEach { feature ->
+        OMSFeatureManagers.oms.prioritizedFeatures.forEach { feature ->
             val featureLiteral = Commands.literal(feature.info.id)
 
             feature.getFeatureCommands().forEach { featureLiteral.then(it.build()) }

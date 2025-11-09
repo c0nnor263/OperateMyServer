@@ -6,6 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 class FileUtilTest : FunSpec({
 
@@ -74,6 +75,15 @@ class FileUtilTest : FunSpec({
             file.exists() shouldBe true
             file.readText() shouldBe content
         }
-    }
 
+        test("should overwrite existing .tmp file if present") {
+            val file = tempDir.resolve("collision.txt")
+            val tmp = file.resolveSibling("collision.txt.tmp")
+            tmp.writeText("Stale temp content")
+            FileUtil.writeSafe(file, "Updated content")
+
+            file.exists() shouldBe true
+            file.readText() shouldBe "Updated content"
+        }
+    }
 })

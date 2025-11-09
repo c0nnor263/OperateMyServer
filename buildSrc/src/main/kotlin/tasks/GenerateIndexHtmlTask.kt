@@ -118,7 +118,6 @@ abstract class GenerateIndexHtmlTask @Inject constructor() : DefaultTask() {
 
         val parts = relativePath.split("/").filter { it.isNotEmpty() }
         val links = mutableListOf<String>()
-        var upLevels = "../".repeat(parts.size)
 
         parts.forEachIndexed { index, part ->
             val href = "../".repeat(parts.size - index - 1)

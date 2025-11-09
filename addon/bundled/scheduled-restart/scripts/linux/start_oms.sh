@@ -3,7 +3,7 @@
 ### === SETTINGS ===
 JAVA_EXE="java"
 JAVA_ARGS="@user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.4.0/unix_args.txt"
-CAUSE_FILE="oms/stop_cause.json"
+CAUSE_FILE="oms/oms/common/stop_cause.json"
 
 ### === FUNCTIONS ===
 

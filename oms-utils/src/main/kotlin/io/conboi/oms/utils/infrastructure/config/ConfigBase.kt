@@ -8,7 +8,10 @@ import net.minecraftforge.common.ForgeConfigSpec
 import net.minecraftforge.common.ForgeConfigSpec.Builder
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue
 
-// TODO Leave gratitude to Create team
+// This configuration system is based on the code from the "Create" mod by the Create Development Team:
+// Source: https://github.com/Creators-of-Create/Create
+// Original class: com.simibubi.create.foundation.config.ConfigBase
+// Credits to authors of the Create mod for their robust config system design.
 abstract class ConfigBase {
     var specification: ForgeConfigSpec? = null
 
