@@ -4,11 +4,14 @@ import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.infrastructure.config.FeatureConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.spyk
 import io.mockk.verify
 
 class OmsFeatureTest : FunSpec({
@@ -81,24 +84,82 @@ class OmsFeatureTest : FunSpec({
         }
     }
 
+    context("markConfigUpdated") {
+        test("should set isConfigurationUpdated to true") {
+            feature.isConfigurationUpdated.shouldBeFalse()
+            feature.flagConfigAsDirty()
+            feature.isConfigurationUpdated.shouldBeTrue()
+        }
+    }
+
+    context("onConfigUpdated") {
+        test("should reset isConfigurationUpdated to false") {
+            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
+            feature.flagConfigAsDirty()
+            feature.isConfigurationUpdated.shouldBeTrue()
+
+            feature.onConfigUpdated(tickEvent)
+            feature.isConfigurationUpdated.shouldBeFalse()
+        }
+    }
+
     context("onOmsTick") {
-        test("should do nothing by default") {
-            val event = mockk<OMSLifecycle.TickingEvent>()
-            feature.onOmsTick(event) // no exception expected
+        test("should call onConfigUpdated and reset configUpdated flag") {
+            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
+            feature.flagConfigAsDirty()
+            feature.isConfigurationUpdated.shouldBeTrue()
+
+            feature.onOmsTick(tickEvent)
+            feature.isConfigurationUpdated.shouldBeFalse()
+        }
+
+        test("should call watchConfig on each tick") {
+            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
+            val spyFeature = spyk(TestFeature(), recordPrivateCalls = true)
+
+            spyFeature.flagConfigAsDirty()
+            spyFeature.onOmsTick(tickEvent)
+
+            verify { spyFeature["watchConfig"]() }
+        }
+
+        test("should NOT call onConfigUpdated if config is not dirty") {
+            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
+            val spyFeature = spyk(TestFeature(), recordPrivateCalls = true)
+
+            spyFeature.onOmsTick(tickEvent)
+
+            verify(exactly = 1) { spyFeature["watchConfig"]() }
+            verify(exactly = 0) { spyFeature.onConfigUpdated(any()) }
+        }
+
+    }
+
+    context("onEnabled/onDisabled") {
+        test("onEnabled should flag config as dirty") {
+            feature.isConfigurationUpdated.shouldBeFalse()
+            feature.onEnabled()
+            feature.isConfigurationUpdated.shouldBeTrue()
+        }
+
+        test("onDisabled should flag config as dirty") {
+            feature.isConfigurationUpdated.shouldBeFalse()
+            feature.onDisabled()
+            feature.isConfigurationUpdated.shouldBeTrue()
         }
     }
 
     context("onOmsStarted") {
         test("should do nothing by default") {
             val event = mockk<OMSLifecycle.StartingEvent>()
-            feature.onOmsStarted(event) // no exception expected
+            feature.onOmsStarted(event)
         }
     }
 
     context("onOmsStopping") {
         test("should do nothing by default") {
             val event = mockk<OMSLifecycle.StoppingEvent>()
-            feature.onOmsStopping(event) // no exception expected
+            feature.onOmsStopping(event)
         }
     }
 })

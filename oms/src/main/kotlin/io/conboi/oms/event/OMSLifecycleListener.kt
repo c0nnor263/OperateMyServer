@@ -15,9 +15,7 @@ internal object OMSLifecycleListener {
     @SubscribeEvent
     fun onRegisterFeaturesEvent(event: OMSLifecycleInternal.Feature.RegisterEvent) {
         FORGE_BUS.post(OMSLifecycle.Feature.RegisterEvent())
-        OMSFeatureManagers.runForEach {
-            freeze()
-        }
+        OMSFeatureManagers.freeze()
     }
 
     @SubscribeEvent

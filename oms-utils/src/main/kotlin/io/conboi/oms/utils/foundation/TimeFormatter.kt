@@ -27,4 +27,14 @@ object TimeFormatter {
         time: ZonedDateTime,
         formatter: DateTimeFormatter = HHmmFormatter
     ): String = time.format(formatter)
+
+    fun formatDateTime(time: ZonedDateTime): String {
+        val now = TimeHelper.currentTime
+        val formatter = if (time.toLocalDate().isEqual(now.toLocalDate())) {
+            HHmmFormatter
+        } else {
+            ddMMHHmmFormatter
+        }
+        return formatZonedDateTime(time, formatter)
+    }
 }

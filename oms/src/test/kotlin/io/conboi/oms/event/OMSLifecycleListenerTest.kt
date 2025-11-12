@@ -3,6 +3,7 @@ package io.conboi.oms.event
 import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureManager
+import io.conboi.oms.api.foundation.reason.StopReason
 import io.conboi.oms.api.infrastructure.file.OMSRootPath
 import io.conboi.oms.content.StopManager
 import io.kotest.core.spec.style.FunSpec
@@ -83,7 +84,7 @@ class OMSLifecycleListenerTest : FunSpec({
     }
 
     test("onStopRequestedEvent should delegate to StopManager") {
-        val reason = mockk<io.conboi.oms.api.foundation.reason.StopReason>()
+        val reason = mockk<StopReason>()
         val event = OMSLifecycle.StopRequestedEvent(server, reason)
 
         every { StopManager.stop(event) } just Runs

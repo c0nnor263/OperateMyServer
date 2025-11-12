@@ -20,3 +20,5 @@ classes/
 /.kotlin
 /oms/test/
 /*/logs/
+/**/logs/
+logs/

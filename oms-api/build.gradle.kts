@@ -69,11 +69,30 @@ publishing {
     }
 }
 
+val checkRemoteVersionNotPublished =
+    tasks.register<tasks.CheckRemoteVersionNotPublishedTask>("checkRemoteVersionNotPublished") {
+        groupId.set(OmsApi.GROUP_ID)
+        artifactId.set(OmsApi.ID)
+        version.set(OmsApi.VERSION)
+        baseUrl.set("https://c0nnor263.github.io/OperateMyServer/oms-api")
+    }
+
+
 val generateIndexHtmlTask = tasks.register<GenerateIndexHtmlTask>("generateIndexHtml") {
     title.set("Index of /docs")
     outputDir.set(rootProject.projectDir.resolve("docs"))
 }
 
-tasks.named("publishOmsApiPublicationToOperateMyServerDocsRepository") {
+tasks.register("publishOmsApi") {
+    group = "publishing"
+    description =
+        "Runs tests, checks remote version, publishes oms-api to local Maven (GitHub Pages) and updates index.html"
+
+    dependsOn(
+        "jvmKotest",
+        "checkRemoteVersionNotPublished",
+        "publishOmsApiPublicationToOperateMyServerDocsRepository"
+    )
+
     finalizedBy(generateIndexHtmlTask)
 }

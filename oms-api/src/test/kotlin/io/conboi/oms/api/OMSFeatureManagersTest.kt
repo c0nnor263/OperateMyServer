@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 
 class OMSFeatureManagersTest : FunSpec({
 
@@ -20,6 +21,10 @@ class OMSFeatureManagersTest : FunSpec({
         val registry = registryField.get(OMSFeatureManagers) as MutableMap<String, FeatureManager>
         registry.clear()
         registry["${OperateMyServer.MOD_ID}:main"] = omsFeatureManager
+
+        val frozenField = OMSFeatureManagers::class.java.getDeclaredField("frozen")
+        frozenField.isAccessible = true
+        frozenField.setBoolean(OMSFeatureManagers, false)
     }
 
     beforeEach {
@@ -34,6 +39,7 @@ class OMSFeatureManagersTest : FunSpec({
     }
 
     context("register") {
+
         test("should register a new FeatureManager") {
             OMSFeatureManagers.register(mockFeatureManager)
             OMSFeatureManagers.get<FeatureManager>("testmod:testfeature") shouldBe mockFeatureManager
@@ -79,7 +85,6 @@ class OMSFeatureManagersTest : FunSpec({
         }
 
         test("should throw when modId is reserved") {
-            clearRegistryPreservingOms()
             every { mockFeatureManager.modId } returns OperateMyServer.MOD_ID
             every { mockFeatureManager.name } returns "main"
             every { mockFeatureManager.getFullId() } returns "${OperateMyServer.MOD_ID}:main"
@@ -109,10 +114,20 @@ class OMSFeatureManagersTest : FunSpec({
             }
             exception.message shouldBe "FeatureManager id can only contain lowercase letters, digits, underscores, hyphens and colons"
         }
+
+        test("should throw when registry is frozen") {
+            OMSFeatureManagers.freeze()
+
+            val exception = shouldThrow<IllegalStateException> {
+                OMSFeatureManagers.register(mockFeatureManager)
+            }
+            exception.message shouldBe "Cannot register features after server has started!"
+        }
     }
 
     context("get") {
-        test("should retrieve registered FeatureManager by id") {
+
+    test("should retrieve registered FeatureManager by id") {
             OMSFeatureManagers.register(mockFeatureManager)
             val retrievedManager = OMSFeatureManagers.get<FeatureManager>("testmod:testfeature")
             retrievedManager shouldBe mockFeatureManager
@@ -125,13 +140,48 @@ class OMSFeatureManagersTest : FunSpec({
     }
 
     context("runForEach") {
+
         test("should run action for each registered FeatureManager") {
             OMSFeatureManagers.register(mockFeatureManager)
             var actionExecuted = false
+
             OMSFeatureManagers.runForEach {
                 if (this == mockFeatureManager) actionExecuted = true
             }
+
             actionExecuted shouldBe true
+        }
+    }
+
+    context("freeze") {
+
+        test("should freeze registry and prevent future registrations") {
+            OMSFeatureManagers.freeze()
+
+            val exception = shouldThrow<IllegalStateException> {
+                OMSFeatureManagers.register(mockFeatureManager)
+            }
+            exception.message shouldBe "Cannot register features after server has started!"
+        }
+
+        test("should be safe to call freeze multiple times") {
+            OMSFeatureManagers.freeze()
+            OMSFeatureManagers.freeze() // should not throw
+        }
+
+        test("should call freeze on all registered managers") {
+            val mockFeatureManager2 = mockk<FeatureManager>(relaxed = true)
+            every { mockFeatureManager2.modId } returns "mod"
+            every { mockFeatureManager2.name } returns "feature"
+            every { mockFeatureManager2.getFullId() } returns "mod:feature"
+
+            OMSFeatureManagers.register(mockFeatureManager)
+            OMSFeatureManagers.register(mockFeatureManager2)
+
+            OMSFeatureManagers.freeze()
+
+            verify { mockFeatureManager.freeze() }
+            verify { mockFeatureManager2.freeze() }
         }
     }
 })

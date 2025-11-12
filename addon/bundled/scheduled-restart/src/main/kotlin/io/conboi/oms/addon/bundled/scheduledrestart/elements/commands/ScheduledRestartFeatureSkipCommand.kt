@@ -3,19 +3,17 @@ package io.conboi.oms.addon.bundled.scheduledrestart.elements.commands
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import io.conboi.oms.addon.bundled.scheduledrestart.AutoRestartFeature
+import io.conboi.oms.addon.bundled.scheduledrestart.ScheduledRestartFeature
 import io.conboi.oms.addon.bundled.scheduledrestart.content.SkipResult
-import io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config.CAutoRestartFeature
+import io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config.CScheduledRestartFeature
 import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import io.conboi.oms.utils.foundation.TimeFormatter
-import io.conboi.oms.utils.foundation.TimeHelper
-import java.time.ZonedDateTime
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
-class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
+class ScheduledRestartFeatureSkipCommand : OMSCommandEntry() {
 
     override fun init(): ArgumentBuilder<CommandSourceStack, *> {
         return Commands.literal("skip")
@@ -24,8 +22,9 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
 
     private fun skip(ctx: CommandContext<CommandSourceStack>): Int {
         val source = ctx.source
-        val feature = OMSFeatureManagers.oms.getFeatureById<AutoRestartFeature>(CAutoRestartFeature.Companion.NAME)
-        val featureName = feature?.info?.id ?: CAutoRestartFeature.Companion.NAME
+        val feature =
+            OMSFeatureManagers.oms.getFeatureById<ScheduledRestartFeature>(CScheduledRestartFeature.Companion.NAME)
+        val featureName = feature?.info?.id ?: CScheduledRestartFeature.NAME
         if (feature == null) {
             source.sendFailure(
                 Component.translatable(
@@ -52,8 +51,8 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
                     {
                         Component.translatable(
                             "oms.command.autorestart.skip.success",
-                            formatTime(result.skipped),
-                            formatTime(result.next)
+                            TimeFormatter.formatDateTime(result.skipped),
+                            TimeFormatter.formatDateTime(result.next)
                         )
                     }, true
                 )
@@ -63,7 +62,7 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
                 source.sendFailure(
                     Component.translatable(
                         "oms.command.autorestart.skip.already_skipped",
-                        formatTime(result.next),
+                        TimeFormatter.formatDateTime(result.next),
                     )
                 )
             }
@@ -71,15 +70,4 @@ class AutoRestartFeatureSkipCommand : OMSCommandEntry() {
 
         return Command.SINGLE_SUCCESS
     }
-
-    fun formatTime(time: ZonedDateTime): String {
-        val now = TimeHelper.currentTime
-        val formatter = if (time.toLocalDate().isEqual(now.toLocalDate())) {
-            TimeFormatter.HHmmFormatter
-        } else {
-            TimeFormatter.ddMMHHmmFormatter
-        }
-        return TimeFormatter.formatZonedDateTime(time, formatter)
-    }
-
 }

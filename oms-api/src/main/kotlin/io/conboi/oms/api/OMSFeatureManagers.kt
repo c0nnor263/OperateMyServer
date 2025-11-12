@@ -13,7 +13,13 @@ object OMSFeatureManagers {
         }
     }
 
+    /**
+     * Whether the registry is frozen (no more feature managers can be registered).
+     */
+    private var frozen: Boolean = false
+
     fun register(manager: FeatureManager) {
+        check(!frozen) { "Cannot register features after server has started!" }
         validateId(manager)
         registry[manager.getFullId()] = manager
     }
@@ -23,6 +29,18 @@ object OMSFeatureManagers {
 
     fun runForEach(action: FeatureManager.() -> Unit) {
         registry.values.forEach(action)
+    }
+
+    /**
+     * Freezes the registry, preventing any further feature registrations.
+     * This should be called once, after all FeatureManager have been registered and before the OMS's event [io.conboi.oms.api.event.OMSLifecycle.StartingEvent].
+     */
+    fun freeze() {
+        if (frozen) return
+        frozen = true
+        runForEach {
+            this.freeze()
+        }
     }
 
     private fun validateId(manager: FeatureManager) {

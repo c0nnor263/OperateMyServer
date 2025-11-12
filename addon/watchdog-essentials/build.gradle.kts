@@ -153,11 +153,9 @@ val mergeLangFiles by tasks.registering(MergeLangFilesTask::class) {
 //publisher {
 //    apiKeys {
 //        curseforge(System.getenv("CURSE_FORGE_API_KEY"))
-////        modrinth(System.getenv("MODRINTH_API_KEY"))
 //    }
 //
 //    curseID.set("1341025")
-////    modrinthID.set("")
 //    versionType.set("release")
 //    changelog.set(file("CHANGELOG.md"))
 //    version.set(project.version.toString())
@@ -170,9 +168,6 @@ val mergeLangFiles by tasks.registering(MergeLangFilesTask::class) {
 //    curseDepends {
 //        required("kotlin-for-forge")
 //    }
-////    modrinthDepends {
-////        required("kotlin-for-forge")
-////    }
 //}
 
 

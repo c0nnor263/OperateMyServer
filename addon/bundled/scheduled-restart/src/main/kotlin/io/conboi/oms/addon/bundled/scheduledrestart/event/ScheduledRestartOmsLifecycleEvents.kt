@@ -1,7 +1,7 @@
 package io.conboi.oms.addon.bundled.scheduledrestart.event
 
-import io.conboi.oms.addon.bundled.scheduledrestart.AutoRestartFeature
-import io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config.CAutoRestartFeature
+import io.conboi.oms.addon.bundled.scheduledrestart.ScheduledRestartFeature
+import io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config.CScheduledRestartFeature
 import io.conboi.oms.api.OMSFeatureManagers
 import io.conboi.oms.api.OperateMyServer
 import io.conboi.oms.api.event.OMSLifecycle
@@ -10,18 +10,20 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 
 @Mod.EventBusSubscriber(modid = OperateMyServer.MOD_ID)
-internal object AutoRestartOmsLifecycleEvents {
+internal object ScheduledRestartOmsLifecycleEvents {
 
     @SubscribeEvent
     fun onRegisterFeatureEvent(event: OMSLifecycle.Feature.RegisterEvent) {
-        val feature = AutoRestartFeature()
+        val feature = ScheduledRestartFeature()
         OMSFeatureManagers.oms.register(feature)
     }
 
     @SubscribeEvent
     fun onRegisterFeatureConfigEvent(event: OMSLifecycle.Feature.RegisterConfigEvent) {
-        val config = CServer.features.getFeatureConfig<CAutoRestartFeature>(CAutoRestartFeature.Companion.NAME)
-        val feature = OMSFeatureManagers.oms.getFeatureById<AutoRestartFeature>(CAutoRestartFeature.Companion.NAME)
+        val config =
+            CServer.features.getFeatureConfig<CScheduledRestartFeature>(CScheduledRestartFeature.Companion.NAME)
+        val feature =
+            OMSFeatureManagers.oms.getFeatureById<ScheduledRestartFeature>(CScheduledRestartFeature.Companion.NAME)
         feature?.onOmsRegisterConfig(config)
     }
 }

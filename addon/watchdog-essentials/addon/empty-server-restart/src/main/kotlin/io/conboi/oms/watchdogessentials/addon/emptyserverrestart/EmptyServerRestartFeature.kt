@@ -3,14 +3,12 @@ package io.conboi.oms.watchdogessentials.addon.emptyserverrestart
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
-import io.conboi.oms.utils.foundation.CachedField
 import io.conboi.oms.utils.foundation.TimeFormatter
 import io.conboi.oms.utils.foundation.TimeHelper
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.foundation.reason.EmptyServerRestartStop
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.infrastructure.config.CEmptyServerRestartFeature
 import io.conboi.oms.watchdogessentials.core.infrastructure.LOG
 import java.time.ZonedDateTime
-import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
@@ -22,13 +20,13 @@ internal class EmptyServerRestartFeature : OmsFeature<CEmptyServerRestartFeature
         priority = FeatureInfo.Priority.COMMON
     )
 
-    val countTime: CachedField<String, Duration> = CachedField(
-        key = { config.countTime.get() },
+    val countTime = configField {
+        key = { config.countTime.get() }
         value = {
             TimeFormatter.parseToDurationOrNull(config.countTime.get())
                 ?: error("Cannot parse countTime")
         }
-    )
+    }
 
     private var emptyServerTime: ZonedDateTime? = null
 
@@ -37,10 +35,8 @@ internal class EmptyServerRestartFeature : OmsFeature<CEmptyServerRestartFeature
         val server = event.server
 
         emptyServerTime?.let { time ->
-            println("Empty server time: $time")
             val now = TimeHelper.currentTime
             val elapsedSec = TimeHelper.secondsBetween(time, now)
-            println("Elapsed seconds: $elapsedSec, Count time seconds: ${countTime.get().inWholeSeconds}")
             if (elapsedSec >= countTime.get().inWholeSeconds) {
                 val elapsedDuration = elapsedSec.toDuration(DurationUnit.SECONDS)
                 LOG.info("No players detected for ${TimeFormatter.formatDuration(elapsedDuration)}")

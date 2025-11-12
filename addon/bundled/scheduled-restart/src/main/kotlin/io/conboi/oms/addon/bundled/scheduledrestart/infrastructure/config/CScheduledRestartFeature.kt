@@ -3,8 +3,8 @@ package io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config
 import io.conboi.oms.utils.foundation.TimeFormatter
 import io.conboi.oms.utils.infrastructure.config.FeatureConfigImpl
 
-class CAutoRestartFeature : FeatureConfigImpl() {
-    companion object {
+class CScheduledRestartFeature : FeatureConfigImpl() {
+    companion object Companion {
         const val NAME = "auto_restart"
     }
 
@@ -12,7 +12,7 @@ class CAutoRestartFeature : FeatureConfigImpl() {
 
     // TODO: Add minimal required interval between restarts to prevent too frequent restarts
     val restartTimes = list(
-        mutableListOf("00:00", "06:00", "12:00", "18:00"),
+        listOf("00:00", "06:00", "12:00", "18:00"),
         "times",
         Comments.RESTART_TIMES
     ) { element ->
@@ -20,7 +20,7 @@ class CAutoRestartFeature : FeatureConfigImpl() {
     }
 
     val warningTimes = list(
-        mutableListOf(
+        listOf(
             "2h",
             "30m",
             "15m",

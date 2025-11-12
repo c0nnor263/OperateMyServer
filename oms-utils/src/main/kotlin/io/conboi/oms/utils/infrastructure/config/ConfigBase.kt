@@ -70,7 +70,7 @@ abstract class ConfigBase {
     }
 
     protected fun <T> list(
-        def: MutableList<T>, name: String, vararg comment: String, elementValidator: Predicate<T?> = Predicate { true }
+        def: List<T>, name: String, vararg comment: String, elementValidator: Predicate<T?> = Predicate { true }
     ): ListValue<T> = ListValue(name, def, elementValidator, *comment)
 
     protected fun s(
@@ -130,11 +130,11 @@ abstract class ConfigBase {
     }
 
     inner class ListValue<T>(
-        name: String, def: MutableList<T>, private val validator: Predicate<T?>, vararg comment: String?
-    ) : CValue<MutableList<T>, ConfigValue<MutableList<T>>?>(
-        name, IValueProvider<MutableList<T>, ConfigValue<MutableList<T>>?> { builder ->
+        name: String, def: List<T>, private val validator: Predicate<T?>, vararg comment: String?
+    ) : CValue<List<T>, ConfigValue<List<T>>?>(
+        name, IValueProvider<List<T>, ConfigValue<List<T>>?> { builder ->
             val safeValidator = Predicate<Any?> { it == null || validator.test(it as? T) }
-            builder.defineList(name, def, safeValidator) as ConfigValue<MutableList<T>>
+            builder.defineList(name, def, safeValidator) as ConfigValue<List<T>>
         }, comment = comment
     ) {
         @Suppress("UNCHECKED_CAST")

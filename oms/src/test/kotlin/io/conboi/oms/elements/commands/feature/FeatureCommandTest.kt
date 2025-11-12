@@ -19,7 +19,7 @@ class FeatureCommandTest : FunSpec({
     test("featureCommand should include dummy command for each feature") {
         val dummyCommand = object : OMSCommandEntry() {
             override fun init() =
-                com.mojang.brigadier.builder.LiteralArgumentBuilder.literal<CommandSourceStack>("dummy")
+                LiteralArgumentBuilder.literal<CommandSourceStack>("dummy")
         }
 
         val feature = object : OmsFeature<Nothing>() {
@@ -39,10 +39,10 @@ class FeatureCommandTest : FunSpec({
         featureNode shouldNotBe null
 
         val featureIdNode =
-            featureNode!!.children.find { it.name == "testmod:testfeature" } as? LiteralCommandNode<CommandSourceStack>
+            featureNode?.children?.find { it.name == "testmod:testfeature" } as? LiteralCommandNode<CommandSourceStack>
         featureIdNode shouldNotBe null
 
-        val dummyNode = featureIdNode!!.children.find { it.name == "dummy" }
+        val dummyNode = featureIdNode?.children?.find { it.name == "dummy" }
         dummyNode shouldNotBe null
 
         unmockkObject(OMSFeatureManagers)

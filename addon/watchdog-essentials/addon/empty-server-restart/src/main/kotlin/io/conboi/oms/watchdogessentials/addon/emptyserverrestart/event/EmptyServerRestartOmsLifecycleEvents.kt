@@ -5,6 +5,7 @@ import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.EmptyServerRestartFeature
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.infrastructure.config.CEmptyServerRestartFeature
 import io.conboi.oms.watchdogessentials.core.WatchDogEssentials
+import io.conboi.oms.watchdogessentials.core.foundation.feature.we
 import io.conboi.oms.watchdogessentials.core.infrastructure.config.CServer
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -15,14 +16,13 @@ internal object EmptyServerRestartOmsLifecycleEvents {
     @SubscribeEvent
     fun onRegisterFeaturesEvent(event: OMSLifecycle.Feature.RegisterEvent) {
         val feature = EmptyServerRestartFeature()
-        OMSFeatureManagers.oms.register(feature)
+        OMSFeatureManagers.we.register(feature)
     }
 
     @SubscribeEvent
     fun onRegisterFeaturesConfigEvent(event: OMSLifecycle.Feature.RegisterConfigEvent) {
         val config = CServer.features.getFeatureConfig<CEmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
-        val feature = OMSFeatureManagers.oms.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
+        val feature = OMSFeatureManagers.we.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
         feature?.onOmsRegisterConfig(config)
-        // TODO: Create own Manager
     }
 }
