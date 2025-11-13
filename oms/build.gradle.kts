@@ -117,7 +117,7 @@ dependencies {
     compileOnly(annotationProcessor(libs.mixin.extras.common.get().toString())!!)
     annotationProcessor("${libs.mixin.processor.get().module}:${libs.versions.mixin.get()}:processor")
 
-    testImplementation(libs.bundles.testing)
+    testImplementation(projects.omsTesting)
 }
 
 val mergedLangDir = layout.buildDirectory.dir("generated/resources/assets/$modId/lang")

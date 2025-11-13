@@ -16,6 +16,7 @@ include(":oms")
 include(":oms-core")
 include(":oms-api")
 include(":oms-utils")
+include(":oms-testing")
 include(":addon:bundled:scheduled-restart")
 
 // Watchdog Essentials Addon

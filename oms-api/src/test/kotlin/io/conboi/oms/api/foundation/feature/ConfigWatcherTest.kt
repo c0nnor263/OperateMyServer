@@ -1,66 +1,76 @@
 package io.conboi.oms.api.foundation.feature
 
 import io.conboi.oms.api.foundation.CachedField
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 
-class ConfigWatcherTest : FunSpec({
+class ConfigWatcherTest : ShouldSpec({
 
-    class TestConfigWatcher : ConfigWatcher() {
-        fun exposeWatchConfig() = watchConfig()
-        fun <K, V> addField(block: CachedField.Builder<K, V>.() -> Unit): CachedField<K, V> {
-            return configField(block)
-        }
+    lateinit var sut: TestConfigWatcher
+
+    beforeEach {
+        sut = TestConfigWatcher()
     }
 
-    lateinit var watcher: TestConfigWatcher
-
-    beforeTest {
-        watcher = TestConfigWatcher()
+    should("flag configuration as dirty") {
+        sut.isConfigDirty.shouldBeFalse()
+        sut.flagConfigAsDirty()
+        sut.isConfigDirty.shouldBeTrue()
     }
 
-    test("should flag config as dirty") {
-        watcher.isConfigurationUpdated.shouldBeFalse()
-        watcher.flagConfigAsDirty()
-        watcher.isConfigurationUpdated.shouldBeTrue()
+    should("reset configuration updated flag when onConfigUpdated is invoked") {
+        sut.flagConfigAsDirty()
+        sut.isConfigDirty.shouldBeTrue()
+
+        sut.onConfigUpdated(mockk())
+        sut.isConfigDirty.shouldBeFalse()
     }
 
-    test("should reset config update flag on onConfigUpdated") {
-        watcher.flagConfigAsDirty()
-        watcher.isConfigurationUpdated.shouldBeTrue()
-
-        watcher.onConfigUpdated(mockk())
-        watcher.isConfigurationUpdated.shouldBeFalse()
-    }
-
-    test("should watch all configFields") {
+    should("call watch on all registered config fields") {
         val field1 = mockk<CachedField<String, Int>>(relaxed = true)
         val field2 = mockk<CachedField<String, String>>(relaxed = true)
 
-        val configFields = ConfigWatcher::class.java
+        val list = ConfigWatcher::class.java
             .getDeclaredField("configFields")
             .apply { isAccessible = true }
-            .get(watcher) as MutableList<CachedField<*, *>>
+            .get(sut) as MutableList<CachedField<*, *>>
 
-        configFields.addAll(listOf(field1, field2))
+        list.add(field1)
+        list.add(field2)
 
-        watcher.exposeWatchConfig()
+        sut.exposeWatchConfig()
 
         verify { field1.watch() }
         verify { field2.watch() }
     }
 
-    test("configField should create and register observed field") {
-        val field = watcher.addField {
-            key = { "config-key" }
-            value = { 123 }
+    should("create configField with observe=true and register it") {
+        var callCount = 0
+
+        val field = sut.addField {
+            key = { "k" }
+            value = { ++callCount }
         }
 
-        field.get() shouldBe 123
         field.observe shouldBe true
+        field.get() shouldBe 1
+
+        val fieldsList = ConfigWatcher::class.java
+            .getDeclaredField("configFields")
+            .apply { isAccessible = true }
+            .get(sut) as List<*>
+
+        fieldsList.contains(field) shouldBe true
     }
 })
+
+class TestConfigWatcher : ConfigWatcher() {
+    fun exposeWatchConfig() = watchConfig()
+    fun <K, V> addField(block: CachedField.Builder<K, V>.() -> Unit): CachedField<K, V> {
+        return configField(block)
+    }
+}

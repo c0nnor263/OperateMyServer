@@ -1,17 +1,11 @@
 package io.conboi.oms.api.foundation.file
 
+import io.conboi.oms.api.extension.ensure
 import io.conboi.oms.api.foundation.feature.FeatureInfo
-import io.conboi.oms.api.infrastructure.file.OMSRootPath
-import io.conboi.oms.api.infrastructure.file.OMSRootPath.ensure
 import java.nio.file.Path
 
 abstract class AddonPaths(private val modId: String) {
-
-    init {
-        require(isValidId(modId)) { "Invalid modId: $modId" }
-    }
-
-    val omsRoot: Path get() = OMSRootPath.root
+    lateinit var omsRoot: Path
     val addonRoot: Path get() = omsRoot.ensure(modId)
 
     val common: Path get() = addonRoot.ensure("common")
@@ -26,7 +20,7 @@ abstract class AddonPaths(private val modId: String) {
         }
     }
 
-    private fun isValidId(id: String): Boolean {
-        return id.matches(Regex("[a-z0-9_\\-]+"))
+    fun onInitializeOmsRoot(omsRootPath: Path) {
+        omsRoot = omsRootPath
     }
 }

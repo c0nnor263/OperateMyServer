@@ -1,8 +1,11 @@
 package io.conboi.oms.watchdogessentials.addon.lowtps
 
+import io.conboi.oms.api.event.OMSActions
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
+import io.conboi.oms.api.foundation.feature.Priority
+import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.utils.foundation.TimeFormatter
 import io.conboi.oms.watchdogessentials.addon.lowtps.foundation.TpsMonitor
 import io.conboi.oms.watchdogessentials.addon.lowtps.foundation.reason.LowTpsStop
@@ -10,12 +13,16 @@ import io.conboi.oms.watchdogessentials.addon.lowtps.infrastructure.config.CLowT
 import io.conboi.oms.watchdogessentials.core.infrastructure.LOG
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-internal class LowTpsFeature : OmsFeature<CLowTpsFeature>() {
+class LowTpsFeature(
+    configProvider: ConfigProvider<CLowTpsFeature>
+) : OmsFeature<CLowTpsFeature>(configProvider) {
 
-    override val info: FeatureInfo = FeatureInfo(
-        id = CLowTpsFeature.NAME,
-        priority = FeatureInfo.Priority.CRITICAL
-    )
+    override fun info(): FeatureInfo {
+        return super.info().copy(
+            id = CLowTpsFeature.NAME,
+            priority = Priority.CRITICAL,
+        )
+    }
 
     val tpsCountTime = configField {
         key = { config.tpsCountTime.get() }
@@ -25,13 +32,18 @@ internal class LowTpsFeature : OmsFeature<CLowTpsFeature>() {
         }
     }
 
+    val tpsThreshold = configField {
+        key = { config.tpsThreshold.get() }
+        value = { config.tpsThreshold.get() }
+    }
+
     override fun onOmsTick(event: OMSLifecycle.TickingEvent) {
         val server = event.server
         TpsMonitor.update(server)
         val avgTps = TpsMonitor.averageTpsOver(tpsCountTime.get())
-        if (avgTps < config.tpsThreshold.get()) {
+        if (avgTps < tpsThreshold.get()) {
             LOG.warn("Low TPS detected (avg=$avgTps) for ${TimeFormatter.formatDuration(tpsCountTime.get())}s, threshold is ${config.tpsThreshold.get()}")
-            FORGE_BUS.post(OMSLifecycle.StopRequestedEvent(server, LowTpsStop))
+            FORGE_BUS.post(OMSActions.StopRequestedEvent(server, LowTpsStop))
         }
     }
 }

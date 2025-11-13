@@ -100,7 +100,7 @@ dependencies {
 
     implementation(libs.kotlinforforge)
 
-    testImplementation(libs.bundles.testing)
+    testImplementation(projects.omsTesting)
 }
 
 tasks.processResources {

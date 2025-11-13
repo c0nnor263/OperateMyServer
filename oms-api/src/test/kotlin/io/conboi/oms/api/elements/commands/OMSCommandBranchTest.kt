@@ -2,51 +2,44 @@ package io.conboi.oms.api.elements.commands
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.minecraft.commands.CommandSourceStack
 
-class OMSCommandBranchTest : FunSpec({
+class OMSCommandBranchTest : ShouldSpec({
 
-    lateinit var dispatcher: CommandDispatcher<CommandSourceStack>
-    lateinit var groupBuilder: LiteralArgumentBuilder<CommandSourceStack>
-    lateinit var commandEntry: OMSCommandEntry
-    lateinit var commandBuilder: LiteralArgumentBuilder<CommandSourceStack>
+    val mockDispatcher: CommandDispatcher<CommandSourceStack> = mockk(relaxed = true)
+    val mockGroupBuilder: LiteralArgumentBuilder<CommandSourceStack> = mockk(relaxed = true)
+    val mockCommandEntry: OMSCommandEntry = mockk(relaxed = true)
+    val mockCommandBuilder: LiteralArgumentBuilder<CommandSourceStack> = mockk(relaxed = true)
 
-    beforeTest {
-        dispatcher = mockk(relaxed = true)
-        groupBuilder = mockk(relaxed = true)
-        commandBuilder = mockk(relaxed = true)
-
-        commandEntry = mockk {
-            every { build() } returns commandBuilder
-        }
+    beforeEach {
+        every { mockCommandEntry.build() } returns mockCommandBuilder
     }
 
-    test("should register commands to dispatcher through groupBuilder") {
+    should("register commands when groupBuilder is provided") {
         val branch = object : OMSCommandBranch() {
-            override fun getCommands(): List<OMSCommandEntry> = listOf(commandEntry)
+            override fun getCommands(): List<OMSCommandEntry> = listOf(mockCommandEntry)
         }
 
-        branch.register(dispatcher, groupBuilder)
+        branch.register(mockDispatcher, mockGroupBuilder)
 
-        verify { commandEntry.build() }
-        verify { groupBuilder.then(commandBuilder) }
-        verify { dispatcher.register(groupBuilder) }
+        verify { mockCommandEntry.build() }
+        verify { mockGroupBuilder.then(mockCommandBuilder) }
+        verify { mockDispatcher.register(mockGroupBuilder) }
     }
 
-    test("should do nothing if groupBuilder is null") {
+    should("not register commands when groupBuilder is null") {
         val branch = object : OMSCommandBranch() {
-            override fun getCommands(): List<OMSCommandEntry> = listOf(commandEntry)
+            override fun getCommands(): List<OMSCommandEntry> = listOf(mockCommandEntry)
         }
 
-        // nothing should be called
-        branch.register(dispatcher, null)
+        branch.register(mockDispatcher)
 
-        verify(exactly = 0) { commandEntry.build() }
-        verify(exactly = 0) { dispatcher.register(any()) }
-        verify(exactly = 0) { groupBuilder.then(any<LiteralArgumentBuilder<CommandSourceStack>>()) }
+        verify(exactly = 0) { mockCommandEntry.build() }
+        verify(exactly = 0) { mockDispatcher.register(any()) }
+        verify(exactly = 0) { mockGroupBuilder.then(any<LiteralArgumentBuilder<CommandSourceStack>>()) }
     }
 })

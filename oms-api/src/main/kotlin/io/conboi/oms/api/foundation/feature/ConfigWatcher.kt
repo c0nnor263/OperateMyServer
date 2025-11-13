@@ -5,15 +5,15 @@ import io.conboi.oms.api.foundation.CachedField
 
 abstract class ConfigWatcher {
     private val configFields = mutableListOf<CachedField<*, *>>()
-    var isConfigurationUpdated = false
+    var isConfigDirty = false
         protected set
 
     open fun flagConfigAsDirty() {
-        isConfigurationUpdated = true
+        isConfigDirty = true
     }
 
     open fun onConfigUpdated(event: OMSLifecycle.TickingEvent) {
-        isConfigurationUpdated = false
+        isConfigDirty = false
     }
 
     protected fun watchConfig() {

@@ -201,4 +201,15 @@ abstract class ConfigBase {
                 )
             }, *comment
         )
+
+    fun normalizeValue(v: Any?): Any? =
+        when (v) {
+            is List<*> -> v.map { normalizeValue(it) }
+            is Map<*, *> -> v.mapKeys { it.key.toString() }
+                .mapValues { normalizeValue(it.value) }
+
+            is Enum<*> -> v.name
+            else -> v
+        }
+
 }

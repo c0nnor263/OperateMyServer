@@ -1,28 +1,28 @@
 package io.conboi.oms.watchdogessentials.addon.emptyserverrestart.foundation
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import net.minecraft.server.MinecraftServer
 
-class ServerAccessTest : FunSpec({
+class ServerAccessTest : ShouldSpec({
 
-    val server = mockk<MinecraftServer>()
+    val mockServer = mockk<MinecraftServer>()
 
     beforeTest {
         mockkObject(ServerAccess)
-        every { ServerAccess.getCurrentServer() } returns server
+        every { ServerAccess.getCurrentServer() } returns mockServer
     }
 
     afterTest {
-        unmockkAll()
+        clearAllMocks()
     }
 
-    test("should return mocked server") {
+    should("return mocked server") {
         val result = ServerAccess.getCurrentServer()
-        result shouldBe server
+        result shouldBe mockServer
     }
 })

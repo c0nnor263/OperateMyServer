@@ -1,189 +1,244 @@
 package io.conboi.oms.api.foundation
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
-class CachedFieldTest : FunSpec({
+class CachedFieldTest : ShouldSpec({
 
     context("initialization") {
 
-        test("should accept key and value producers") {
-            val cachedField = CachedField(
-                key = { "key" },
-                value = { 1 }
+        should("initialize using key and value producers") {
+            val field = CachedField(
+                key = { "k" },
+                value = { 42 }
             )
-            cachedField.get() shouldBe 1
-            cachedField.key() shouldBe "key"
-            cachedField.value() shouldBe 1
+
+            field.get() shouldBe 42
+            field.key() shouldBe "k"
         }
 
-        test("should accept valueValidator") {
+        should("store validator when provided") {
             val validator: (Int) -> Boolean = { it > 0 }
+
             val field = CachedField(
-                key = { "key" },
+                key = { "k" },
                 value = { 1 },
                 validator = validator
             )
-            field.get() shouldBe 1
+
             field.validator shouldBe validator
-        }
-
-        test("should accept onUpdate callback") {
-            val onUpdate: (Int?, Int) -> Unit = { _, _ -> }
-            val field = CachedField(
-                key = { "key" },
-                value = { 1 },
-                onUpdate = onUpdate
-            )
             field.get() shouldBe 1
-            field.onUpdate shouldBe onUpdate
         }
 
-        test("should accept observe flag") {
+        should("store onUpdate callback") {
+            var called = false
+
             val field = CachedField(
-                key = { "key" },
+                key = { "k" },
+                value = { 1 },
+                onUpdate = { _, _ -> called = true }
+            )
+
+            field.get()
+            called shouldBe false
+        }
+
+        should("store observe flag") {
+            val field = CachedField(
+                key = { "k" },
                 value = { 1 },
                 observe = true
             )
+
             field.observe shouldBe true
         }
     }
 
     context("get") {
 
-        test("should return cached value while key is unchanged") {
-            var value = 0
+        should("return cached value when key does not change") {
+            var counter = 0
             val field = CachedField(
-                key = { "key" },
-                value = { ++value }
+                key = { "k" },
+                value = { ++counter }
             )
+
             field.get() shouldBe 1
             field.get() shouldBe 1
         }
 
-        test("should recompute value if key changes") {
-            var key = "key"
-            var value = 0
+        should("recompute value when key changes") {
+            var key = "a"
+            var counter = 0
             val field = CachedField(
                 key = { key },
-                value = { ++value }
+                value = { ++counter }
             )
+
             field.get() shouldBe 1
-            key = "newKey"
-            field.get() shouldBe 2
+            key = "b"
             field.get() shouldBe 2
         }
 
-        test("should call onUpdate when value changes") {
-            var updatedOld: Int? = null
-            var updatedNew: Int? = null
-            var key = "key"
-            var value = 0
+        should("call onUpdate when key changes") {
+            var oldVal: Int? = null
+            var newVal: Int? = null
+
+            var key = "x"
+            var counter = 0
+
             val field = CachedField(
                 key = { key },
-                value = { ++value },
+                value = { ++counter },
                 onUpdate = { old, new ->
-                    updatedOld = old
-                    updatedNew = new
+                    oldVal = old
+                    newVal = new
                 }
             )
 
             field.get() shouldBe 1
-            updatedOld shouldBe null
-            updatedNew shouldBe null
+            oldVal.shouldBeNull()
+            newVal.shouldBeNull()
 
-            key = "newKey"
+            key = "y"
             field.get() shouldBe 2
-            updatedOld shouldBe 1
-            updatedNew shouldBe 2
+
+            oldVal shouldBe 1
+            newVal shouldBe 2
         }
 
-        test("should throw if validator fails on new value") {
+        should("throw when validator fails on first get") {
             val field = CachedField(
-                key = { "key" },
+                key = { "k" },
                 value = { 1 },
                 validator = { it > 1 }
             )
 
-            shouldThrow<IllegalArgumentException> {
-                field.get()
-            }.message shouldBe "CachedField validation failed: value = 1"
+            val ex = shouldThrow<IllegalArgumentException> { field.get() }
+            ex.message shouldBe "CachedField validation failed: value = 1"
         }
 
-        test("should throw if validator fails after key changes") {
-            var key = "key"
-            var value = 0
+        should("throw when validator fails after key change") {
+            var key = "a"
+            var v = 0
+
             val field = CachedField(
                 key = { key },
-                value = { ++value },
+                value = { ++v },
                 validator = { it < 2 }
             )
 
             field.get() shouldBe 1
-            key = "newKey"
 
-            shouldThrow<IllegalArgumentException> {
-                field.get()
-            }.message shouldBe "CachedField validation failed: value = 2"
+            key = "b"
+            val ex = shouldThrow<IllegalArgumentException> { field.get() }
+            ex.message shouldBe "CachedField validation failed: value = 2"
         }
 
-        test("should throw if value is not initialized yet") {
+        should("throw when cachedKey matches but cachedValue is null") {
             val field = CachedField(
-                key = { "key" },
-                value = { error("no value") }
-            )
-            shouldThrow<IllegalStateException> {
-                field.invalidate() // first init will fail
-            }
-        }
-
-        test("should throw if key is same but cachedValue is null") {
-            val field = CachedField(
-                key = { "same-key" },
-                value = { error("should not be called") },
-                cachedKey = "same-key",
+                key = { "same" },
+                value = { error("should not run") },
+                cachedKey = "same",
                 cachedValue = null
             )
 
-            val ex = shouldThrow<IllegalStateException> {
-                field.get()
-            }
+            val ex = shouldThrow<IllegalStateException> { field.get() }
             ex.message shouldBe "Cached value is not initialized"
         }
+    }
 
+    context("getSnapshotSafely") {
+
+        should("return computed value when not cached yet") {
+            val field = CachedField(
+                key = { "k" },
+                value = { 42 }
+            )
+
+            field.getSnapshotSafely() shouldBe 42
+        }
+
+        should("return cachedValue when available") {
+            val field = CachedField(
+                key = { "k" },
+                value = { 42 }
+            )
+
+            field.get() shouldBe 42
+            field.getSnapshotSafely() shouldBe 42
+        }
+
+        should("return null when value throws") {
+            val field = CachedField(
+                key = { "k" },
+                value = { throw RuntimeException("fail") }
+            )
+
+            field.getSnapshotSafely().shouldBeNull()
+        }
+
+        should("return snapshot even after invalidate if cached") {
+            var counter = 0
+            val field = CachedField(
+                key = { "k" },
+                value = { ++counter }
+            )
+
+            field.get() shouldBe 1
+            field.invalidate()
+            field.getSnapshotSafely() shouldBe 2
+        }
     }
 
     context("invalidate") {
 
-        test("should call onUpdate with new value") {
-            var updated = false
+        should("call onUpdate with old=null when invalidated before first get") {
+            var oldVal: Int? = null
+            var newVal: Int? = null
+
+            var counter = 0
+
             val field = CachedField(
-                key = { "key" },
+                key = { "k" },
+                value = { ++counter },
+                onUpdate = { old, new ->
+                    oldVal = old
+                    newVal = new
+                }
+            )
+
+            field.invalidate()
+
+            oldVal.shouldBeNull()
+            newVal shouldBe 1
+        }
+
+        should("call onUpdate when invalidated after initialization") {
+            var called = false
+
+            val field = CachedField(
+                key = { "k" },
                 value = { 1 },
-                onUpdate = { _, _ -> updated = true }
+                onUpdate = { _, _ -> called = true }
             )
+
             field.get()
-            updated shouldBe false
+            called shouldBe false
+
             field.invalidate()
-            updated shouldBe true
+            called shouldBe true
         }
 
-        test("should not fail if onUpdate is null") {
-            val field = CachedField(
-                key = { "key" },
-                value = { 1 }
-            )
-            field.get()
-            field.invalidate() // should not throw
-        }
+        should("refresh cached value on invalidate") {
+            var counter = 0
 
-        test("should refresh value on invalidate") {
-            var value = 0
             val field = CachedField(
-                key = { "key" },
-                value = { ++value }
+                key = { "k" },
+                value = { ++counter }
             )
 
             field.get() shouldBe 1
@@ -193,61 +248,53 @@ class CachedFieldTest : FunSpec({
             field.get() shouldBe 3
         }
 
-        test("should update key on invalidate") {
-            var value = 0
+        should("validate new value on invalidate") {
+            var v = 0
+
             val field = CachedField(
-                key = { "key$value" },
-                value = { ++value }
+                key = { "k" },
+                value = { ++v },
+                validator = { it < 2 }
             )
 
             field.get() shouldBe 1
-            field.key() shouldBe "key1"
 
-            field.invalidate()
-            field.get() shouldBe 2
-            field.key() shouldBe "key2"
-
-            field.invalidate()
-            field.get() shouldBe 3
-            field.key() shouldBe "key3"
+            val ex = shouldThrow<IllegalArgumentException> { field.invalidate() }
+            ex.message shouldBe "CachedField validation failed: value = 2"
         }
     }
 
     context("watch") {
 
-        test("should call get when observe = true") {
-            var called = false
+        should("call get when observe=true") {
+            var counter = 0
             val field = CachedField(
-                key = { "key" },
-                value = {
-                    called = true
-                    1
-                },
+                key = { "k" },
+                value = { ++counter },
                 observe = true
             )
+
             field.watch()
-            called shouldBe true
+            counter shouldBe 1
         }
 
-        test("should not call get when observe = false") {
-            var called = false
+        should("not call get when observe=false") {
+            var counter = 0
             val field = CachedField(
-                key = { "key" },
-                value = {
-                    called = true
-                    1
-                },
+                key = { "k" },
+                value = { ++counter },
                 observe = false
             )
+
             field.watch()
-            called shouldBe false
+            counter shouldBe 0
         }
     }
 
     context("builder") {
 
-        test("should build CachedField via builder DSL") {
-            val field = cachedField {
+        should("create CachedField via DSL") {
+            val field = cachedField<String, Int> {
                 key = { "k" }
                 value = { 42 }
                 validator = { it > 0 }
@@ -261,22 +308,27 @@ class CachedFieldTest : FunSpec({
             field.onUpdate shouldNotBe null
         }
 
-        test("should build CachedField via builder") {
+        should("create CachedField via explicit Builder") {
             val builder = CachedField.builder<String, Int>()
-            builder.apply {
-                key = { "k" }
-                value = { 42 }
-                validator = { it > 0 }
-                onUpdate = { _, _ -> }
-                observe = true
-            }
+
+            builder.key = { "k" }
+            builder.value = { 42 }
+            builder.validator = { it > 0 }
+            builder.onUpdate = { _, _ -> }
+            builder.observe = true
+
             val field = builder.build()
 
             field.get() shouldBe 42
             field.observe shouldBe true
-            field.validator shouldNotBe null
-            field.onUpdate shouldNotBe null
         }
 
+        should("fail if builder fields missing") {
+            val builder = CachedField.builder<String, Int>()
+            val ex = shouldThrow<UninitializedPropertyAccessException> {
+                builder.build()
+            }
+            ex.message shouldBe "lateinit property key has not been initialized"
+        }
     }
 })

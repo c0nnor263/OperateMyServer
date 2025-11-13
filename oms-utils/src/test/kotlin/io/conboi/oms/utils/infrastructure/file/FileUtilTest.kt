@@ -1,6 +1,6 @@
 package io.conboi.oms.utils.infrastructure.file
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Path
@@ -8,7 +8,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-class FileUtilTest : FunSpec({
+class FileUtilTest : ShouldSpec({
 
     lateinit var tempDir: Path
 
@@ -21,8 +21,10 @@ class FileUtilTest : FunSpec({
     }
 
     context("ensureDir") {
-        test("should create directory if it does not exist") {
-            val dir = tempDir.resolve("newDir")
+
+        should("create directory when missing") {
+            val dir = tempDir.resolve("new")
+
             dir.exists() shouldBe false
 
             FileUtil.ensureDir(dir)
@@ -31,59 +33,56 @@ class FileUtilTest : FunSpec({
             Files.isDirectory(dir) shouldBe true
         }
 
-        test("should not throw if directory already exists") {
-            val dir = tempDir.resolve("existingDir")
+        should("do nothing when directory already exists") {
+            val dir = tempDir.resolve("exists")
             Files.createDirectories(dir)
-            dir.exists() shouldBe true
 
             FileUtil.ensureDir(dir)
 
             dir.exists() shouldBe true
+            Files.isDirectory(dir) shouldBe true
         }
     }
 
     context("writeSafe") {
-        test("should write content to file safely") {
-            val file = tempDir.resolve("testFile.txt")
-            val content = "Hello, World!"
 
-            FileUtil.writeSafe(file, content)
+        should("write content to file") {
+            val file = tempDir.resolve("file.txt")
+
+            FileUtil.writeSafe(file, "Hello")
 
             file.exists() shouldBe true
-            file.readText() shouldBe content
+            file.readText() shouldBe "Hello"
         }
 
-        test("should overwrite existing file content") {
-            val file = tempDir.resolve("testFile.txt")
-            Files.writeString(file, "Old Content")
-            val newContent = "New Content"
+        should("overwrite existing file content") {
+            val file = tempDir.resolve("file.txt")
+            file.writeText("Old")
 
-            FileUtil.writeSafe(file, newContent)
+            FileUtil.writeSafe(file, "New")
 
-            file.exists() shouldBe true
-            file.readText() shouldBe newContent
+            file.readText() shouldBe "New"
         }
 
-        test("should create parent directories if they do not exist") {
-            val file = tempDir.resolve("nested/dir/testFile.txt")
-            val content = "Nested Content"
-            file.parent.exists() shouldBe false
+        should("create parent directories when missing") {
+            val file = tempDir.resolve("nested/path/file.txt")
 
-            FileUtil.writeSafe(file, content)
+            FileUtil.writeSafe(file, "Content")
 
-            file.parent.exists() shouldBe true
             file.exists() shouldBe true
-            file.readText() shouldBe content
+            file.readText() shouldBe "Content"
         }
 
-        test("should overwrite existing .tmp file if present") {
-            val file = tempDir.resolve("collision.txt")
-            val tmp = file.resolveSibling("collision.txt.tmp")
-            tmp.writeText("Stale temp content")
-            FileUtil.writeSafe(file, "Updated content")
+        should("overwrite stale .tmp file safely") {
+            val file = tempDir.resolve("f.txt")
+            val tmp = file.resolveSibling("f.txt.tmp")
+
+            tmp.writeText("Old tmp")
+
+            FileUtil.writeSafe(file, "Updated")
 
             file.exists() shouldBe true
-            file.readText() shouldBe "Updated content"
+            file.readText() shouldBe "Updated"
         }
     }
 })

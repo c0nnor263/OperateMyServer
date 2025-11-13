@@ -24,5 +24,5 @@ dependencies {
     implementation(projects.omsApi)
     implementation(libs.kotlinxSerialization)
 
-    testImplementation(libs.bundles.testing)
+    testImplementation(projects.omsTesting)
 }

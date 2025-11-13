@@ -1,31 +1,38 @@
 package io.conboi.oms.api.foundation.feature
 
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
-import io.conboi.oms.api.event.OMSFeatureLifecycle
 import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.foundation.info.InfoProvider
+import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.api.infrastructure.config.FeatureConfig
 
 
-abstract class OmsFeature<out T : FeatureConfig> : ConfigWatcher(), OMSFeatureLifecycle {
+abstract class OmsFeature<T : FeatureConfig>(
+    private val configProvider: ConfigProvider<T>
+) : ConfigWatcher(), FeatureLifecycle, InfoProvider<FeatureInfo> {
     private var _config: T? = null
     val config: T
         get() = _config ?: throw IllegalStateException("Feature config is not initialized yet.")
 
-    abstract val info: FeatureInfo
+    open val additionalCommands: List<OMSCommandEntry> = emptyList()
+
+    override fun info(): FeatureInfo {
+        return FeatureInfo(
+            id = _config?.name ?: "",
+            commands = additionalCommands,
+            configInfo = _config?.info()
+        )
+    }
 
     override fun onOmsTick(event: OMSLifecycle.TickingEvent) {
         watchConfig()
-        if (isConfigurationUpdated) {
+        if (isConfigDirty) {
             onConfigUpdated(event)
         }
     }
 
-    override fun onOmsStarted(event: OMSLifecycle.StartingEvent) {}
-    override fun onOmsStopping(event: OMSLifecycle.StoppingEvent) {}
-
-    override fun onOmsRegisterConfig(config: FeatureConfig) {
-        @Suppress("UNCHECKED_CAST")
-        this._config = config as T
+    override fun onOmsRegisterConfig() {
+        this._config = configProvider.get()
     }
 
     override fun onEnabled() {
@@ -47,6 +54,4 @@ abstract class OmsFeature<out T : FeatureConfig> : ConfigWatcher(), OMSFeatureLi
         config.disable()
         onDisabled()
     }
-
-    open fun getFeatureCommands(): List<OMSCommandEntry> = emptyList()
 }

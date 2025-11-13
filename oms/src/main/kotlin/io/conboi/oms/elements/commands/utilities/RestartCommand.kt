@@ -3,7 +3,7 @@ package io.conboi.oms.elements.commands.utilities
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.ArgumentBuilder
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
-import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.event.OMSActions
 import io.conboi.oms.core.foundation.reason.ManualRestartStop
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -14,7 +14,7 @@ internal class RestartCommand : OMSCommandEntry() {
         return Commands.literal("restart")
             .executes { ctx ->
                 val server = ctx.source.server
-                FORGE_BUS.post(OMSLifecycle.StopRequestedEvent(server, ManualRestartStop))
+                FORGE_BUS.post(OMSActions.StopRequestedEvent(server, ManualRestartStop))
                 Command.SINGLE_SUCCESS
             }
     }

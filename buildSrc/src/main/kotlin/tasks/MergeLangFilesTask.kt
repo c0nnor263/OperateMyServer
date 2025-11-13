@@ -50,7 +50,7 @@ abstract class MergeLangFilesTask @Inject constructor(
 
         val allLangFiles = project.files(langFileTrees)
 
-        println("📝 Found lang files:")
+        println("Found lang files:")
         allLangFiles.files.forEach { println(" - ${it.path}") }
 
         val localeToEntries = mutableMapOf<String, MutableMap<String, String>>()
@@ -71,6 +71,6 @@ abstract class MergeLangFilesTask @Inject constructor(
             outFile.writeText(gson.toJson(entries))
         }
 
-        println("✅ Locales merged: ${localeToEntries.keys}")
+        println("Locales merged: ${localeToEntries.keys}")
     }
 }

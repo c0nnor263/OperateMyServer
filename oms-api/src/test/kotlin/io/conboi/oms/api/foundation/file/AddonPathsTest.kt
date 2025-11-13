@@ -1,67 +1,67 @@
 package io.conboi.oms.api.foundation.file
 
+import io.conboi.oms.api.extension.ensure
 import io.conboi.oms.api.foundation.feature.FeatureInfo
-import io.conboi.oms.api.infrastructure.file.OMSRootPath
-import io.conboi.oms.api.infrastructure.file.OMSRootPath.ensure
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
+import io.mockk.mockkStatic
 import java.nio.file.Path
 
-class AddonPathsTest : FunSpec({
+class AddonPathsTest : ShouldSpec({
+    lateinit var sut: AddonPaths
+    val mockOmsRoot: Path = mockk(relaxed = true)
+    val mockAddonRoot: Path = mockk(relaxed = true)
+    val mockCommon: Path = mockk(relaxed = true)
+    val mockLogs: Path = mockk(relaxed = true)
+    val mockCache: Path = mockk(relaxed = true)
+    val mockFeatureCommon: Path = mockk(relaxed = true)
+    val mockFeatureLogs: Path = mockk(relaxed = true)
+    val mockFeatureCache: Path = mockk(relaxed = true)
 
-    lateinit var rootPath: Path
-    lateinit var addonPath: Path
-    lateinit var featurePath: Path
+    beforeEach {
+        mockkStatic(Path::ensure)
 
-    beforeTest {
-        mockkObject(OMSRootPath)
+        every { mockOmsRoot.ensure("myaddon") } returns mockAddonRoot
+        every { mockAddonRoot.ensure("common") } returns mockCommon
+        every { mockAddonRoot.ensure("logs") } returns mockLogs
+        every { mockAddonRoot.ensure("cache") } returns mockCache
 
-        // mock base path
-        rootPath = mockk(relaxed = true)
-        addonPath = mockk(relaxed = true)
-        featurePath = mockk(relaxed = true)
+        every { mockCommon.ensure("feature1") } returns mockFeatureCommon
+        every { mockLogs.ensure("feature1") } returns mockFeatureLogs
+        every { mockCache.ensure("feature1") } returns mockFeatureCache
 
-        every { OMSRootPath.root } returns rootPath
-        every { rootPath.ensure("myaddon") } returns addonPath
-        every { addonPath.ensure("common") } returns addonPath
-        every { addonPath.ensure("logs") } returns addonPath
-        every { addonPath.ensure("cache") } returns addonPath
-
-        every { addonPath.ensure("feature1") } returns featurePath
+        sut = object : AddonPaths("myaddon") {}
     }
 
-    afterTest {
-        unmockkAll()
+    afterEach {
+        clearAllMocks()
     }
 
-    test("should throw on invalid modId") {
-        shouldThrow<IllegalArgumentException> {
-            object : AddonPaths("Invalid@Mod!") {}
-        }.message shouldBe "Invalid modId: Invalid@Mod!"
+    should("initialize omsRoot correctly with onInitializeOmsRoot") {
+        sut.onInitializeOmsRoot(mockOmsRoot)
+
+        sut.omsRoot shouldBe mockOmsRoot
     }
 
-    test("should return correct root paths") {
-        val paths = object : AddonPaths("myaddon") {}
+    should("build addonRoot and standard directories") {
+        sut.onInitializeOmsRoot(mockOmsRoot)
 
-        paths.omsRoot shouldBe rootPath
-        paths.addonRoot shouldBe addonPath
-        paths.common shouldBe addonPath
-        paths.logs shouldBe addonPath
-        paths.cache shouldBe addonPath
+        sut.addonRoot shouldBe mockAddonRoot
+        sut.common shouldBe mockCommon
+        sut.logs shouldBe mockLogs
+        sut.cache shouldBe mockCache
     }
 
-    test("should return correct feature path for AddonPathType") {
-        val paths = object : AddonPaths("myaddon") {}
+    should("return correct feature paths based on AddonPathType") {
+        sut.onInitializeOmsRoot(mockOmsRoot)
 
-        val info = FeatureInfo("feature1")
+        val info = FeatureInfo(id = "feature1")
 
-        paths.forFeature(info, AddonPathType.COMMON) shouldBe featurePath
-        paths.forFeature(info, AddonPathType.LOGS) shouldBe featurePath
-        paths.forFeature(info, AddonPathType.CACHE) shouldBe featurePath
+        sut.forFeature(info, AddonPathType.COMMON) shouldBe mockFeatureCommon
+        sut.forFeature(info, AddonPathType.LOGS) shouldBe mockFeatureLogs
+        sut.forFeature(info, AddonPathType.CACHE) shouldBe mockFeatureCache
     }
 })

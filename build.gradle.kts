@@ -14,5 +14,9 @@ tasks.register("generateTemplates") {
 subprojects {
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+        forkEvery = 50
+        reports.html.required = false
+        reports.junitXml.required = false
     }
 }

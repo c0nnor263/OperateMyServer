@@ -1,26 +1,26 @@
 package io.conboi.oms.api.foundation
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 
-
-class TickTimerTest : FunSpec({
+class TickTimerTest : ShouldSpec({
 
     context("shouldFire") {
-        test("should return true when timer internalTicks is 20 and serverTickCount is 20") {
-            val timer = TickTimer()
-            timer.shouldFire(20) shouldBe true
+
+        should("fire every 20 ticks by default") {
+            TickTimer().apply {
+                shouldFire(serverTickCount = 20) shouldBe true
+                shouldFire(serverTickCount = 40) shouldBe true
+                shouldFire(serverTickCount = 21) shouldBe false
+            }
         }
 
-        test("should return true when timer internalTicks is 10 and serverTickCount is 20") {
-            val timer = TickTimer(intervalTicks = 10)
-            timer.shouldFire(20) shouldBe true
-        }
-
-        test("should return false when timer internalTicks is 30 and serverTickCount is 20") {
-            val timer = TickTimer(intervalTicks = 30)
-            timer.shouldFire(20) shouldBe false
+        should("fire at custom interval") {
+            TickTimer(intervalTicks = 10).apply {
+                shouldFire(serverTickCount = 10) shouldBe true
+                shouldFire(serverTickCount = 20) shouldBe true
+                shouldFire(serverTickCount = 15) shouldBe false
+            }
         }
     }
-
 })

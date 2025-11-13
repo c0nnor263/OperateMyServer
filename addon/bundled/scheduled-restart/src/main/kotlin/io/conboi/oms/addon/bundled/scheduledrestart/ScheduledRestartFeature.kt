@@ -4,30 +4,42 @@ import io.conboi.oms.addon.bundled.scheduledrestart.content.SkipResult
 import io.conboi.oms.addon.bundled.scheduledrestart.elements.commands.ScheduledRestartFeatureSkipCommand
 import io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config.CScheduledRestartFeature
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.api.event.OMSActions
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.cachedField
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
+import io.conboi.oms.api.foundation.feature.Priority
+import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.core.foundation.reason.ScheduledStop
 import io.conboi.oms.core.infrastructure.LOG
 import io.conboi.oms.utils.foundation.TimeFormatter
 import io.conboi.oms.utils.foundation.TimeHelper
 import java.time.LocalTime
-import java.time.ZonedDateTime
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-internal class ScheduledRestartFeature : OmsFeature<CScheduledRestartFeature>() {
+class ScheduledRestartFeature(
+    configProvider: ConfigProvider<CScheduledRestartFeature>
+) : OmsFeature<CScheduledRestartFeature>(configProvider) {
     companion object Companion {
         const val SKIP_OFFSET_SECONDS = 10L
-        const val MAX_DAYS_FOR_LOOKAHEAD = 1L
     }
 
-    override val info: FeatureInfo = FeatureInfo(
-        id = CScheduledRestartFeature.NAME,
-        priority = FeatureInfo.Priority.COMMON
+    override val additionalCommands: List<OMSCommandEntry> = listOf(
+        ScheduledRestartFeatureSkipCommand()
     )
+
+    override fun info(): FeatureInfo {
+        return super.info().copy(
+            id = CScheduledRestartFeature.NAME,
+            priority = Priority.COMMON,
+            data = hashMapOf(
+                "restart_time" to TimeFormatter.formatDateTime(restartTimeTarget.getSnapshotSafely() ?: 0)
+            )
+        )
+    }
 
     private var isScheduledToSkip = false
 
@@ -59,19 +71,28 @@ internal class ScheduledRestartFeature : OmsFeature<CScheduledRestartFeature>() 
     }
 
     val restartTimeTarget = cachedField {
-        key = { isScheduledToSkip }
-        value = ::initRestartTimeTarget
+        key = { "" }
+        value = ::getRestartTime
     }
 
-    override fun getFeatureCommands(): List<OMSCommandEntry> = listOf(
-        ScheduledRestartFeatureSkipCommand()
-    )
+    val nextRestartTimeTarget = cachedField {
+        key = { restartTimeTarget.get() }
+        value = {
+            val futureTarget = restartTimeTarget.get()
+            getRestartTime(futureTarget + SKIP_OFFSET_SECONDS)
+        }
+    }
 
     override fun onOmsTick(event: OMSLifecycle.TickingEvent) {
         super.onOmsTick(event)
         val server = event.server
         val now = TimeHelper.currentTime
-        val remainingSec = TimeHelper.secondsBetween(now, restartTimeTarget.get())
+        val restartTime = if (isScheduledToSkip) {
+            nextRestartTimeTarget.get()
+        } else {
+            restartTimeTarget.get()
+        }
+        val remainingSec = TimeHelper.secondsBetween(now, restartTime)
         handleWarnings(remainingSec, server)
         handleRestart(remainingSec, server)
     }
@@ -90,7 +111,6 @@ internal class ScheduledRestartFeature : OmsFeature<CScheduledRestartFeature>() 
     }
 
     fun handleWarnings(remainingSec: Long, server: MinecraftServer) {
-        if (isScheduledToSkip) return
         warningTimes.get().forEach { duration ->
             if (remainingSec == duration.inWholeSeconds) {
                 server.playerList.broadcastSystemMessage(
@@ -103,56 +123,30 @@ internal class ScheduledRestartFeature : OmsFeature<CScheduledRestartFeature>() 
 
     fun handleRestart(remainingSec: Long, server: MinecraftServer) {
         if (remainingSec < 0) {
-            if (isScheduledToSkip) {
-                isScheduledToSkip = false
-                return
-            }
-            FORGE_BUS.post(OMSLifecycle.StopRequestedEvent(server, ScheduledStop))
+            FORGE_BUS.post(OMSActions.StopRequestedEvent(server, ScheduledStop))
         }
     }
 
-    fun initRestartTimeTarget(): ZonedDateTime {
+    fun getRestartTime(currentTime: Long = TimeHelper.currentTime): Long {
         val restartTimes = restartTimes.get()
-        return pickClosestTarget(restartTimes).also {
-            LOG.debug("Next restart time is set to {}", it)
+        return pickClosestTarget(restartTimes, currentTime).also {
+            LOG.debug("Restart time is set to {}", TimeFormatter.formatDateTime(it))
         }
     }
 
-    fun pickClosestTarget(
-        times: List<LocalTime>,
-        now: ZonedDateTime = TimeHelper.currentTime,
-        maxDaysLookahead: Long = MAX_DAYS_FOR_LOOKAHEAD
-    ): ZonedDateTime {
-        val candidates = times.map { time ->
-            TimeHelper.convertLocalTimeToZonedDateTime(now, time)
-        }
-        val closestTime = TimeHelper.closest(now, candidates)
-        return if (closestTime == null && maxDaysLookahead > 0) {
-            val tomorrow = now
-                .plusDays(1)
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0)
-            pickClosestTarget(times, tomorrow, maxDaysLookahead - 1)
-        } else {
-            closestTime
-        } ?: error("cannot pick closest target")
+    fun pickClosestTarget(times: List<LocalTime>, nowEpoch: Long): Long {
+        return TimeHelper.closest(nowEpoch, times)
     }
 
-    fun getNextRestartTime(): ZonedDateTime {
-        val futureTarget = restartTimeTarget.get().plusSeconds(SKIP_OFFSET_SECONDS)
-        return pickClosestTarget(restartTimes.get(), futureTarget)
-    }
 
     fun skip(): SkipResult {
         val current = restartTimeTarget.get()
-        val next = getNextRestartTime()
+        val nextRestartTime = nextRestartTimeTarget.get()
         return if (isScheduledToSkip) {
-            SkipResult.AlreadySkipped(next = next)
+            SkipResult.AlreadySkipped(nextRestartTime = nextRestartTime)
         } else {
             isScheduledToSkip = true
-            SkipResult.Skipped(skipped = current, next = next)
+            SkipResult.Skipped(skippedRestartTime = current, nextRestartTime = nextRestartTime)
         }
     }
 }

@@ -23,7 +23,7 @@ legacyForge {
 }
 
 dependencies {
-    testImplementation(libs.bundles.testing)
+    testImplementation(projects.omsTesting)
 }
 
 java {

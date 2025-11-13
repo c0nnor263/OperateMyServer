@@ -24,5 +24,5 @@ dependencies {
     implementation(projects.omsApi)
     implementation(projects.omsUtils)
 
-    testImplementation(libs.bundles.testing)
+    testImplementation(projects.omsTesting)
 }

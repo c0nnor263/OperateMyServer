@@ -5,12 +5,11 @@ import io.conboi.oms.utils.infrastructure.config.FeatureConfigImpl
 
 class CScheduledRestartFeature : FeatureConfigImpl() {
     companion object Companion {
-        const val NAME = "auto_restart"
+        const val NAME = "scheduled_restart"
     }
 
     override val name: String = NAME
 
-    // TODO: Add minimal required interval between restarts to prevent too frequent restarts
     val restartTimes = list(
         listOf("00:00", "06:00", "12:00", "18:00"),
         "times",

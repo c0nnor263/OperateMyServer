@@ -1,8 +1,6 @@
 package io.conboi.oms.addon.bundled.scheduledrestart.content
 
-import java.time.ZonedDateTime
-
-internal sealed class SkipResult {
-    data class Skipped(val skipped: ZonedDateTime, val next: ZonedDateTime) : SkipResult()
-    data class AlreadySkipped(val next: ZonedDateTime) : SkipResult()
+sealed class SkipResult {
+    data class Skipped(val skippedRestartTime: Long, val nextRestartTime: Long) : SkipResult()
+    data class AlreadySkipped(val nextRestartTime: Long) : SkipResult()
 }

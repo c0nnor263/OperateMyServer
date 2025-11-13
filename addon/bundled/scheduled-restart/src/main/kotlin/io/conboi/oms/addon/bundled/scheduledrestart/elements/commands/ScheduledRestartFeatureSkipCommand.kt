@@ -6,8 +6,9 @@ import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.addon.bundled.scheduledrestart.ScheduledRestartFeature
 import io.conboi.oms.addon.bundled.scheduledrestart.content.SkipResult
 import io.conboi.oms.addon.bundled.scheduledrestart.infrastructure.config.CScheduledRestartFeature
-import io.conboi.oms.api.OMSFeatureManagers
+import io.conboi.oms.api.OmsAddons
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.core.OperateMyServer
 import io.conboi.oms.utils.foundation.TimeFormatter
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -20,11 +21,11 @@ class ScheduledRestartFeatureSkipCommand : OMSCommandEntry() {
             .executes { ctx -> skip(ctx) }
     }
 
-    private fun skip(ctx: CommandContext<CommandSourceStack>): Int {
+    fun skip(ctx: CommandContext<CommandSourceStack>): Int {
         val source = ctx.source
-        val feature =
-            OMSFeatureManagers.oms.getFeatureById<ScheduledRestartFeature>(CScheduledRestartFeature.Companion.NAME)
-        val featureName = feature?.info?.id ?: CScheduledRestartFeature.NAME
+        val addon = OmsAddons.get(OperateMyServer.MOD_ID)
+        val feature = addon?.getFeatureById<ScheduledRestartFeature>(CScheduledRestartFeature.NAME)
+        val featureName = feature?.info()?.id ?: CScheduledRestartFeature.NAME
         if (feature == null) {
             source.sendFailure(
                 Component.translatable(
@@ -51,8 +52,8 @@ class ScheduledRestartFeatureSkipCommand : OMSCommandEntry() {
                     {
                         Component.translatable(
                             "oms.command.autorestart.skip.success",
-                            TimeFormatter.formatDateTime(result.skipped),
-                            TimeFormatter.formatDateTime(result.next)
+                            TimeFormatter.formatDateTime(result.skippedRestartTime),
+                            TimeFormatter.formatDateTime(result.nextRestartTime)
                         )
                     }, true
                 )
@@ -62,7 +63,7 @@ class ScheduledRestartFeatureSkipCommand : OMSCommandEntry() {
                 source.sendFailure(
                     Component.translatable(
                         "oms.command.autorestart.skip.already_skipped",
-                        TimeFormatter.formatDateTime(result.next),
+                        TimeFormatter.formatDateTime(result.nextRestartTime),
                     )
                 )
             }

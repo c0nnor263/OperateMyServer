@@ -14,7 +14,7 @@ class CEmptyServerRestartFeature : FeatureConfigImpl() {
 
     val countTime = s(
         "1h",
-        "сount_time",
+        "count_time",
         Comments.COUNT_TIME
     ) { value ->
         val countTime = value?.let {

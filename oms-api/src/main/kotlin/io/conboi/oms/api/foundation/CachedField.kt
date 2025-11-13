@@ -30,11 +30,7 @@ class CachedField<K, V> internal constructor(
         if (k != cachedKey) {
             cachedKey = k
 
-            val newValue = value.invoke()
-            if (validator?.invoke(newValue) == false) {
-                throw IllegalArgumentException("CachedField validation failed: value = $newValue")
-            }
-
+            val newValue = invalidateValue()
 
             if (cachedValue != null) {
                 onUpdate?.invoke(cachedValue, newValue)
@@ -44,11 +40,29 @@ class CachedField<K, V> internal constructor(
         return cachedValue ?: throw IllegalStateException("Cached value is not initialized")
     }
 
+    fun getSnapshotSafely(): V? {
+        return try {
+            if (cachedValue == null) {
+                value.invoke()
+            } else cachedValue
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun invalidate() {
-        val newValue = value.invoke()
+        val newValue = invalidateValue()
         onUpdate?.invoke(cachedValue, newValue)
         cachedKey = key.invoke()
         cachedValue = newValue
+    }
+
+    private fun invalidateValue(): V {
+        val value = value.invoke()
+        if (validator?.invoke(value) == false) {
+            throw IllegalArgumentException("CachedField validation failed: value = $value")
+        }
+        return value
     }
 
     fun watch() {

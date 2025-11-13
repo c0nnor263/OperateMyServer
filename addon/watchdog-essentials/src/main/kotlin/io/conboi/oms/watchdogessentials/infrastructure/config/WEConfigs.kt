@@ -1,7 +1,6 @@
 package io.conboi.oms.watchdogessentials.infrastructure.config
 
 import io.conboi.oms.utils.infrastructure.config.ConfigBase
-import io.conboi.oms.watchdogessentials.core.infrastructure.config.CServer
 import java.util.function.Supplier
 import net.minecraftforge.common.ForgeConfigSpec
 import net.minecraftforge.fml.config.ModConfig
@@ -9,7 +8,7 @@ import thedarkcolour.kotlinforforge.forge.registerConfig
 
 object WEConfigs {
     val CONFIGS: MutableMap<ModConfig.Type, ConfigBase> = hashMapOf()
-    var server: CServer = registerNewConfig({ CServer }, ModConfig.Type.SERVER)
+    var server: CServer = registerNewConfig({ CServer() }, ModConfig.Type.SERVER)
 
     private fun <T : ConfigBase> registerNewConfig(factory: Supplier<T>, side: ModConfig.Type): T {
         val specPair = ForgeConfigSpec.Builder()

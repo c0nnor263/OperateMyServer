@@ -1,32 +1,33 @@
 package tasks
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.file.shouldBeAFile
 import io.kotest.matchers.file.shouldExist
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import java.io.File
+import java.nio.file.Files
 import org.gradle.testfixtures.ProjectBuilder
 
-class GenerateIndexHtmlTaskTest : FunSpec({
+class GenerateIndexHtmlTaskTest : ShouldSpec({
 
-    lateinit var task: GenerateIndexHtmlTask
+    lateinit var sut: GenerateIndexHtmlTask
     lateinit var root: File
 
-    beforeTest {
+    beforeEach {
         val project = ProjectBuilder.builder().build()
-        task = project.tasks.create("generateIndex", GenerateIndexHtmlTask::class.java)
-        root = createTempDir(prefix = "test-docs")
-        task.outputDir.set(root)
-        task.title.set("Test Index")
+        sut = project.tasks.register("generateIndex", GenerateIndexHtmlTask::class.java).get()
+        root = Files.createTempDirectory("test-docs").toFile()
+        sut.outputDir.set(root)
+        sut.title.set("Test Index")
     }
 
-    afterTest {
+    afterEach {
         root.deleteRecursively()
     }
 
-    test("should generate index.html for empty root directory") {
-        task.generate()
+    should("generate index.html for empty root directory") {
+        sut.generate()
 
         val indexFile = File(root, "index.html")
         indexFile.shouldExist()
@@ -34,12 +35,12 @@ class GenerateIndexHtmlTaskTest : FunSpec({
         indexFile.readText() shouldContain "Test Index"
     }
 
-    test("should generate index.html with files listed") {
+    should("generate index.html with files listed") {
         File(root, "foo.txt").writeText("some content")
         File(root, "bar.md5").writeText("to be ignored")
         File(root, ".DS_Store").writeText("hidden")
 
-        task.generate()
+        sut.generate()
 
         val indexFile = File(root, "index.html")
         indexFile.readText().apply {
@@ -49,11 +50,11 @@ class GenerateIndexHtmlTaskTest : FunSpec({
         }
     }
 
-    test("should generate nested index.html for subfolders") {
+    should("generate nested index.html for subfolders") {
         val subfolder = File(root, "nested").apply { mkdir() }
         File(subfolder, "file.txt").writeText("nested content")
 
-        task.generate()
+        sut.generate()
 
         File(root, "index.html").shouldExist()
         File(subfolder, "index.html").shouldExist()
@@ -63,11 +64,11 @@ class GenerateIndexHtmlTaskTest : FunSpec({
         nestedIndex shouldContain """<a href="../">../</a>"""
     }
 
-    test("should do nothing if directory does not exist") {
+    should("do nothing if directory does not exist") {
         val fake = File(root, "nonexistent")
-        task.outputDir.set(fake)
+        sut.outputDir.set(fake)
 
         // Should not throw
-        task.generate()
+        sut.generate()
     }
 })

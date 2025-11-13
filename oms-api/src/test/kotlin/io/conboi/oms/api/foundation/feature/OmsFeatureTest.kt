@@ -1,169 +1,176 @@
 package io.conboi.oms.api.foundation.feature
 
+import io.conboi.oms.api.TestFeature
 import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.api.infrastructure.config.FeatureConfig
+import io.conboi.oms.api.infrastructure.config.FeatureConfigInfo
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
 
-class OmsFeatureTest : FunSpec({
+class OmsFeatureTest : ShouldSpec({
 
+    lateinit var sut: TestFeature
     val mockConfig: FeatureConfig = mockk(relaxed = true)
-    lateinit var feature: TestFeature
+    val mockProvider: ConfigProvider<FeatureConfig> = mockk()
 
     beforeEach {
-        feature = TestFeature()
-    }
+        every { mockProvider.get() } returns mockConfig
 
-    afterEach {
-        clearAllMocks()
+        sut = TestFeature(mockProvider)
     }
 
     context("config") {
-        test("should throw when accessing config before initialization") {
-            val ex = shouldThrow<IllegalStateException> {
-                feature.config
-            }
+
+        should("throw when accessing config before initialization") {
+            val ex = shouldThrow<IllegalStateException> { sut.config }
             ex.message shouldBe "Feature config is not initialized yet."
         }
 
-        test("should return config after initialization") {
-            feature.onOmsRegisterConfig(mockConfig)
-            feature.config shouldBe mockConfig
+        should("return config after initialization") {
+            sut.onOmsRegisterConfig()
+            sut.config shouldBe mockConfig
         }
     }
 
     context("onOmsRegisterConfig") {
-        test("should cast and store config") {
-            feature.onOmsRegisterConfig(mockConfig)
-            feature.config shouldBe mockConfig
+
+        should("store config from provider") {
+            sut.onOmsRegisterConfig()
+            verify { mockProvider.get() }
+            sut.config shouldBe mockConfig
         }
     }
 
     context("isEnabled") {
-        test("should return true when config is enabled") {
+
+        should("return true when config is enabled") {
             every { mockConfig.isEnabled() } returns true
-            feature.onOmsRegisterConfig(mockConfig)
-            feature.isEnabled() shouldBe true
+            sut.onOmsRegisterConfig()
+            sut.isEnabled() shouldBe true
         }
 
-        test("should return false when config is disabled") {
+        should("return false when config is disabled") {
             every { mockConfig.isEnabled() } returns false
-            feature.onOmsRegisterConfig(mockConfig)
-            feature.isEnabled() shouldBe false
+            sut.onOmsRegisterConfig()
+            sut.isEnabled() shouldBe false
         }
     }
 
     context("enable") {
-        test("should call enable on config") {
-            feature.onOmsRegisterConfig(mockConfig)
-            feature.enable()
+
+        should("call enable on config and mark dirty") {
+            sut.onOmsRegisterConfig()
+            sut.enable()
             verify { mockConfig.enable() }
+            sut.isConfigDirty.shouldBeTrue()
         }
     }
 
     context("disable") {
-        test("should call disable on config") {
-            feature.onOmsRegisterConfig(mockConfig)
-            feature.disable()
+
+        should("call disable on config and mark dirty") {
+            sut.onOmsRegisterConfig()
+            sut.disable()
             verify { mockConfig.disable() }
+            sut.isConfigDirty.shouldBeTrue()
         }
     }
 
-    context("getFeatureCommands") {
-        test("should return empty list by default") {
-            feature.getFeatureCommands().shouldBeEmpty()
+    context("additionalCommands") {
+        should("be empty by default") {
+            sut.additionalCommands.shouldBeEmpty()
         }
     }
 
     context("markConfigUpdated") {
-        test("should set isConfigurationUpdated to true") {
-            feature.isConfigurationUpdated.shouldBeFalse()
-            feature.flagConfigAsDirty()
-            feature.isConfigurationUpdated.shouldBeTrue()
+        should("set isConfigDirty to true") {
+            sut.isConfigDirty.shouldBeFalse()
+            sut.flagConfigAsDirty()
+            sut.isConfigDirty.shouldBeTrue()
         }
     }
 
     context("onConfigUpdated") {
-        test("should reset isConfigurationUpdated to false") {
-            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
-            feature.flagConfigAsDirty()
-            feature.isConfigurationUpdated.shouldBeTrue()
 
-            feature.onConfigUpdated(tickEvent)
-            feature.isConfigurationUpdated.shouldBeFalse()
+        should("reset isConfigDirty after tick") {
+            val tick = mockk<OMSLifecycle.TickingEvent>()
+            sut.onOmsRegisterConfig()
+            sut.flagConfigAsDirty()
+
+            sut.onOmsTick(tick)
+
+            sut.isConfigDirty.shouldBeFalse()
         }
     }
 
     context("onOmsTick") {
-        test("should call onConfigUpdated and reset configUpdated flag") {
-            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
-            feature.flagConfigAsDirty()
-            feature.isConfigurationUpdated.shouldBeTrue()
 
-            feature.onOmsTick(tickEvent)
-            feature.isConfigurationUpdated.shouldBeFalse()
+        should("call onConfigUpdated when dirty") {
+            val tick = mockk<OMSLifecycle.TickingEvent>()
+            val spy = spyk(TestFeature(mockProvider), recordPrivateCalls = true)
+
+            every { mockProvider.get() } returns mockConfig
+            spy.onOmsRegisterConfig()
+            spy.flagConfigAsDirty()
+
+            spy.onOmsTick(tick)
+
+            verify { spy.onConfigUpdated(tick) }
+            spy.isConfigDirty.shouldBeFalse()
         }
 
-        test("should call watchConfig on each tick") {
-            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
-            val spyFeature = spyk(TestFeature(), recordPrivateCalls = true)
+        should("call watchConfig every tick") {
+            val tick = mockk<OMSLifecycle.TickingEvent>()
+            val spy = spyk(TestFeature(mockProvider), recordPrivateCalls = true)
 
-            spyFeature.flagConfigAsDirty()
-            spyFeature.onOmsTick(tickEvent)
+            every { mockProvider.get() } returns mockConfig
+            spy.onOmsRegisterConfig()
 
-            verify { spyFeature["watchConfig"]() }
+            spy.onOmsTick(tick)
+
+            verify { spy["watchConfig"]() }
         }
 
-        test("should NOT call onConfigUpdated if config is not dirty") {
-            val tickEvent = mockk<OMSLifecycle.TickingEvent>()
-            val spyFeature = spyk(TestFeature(), recordPrivateCalls = true)
+        should("not call onConfigUpdated when clean") {
+            val tick = mockk<OMSLifecycle.TickingEvent>()
+            val spy = spyk(TestFeature(mockProvider), recordPrivateCalls = true)
 
-            spyFeature.onOmsTick(tickEvent)
+            every { mockProvider.get() } returns mockConfig
+            spy.onOmsRegisterConfig()
 
-            verify(exactly = 1) { spyFeature["watchConfig"]() }
-            verify(exactly = 0) { spyFeature.onConfigUpdated(any()) }
-        }
+            spy.onOmsTick(tick)
 
-    }
-
-    context("onEnabled/onDisabled") {
-        test("onEnabled should flag config as dirty") {
-            feature.isConfigurationUpdated.shouldBeFalse()
-            feature.onEnabled()
-            feature.isConfigurationUpdated.shouldBeTrue()
-        }
-
-        test("onDisabled should flag config as dirty") {
-            feature.isConfigurationUpdated.shouldBeFalse()
-            feature.onDisabled()
-            feature.isConfigurationUpdated.shouldBeTrue()
+            verify(exactly = 0) { spy.onConfigUpdated(any()) }
         }
     }
 
-    context("onOmsStarted") {
-        test("should do nothing by default") {
-            val event = mockk<OMSLifecycle.StartingEvent>()
-            feature.onOmsStarted(event)
-        }
-    }
+    context("info") {
 
-    context("onOmsStopping") {
-        test("should do nothing by default") {
-            val event = mockk<OMSLifecycle.StoppingEvent>()
-            feature.onOmsStopping(event)
+        should("return info with id and configInfo") {
+            val mockConfigInfo = mockk<FeatureConfigInfo>()
+            every { mockConfig.name } returns "featureX"
+            every { mockConfig.info() } returns mockConfigInfo
+
+            sut.onOmsRegisterConfig()
+
+            val info = sut.info()
+            info.id shouldBe "featureX"
+            info.configInfo shouldBe mockConfigInfo
+        }
+
+        should("return empty id when config is not initialized") {
+            val info = sut.info()
+            info.id shouldBe ""
+            info.configInfo shouldBe null
         }
     }
 })
-
-private class TestFeature : OmsFeature<FeatureConfig>() {
-    override val info: FeatureInfo = FeatureInfo("testmod", FeatureInfo.Priority.NONE)
-}

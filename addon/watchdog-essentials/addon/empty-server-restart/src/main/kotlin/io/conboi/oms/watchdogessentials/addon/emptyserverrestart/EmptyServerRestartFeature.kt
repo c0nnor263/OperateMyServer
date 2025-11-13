@@ -1,24 +1,29 @@
 package io.conboi.oms.watchdogessentials.addon.emptyserverrestart
 
+import io.conboi.oms.api.event.OMSActions
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
+import io.conboi.oms.api.foundation.feature.Priority
+import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.utils.foundation.TimeFormatter
 import io.conboi.oms.utils.foundation.TimeHelper
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.foundation.reason.EmptyServerRestartStop
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.infrastructure.config.CEmptyServerRestartFeature
 import io.conboi.oms.watchdogessentials.core.infrastructure.LOG
-import java.time.ZonedDateTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-internal class EmptyServerRestartFeature : OmsFeature<CEmptyServerRestartFeature>() {
-
-    override val info: FeatureInfo = FeatureInfo(
-        id = CEmptyServerRestartFeature.NAME,
-        priority = FeatureInfo.Priority.COMMON
-    )
+class EmptyServerRestartFeature(
+    configProvider: ConfigProvider<CEmptyServerRestartFeature>
+) : OmsFeature<CEmptyServerRestartFeature>(configProvider) {
+    override fun info(): FeatureInfo {
+        return super.info().copy(
+            id = CEmptyServerRestartFeature.NAME,
+            priority = Priority.COMMON,
+        )
+    }
 
     val countTime = configField {
         key = { config.countTime.get() }
@@ -28,21 +33,19 @@ internal class EmptyServerRestartFeature : OmsFeature<CEmptyServerRestartFeature
         }
     }
 
-    private var emptyServerTime: ZonedDateTime? = null
+    private var emptyServerTime: Long? = null
 
 
     override fun onOmsTick(event: OMSLifecycle.TickingEvent) {
         val server = event.server
-
-        emptyServerTime?.let { time ->
-            val now = TimeHelper.currentTime
-            val elapsedSec = TimeHelper.secondsBetween(time, now)
-            if (elapsedSec >= countTime.get().inWholeSeconds) {
-                val elapsedDuration = elapsedSec.toDuration(DurationUnit.SECONDS)
-                LOG.info("No players detected for ${TimeFormatter.formatDuration(elapsedDuration)}")
-                FORGE_BUS.post(OMSLifecycle.StopRequestedEvent(server, EmptyServerRestartStop))
-                clearTime()
-            }
+        val time = emptyServerTime ?: return
+        val now = TimeHelper.currentTime
+        val elapsedSec = TimeHelper.secondsBetween(time, now)
+        if (elapsedSec >= countTime.get().inWholeSeconds) {
+            val elapsedDuration = elapsedSec.toDuration(DurationUnit.SECONDS)
+            LOG.info("No players detected for ${TimeFormatter.formatDuration(elapsedDuration)}")
+            FORGE_BUS.post(OMSActions.StopRequestedEvent(server, EmptyServerRestartStop))
+            clearTime()
         }
     }
 

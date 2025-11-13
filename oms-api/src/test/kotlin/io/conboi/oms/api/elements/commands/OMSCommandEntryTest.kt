@@ -1,45 +1,41 @@
 package io.conboi.oms.api.elements.commands
 
 import com.mojang.brigadier.builder.ArgumentBuilder
-import io.kotest.core.spec.style.FunSpec
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 import net.minecraft.commands.CommandSourceStack
 
-class OMSCommandEntryTest : FunSpec({
+class OMSCommandEntryTest : ShouldSpec({
 
-    lateinit var baseBuilder: ArgumentBuilder<CommandSourceStack, *>
-    lateinit var childBuilder: ArgumentBuilder<CommandSourceStack, *>
+    val mockBaseBuilder: ArgumentBuilder<CommandSourceStack, *> = mockk(relaxed = true)
+    val mockChildBuilder: ArgumentBuilder<CommandSourceStack, *> = mockk(relaxed = true)
 
-    beforeTest {
-        baseBuilder = mockk(relaxed = true)
-        childBuilder = mockk(relaxed = true)
-    }
-
-    test("should build base command and append additional commands") {
+    should("append additional command builders") {
         val childEntry = object : OMSCommandEntry() {
-            override fun init(): ArgumentBuilder<CommandSourceStack, *> = childBuilder
+            override fun init(): ArgumentBuilder<CommandSourceStack, *> = mockChildBuilder
         }
 
         val entry = object : OMSCommandEntry() {
-            override fun init(): ArgumentBuilder<CommandSourceStack, *> = baseBuilder
+            override fun init(): ArgumentBuilder<CommandSourceStack, *> = mockBaseBuilder
             override fun additionalCommands(): List<OMSCommandEntry> = listOf(childEntry)
         }
 
         entry.build()
 
-        verify { baseBuilder.then(childBuilder) }
+        verify { mockBaseBuilder.then(mockChildBuilder) }
     }
 
-    test("should build base command without additional commands") {
+    should("build base command when no additional commands exist") {
         val entry = object : OMSCommandEntry() {
-            override fun init(): ArgumentBuilder<CommandSourceStack, *> = baseBuilder
+            override fun init(): ArgumentBuilder<CommandSourceStack, *> = mockBaseBuilder
         }
 
         val result = entry.build()
 
-        result shouldBe baseBuilder
-        verify(exactly = 0) { baseBuilder.then(any<ArgumentBuilder<CommandSourceStack, *>>()) }
+        result shouldBe mockBaseBuilder
+        verify(exactly = 0) { mockBaseBuilder.then(any<LiteralArgumentBuilder<CommandSourceStack>>()) }
     }
 })

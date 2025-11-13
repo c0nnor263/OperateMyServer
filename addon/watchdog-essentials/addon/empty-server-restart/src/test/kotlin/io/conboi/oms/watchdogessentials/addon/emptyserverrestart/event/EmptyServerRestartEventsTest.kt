@@ -1,12 +1,12 @@
 package io.conboi.oms.watchdogessentials.addon.emptyserverrestart.event
 
-import io.conboi.oms.api.OMSFeatureManagers
+import io.conboi.oms.api.OmsAddons
+import io.conboi.oms.api.foundation.addon.OmsAddon
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.EmptyServerRestartFeature
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.foundation.ServerAccess
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.infrastructure.config.CEmptyServerRestartFeature
-import io.conboi.oms.watchdogessentials.core.foundation.feature.WEFeatureManager
-import io.conboi.oms.watchdogessentials.core.foundation.feature.we
-import io.kotest.core.spec.style.FunSpec
+import io.conboi.oms.watchdogessentials.core.WatchDogEssentials
+import io.kotest.core.spec.style.ShouldSpec
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -15,66 +15,94 @@ import io.mockk.verify
 import net.minecraft.server.MinecraftServer
 import net.minecraftforge.event.entity.player.PlayerEvent
 
-class EmptyServerRestartEventsTest : FunSpec({
+class EmptyServerRestartEventsTest : ShouldSpec({
 
     val mockServer = mockk<MinecraftServer>(relaxed = true)
+    val mockAddon = mockk<OmsAddon>()
     val mockFeature = mockk<EmptyServerRestartFeature>(relaxed = true)
-    val mockWeFeatureManager: WEFeatureManager = mockk<WEFeatureManager>()
+
+    beforeSpec {
+        mockkObject(OmsAddons)
+        mockkObject(ServerAccess)
+    }
 
     beforeEach {
-        mockkObject(OMSFeatureManagers)
-
-        every { OMSFeatureManagers.get<WEFeatureManager>(any()) } returns mockWeFeatureManager
-        every {
-            mockWeFeatureManager.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
-        } returns mockFeature
-
-        mockkObject(ServerAccess)
         every { ServerAccess.getCurrentServer() } returns mockServer
+        every { OmsAddons.get(WatchDogEssentials.MOD_ID) } returns mockAddon
+        every { mockAddon.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME) } returns mockFeature
     }
 
     afterEach {
         clearAllMocks()
     }
 
-    test("should call clearTime on player login") {
+    should("call clearTime on player login when feature exists") {
         val event = mockk<PlayerEvent.PlayerLoggedInEvent>()
+
         EmptyServerRestartEvents.onPlayerLoggedIn(event)
 
         verify { mockFeature.clearTime() }
     }
 
-    test("should call initTime on player logout if playerCount <= 1") {
-        val event = mockk<PlayerEvent.PlayerLoggedOutEvent>()
+    should("not throw when addon is null on login") {
+        every { OmsAddons.get(WatchDogEssentials.MOD_ID) } returns null
 
+        val event = mockk<PlayerEvent.PlayerLoggedInEvent>()
+
+        EmptyServerRestartEvents.onPlayerLoggedIn(event)
+
+        verify(exactly = 0) { mockFeature.clearTime() }
+    }
+
+    should("not throw when feature is null on login") {
+        every { mockAddon.getFeatureById<EmptyServerRestartFeature>(any()) } returns null
+
+        val event = mockk<PlayerEvent.PlayerLoggedInEvent>()
+
+        EmptyServerRestartEvents.onPlayerLoggedIn(event)
+
+        verify(exactly = 0) { mockFeature.clearTime() }
+    }
+
+    should("call initTime on logout when playerCount <= 1") {
         every { mockServer.playerCount } returns 1
+
+        val event = mockk<PlayerEvent.PlayerLoggedOutEvent>()
 
         EmptyServerRestartEvents.onPlayerLoggedOut(event)
 
         verify { mockFeature.initTime() }
     }
 
-    test("should not call initTime on player logout if playerCount > 1") {
+    should("not call initTime on logout when playerCount > 1") {
+        every { mockServer.playerCount } returns 2
+
         val event = mockk<PlayerEvent.PlayerLoggedOutEvent>()
-        every { mockServer.playerCount } returns 3
 
         EmptyServerRestartEvents.onPlayerLoggedOut(event)
 
         verify(exactly = 0) { mockFeature.initTime() }
     }
 
-    test("should not throw if feature is null on login/logout") {
-        val loginEvent = mockk<PlayerEvent.PlayerLoggedInEvent>()
-        val logoutEvent = mockk<PlayerEvent.PlayerLoggedOutEvent>()
-
+    should("not throw when addon is null on logout") {
+        every { OmsAddons.get(WatchDogEssentials.MOD_ID) } returns null
         every { mockServer.playerCount } returns 1
 
-        every {
-            OMSFeatureManagers.we.getFeatureById<EmptyServerRestartFeature>(CEmptyServerRestartFeature.NAME)
-        } returns null
+        val event = mockk<PlayerEvent.PlayerLoggedOutEvent>()
 
-        // should not throw
-        EmptyServerRestartEvents.onPlayerLoggedIn(loginEvent)
-        EmptyServerRestartEvents.onPlayerLoggedOut(logoutEvent)
+        EmptyServerRestartEvents.onPlayerLoggedOut(event)
+
+        verify(exactly = 0) { mockFeature.initTime() }
+    }
+
+    should("not throw when feature is null on logout") {
+        every { mockServer.playerCount } returns 1
+        every { mockAddon.getFeatureById<EmptyServerRestartFeature>(any()) } returns null
+
+        val event = mockk<PlayerEvent.PlayerLoggedOutEvent>()
+
+        EmptyServerRestartEvents.onPlayerLoggedOut(event)
+
+        verify(exactly = 0) { mockFeature.initTime() }
     }
 })

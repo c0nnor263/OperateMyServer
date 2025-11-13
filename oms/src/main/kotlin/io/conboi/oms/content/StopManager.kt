@@ -1,10 +1,12 @@
 package io.conboi.oms.content
 
-import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.OmsAddons
+import io.conboi.oms.api.event.OMSActions
 import io.conboi.oms.api.foundation.reason.StopReason
 import io.conboi.oms.core.foundation.reason.CrashStop
-import io.conboi.oms.infrastructure.file.OMSPaths
 import io.conboi.oms.infrastructure.file.StopEntryLog
+import io.conboi.oms.oms
+import io.conboi.oms.utils.foundation.TimeFormatter
 import io.conboi.oms.utils.foundation.TimeHelper
 import io.conboi.oms.utils.infrastructure.OMSJson
 import io.conboi.oms.utils.infrastructure.file.FileUtil
@@ -30,7 +32,7 @@ internal object StopManager {
         )
     }
 
-    fun stop(event: OMSLifecycle.StopRequestedEvent) {
+    fun stop(event: OMSActions.StopRequestedEvent) {
         val (server, reason) = event
         writeReason(reason)
 
@@ -43,10 +45,10 @@ internal object StopManager {
         val reasonName = reason.name.uppercase()
         val reasonMessage = Component.translatable(reason.messageId).string
 
-        val time = TimeHelper.currentTime.toString()
+        val time = TimeFormatter.formatDateTime(TimeHelper.currentTime)
         val entry = StopEntryLog(reasonName, reasonMessage, time)
         val content = OMSJson.encodeToString(StopEntryLog.serializer(), entry)
-        val stopCauseFile: Path = OMSPaths.common.resolve("stop_cause.json")
+        val stopCauseFile: Path = OmsAddons.oms.paths.common.resolve("stop_cause.json")
 
         FileUtil.writeSafe(stopCauseFile, content)
     }
