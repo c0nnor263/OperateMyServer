@@ -1,0 +1,8 @@
+{
+  "oms.command.feature.not_found": "Feature %s not found",
+  "oms.command.feature.enabled": "Feature %s has been enabled",
+  "oms.command.feature.disabled": "Feature %s has been disabled",
+  "oms.command.feature.already_enabled": "Feature %s is already enabled",
+  "oms.command.feature.already_disabled": "Feature %s is already disabled",
+  "oms.command.feature.not_enabled": "%s feature is not enabled"
+}
