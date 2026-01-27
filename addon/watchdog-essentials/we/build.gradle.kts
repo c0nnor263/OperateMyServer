@@ -31,8 +31,7 @@ modDev {
 
 dependencies {
     modImplementation(projects.oms)
-    // TODO: Remove
-    implementation(projects.omsApi)
+    implementation("io.conboi.oms:oms-api:1.0.0")
     implementation(projects.omsCommon)
 
     implementation(libs.kotlinforforge)

@@ -11,7 +11,7 @@ import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.watchdogessentials.addon.lowtps.foundation.TpsMonitor
 import io.conboi.oms.watchdogessentials.addon.lowtps.foundation.reason.LowTpsStop
 import io.conboi.oms.watchdogessentials.addon.lowtps.infrastructure.config.CLowTpsFeature
-import io.conboi.oms.watchdogessentials.core.infrastructure.LOG
+import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 class LowTpsFeature(

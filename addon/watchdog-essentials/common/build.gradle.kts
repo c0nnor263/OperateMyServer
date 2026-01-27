@@ -12,8 +12,7 @@ modDev {
 }
 
 dependencies {
-//    implementation("io.conboi.oms:oms-api:1.0.0")
-    implementation(projects.omsApi)
+    implementation("io.conboi.oms:oms-api:1.0.0")
     implementation(projects.omsCommon)
 
     testImplementation(projects.omsTesting)

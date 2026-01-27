@@ -12,8 +12,7 @@ import io.conboi.oms.infrastructure.config.CCommon
 import io.conboi.oms.infrastructure.config.OMSConfigs
 
 // TODO: Think about reformatting the log output to be informative
-// TODO: Consider adding info commands to retrieve addon/feature details on demand
-// TODO: Refactor to reduce complexity if possible
+// TODO FUTURE: Extract InfoRenderer when commands (/oms info, status) are implemented
 class OmsStartLogger {
 
     fun showGreetings() {

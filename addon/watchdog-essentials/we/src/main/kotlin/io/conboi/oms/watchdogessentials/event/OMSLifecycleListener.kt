@@ -2,7 +2,7 @@ package io.conboi.oms.watchdogessentials.event
 
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.watchdogessentials.WatchDogEssentialsAddon
-import io.conboi.oms.watchdogessentials.core.WatchDogEssentials
+import io.conboi.oms.watchdogessentials.common.WatchDogEssentials
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 

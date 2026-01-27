@@ -9,7 +9,7 @@ import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.event.EmptyServerRestartEvents
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.foundation.reason.EmptyServerRestartStop
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.infrastructure.config.CEmptyServerRestartFeature
-import io.conboi.oms.watchdogessentials.core.infrastructure.LOG
+import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe

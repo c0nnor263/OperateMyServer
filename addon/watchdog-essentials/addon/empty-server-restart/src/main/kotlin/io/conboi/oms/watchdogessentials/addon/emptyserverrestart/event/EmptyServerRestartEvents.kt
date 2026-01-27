@@ -2,7 +2,7 @@ package io.conboi.oms.watchdogessentials.addon.emptyserverrestart.event
 
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.EmptyServerRestartFeature
 import io.conboi.oms.watchdogessentials.addon.emptyserverrestart.foundation.ServerAccess
-import io.conboi.oms.watchdogessentials.core.infrastructure.LOG
+import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 

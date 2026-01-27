@@ -1,6 +1,6 @@
-package io.conboi.oms.watchdogessentials.core.infrastructure
+package io.conboi.oms.watchdogessentials.common.infrastructure
 
-import io.conboi.oms.watchdogessentials.core.WatchDogEssentials
+import io.conboi.oms.watchdogessentials.common.WatchDogEssentials
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 

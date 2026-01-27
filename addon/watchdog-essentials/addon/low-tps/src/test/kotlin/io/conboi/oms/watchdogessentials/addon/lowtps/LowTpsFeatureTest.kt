@@ -8,7 +8,7 @@ import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.watchdogessentials.addon.lowtps.foundation.TpsMonitor
 import io.conboi.oms.watchdogessentials.addon.lowtps.foundation.reason.LowTpsStop
 import io.conboi.oms.watchdogessentials.addon.lowtps.infrastructure.config.CLowTpsFeature
-import io.conboi.oms.watchdogessentials.core.infrastructure.LOG
+import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
