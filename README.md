@@ -17,7 +17,6 @@ your own logic around restarts, monitoring, scheduled events, and beyond - using
 * Interact with every feature via powerful in-game `/oms` commands
 * Modular system: each addon contains isolated features you can enable or disable
 * Live config reloads and runtime-safe caching
-* Lightweight, server-side only - no client required
 * Easy to extend: write your own addons using a clean, documented API
 
 ### Who Is It For?
@@ -32,3 +31,4 @@ your own logic around restarts, monitoring, scheduled events, and beyond - using
 * **Minecraft:** 1.20.1
 * **Forge:** 47.4.0 or latest stable version for 1.20.1
 * **Kotlin for Forge:** 4.11.0
+* **Server-side only** - no client installation required
