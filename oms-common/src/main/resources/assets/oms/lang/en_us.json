@@ -1,0 +1,5 @@
+{
+  "oms.stop_reason.manual_restart": "Server stopping by admin command",
+  "oms.stop_reason.crash": "Server stopping due to a crash",
+  "oms.stop_reason.stop": "Server stopping due to stop command"
+}
