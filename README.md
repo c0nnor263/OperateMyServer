@@ -1,5 +1,6 @@
-[![](https://cf.way2muchnoise.eu/full_1341025_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
-[![](https://cf.way2muchnoise.eu/versions/1341025.svg)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
+[![](https://cf.way2muchnoise.eu/full_1341025_downloads.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
+[![](https://cf.way2muchnoise.eu/versions/1341025.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J61TEZDO)
 
 # Operate My Server
 
