@@ -1,3 +1,6 @@
+[![](https://cf.way2muchnoise.eu/full_1341025_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
+[![](https://cf.way2muchnoise.eu/versions/1341025.svg)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
+
 # Operate My Server
 
 **OperateMyServer (OMS)** is a modular Minecraft Forge mod designed to give server owners fine-grained control over
