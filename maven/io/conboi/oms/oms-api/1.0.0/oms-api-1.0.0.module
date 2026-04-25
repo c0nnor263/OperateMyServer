@@ -1,0 +1,84 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.conboi.oms",
+    "module": "oms-api",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.4.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "reobfRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "oms-api-1.0.0.jar",
+          "url": "oms-api-1.0.0.jar",
+          "size": 58986,
+          "sha512": "5dfd2fafe686984efd670e51f0d468b46f00a10acf6d9324b303011d080ee56825fdd3fb45196091c1486bc09f0ca6606c092d5e302712394510bda265633bc5",
+          "sha256": "1932953e04dc0bd6a3c718a2fd16dfda8e0c052ad6bcef50ccae8454cbb4de9a",
+          "sha1": "1f211e5a24b873fa8b7e8c1bbba1517e18acce3a",
+          "md5": "7f96a9fb82c591ecb2abc2bd653ac219"
+        }
+      ]
+    },
+    {
+      "name": "reobfApiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "oms-api-1.0.0.jar",
+          "url": "oms-api-1.0.0.jar",
+          "size": 58986,
+          "sha512": "5dfd2fafe686984efd670e51f0d468b46f00a10acf6d9324b303011d080ee56825fdd3fb45196091c1486bc09f0ca6606c092d5e302712394510bda265633bc5",
+          "sha256": "1932953e04dc0bd6a3c718a2fd16dfda8e0c052ad6bcef50ccae8454cbb4de9a",
+          "sha1": "1f211e5a24b873fa8b7e8c1bbba1517e18acce3a",
+          "md5": "7f96a9fb82c591ecb2abc2bd653ac219"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "oms-api-1.0.0-sources.jar",
+          "url": "oms-api-1.0.0-sources.jar",
+          "size": 25123,
+          "sha512": "46131454b1d07045818369ecc9112081f4a9d6833b524928f9b6ef52faa36e4760c8b95142a05c5587591b4119553944044d71c6ed947837265762e84074f37f",
+          "sha256": "51f07c2be01a5a7003f9823b41884d71243e5dcc543cf5affafc42ed7795582a",
+          "sha1": "0876f186cfce50623f8a8856373f6359ca2a9e55",
+          "md5": "a5e319c11604220599075588f519dec4"
+        }
+      ]
+    }
+  ]
+}

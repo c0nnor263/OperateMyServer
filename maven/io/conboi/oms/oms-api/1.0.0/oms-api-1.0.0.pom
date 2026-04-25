@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- This module was also published with a richer model, Gradle metadata,  -->
+  <!-- which should be used instead. Do not delete the following line which  -->
+  <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
+  <!-- that they should prefer consuming it instead. -->
+  <!-- do_not_remove: published-with-gradle-metadata -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.conboi.oms</groupId>
+  <artifactId>oms-api</artifactId>
+  <version>1.0.0</version>
+  <name>OMS-API</name>
+  <description>A library for developing OperateMyServer addons</description>
+  <url>https://github.com/c0nnor263/OperateMyServer</url>
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://opensource.org/licenses/MIT</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>c0nnor263</id>
+      <name>c0nnor263</name>
+    </developer>
+  </developers>
+  <scm>
+    <url>https://github.com/c0nnor263/OperateMyServer</url>
+  </scm>
+</project>
