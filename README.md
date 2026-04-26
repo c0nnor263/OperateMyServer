@@ -51,6 +51,7 @@ Download:
 1. Download **OMS**
    - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
    - [Modrinth](https://modrinth.com/mod/operate-my-server)
+   - [OMS Maven](https://c0nnor263.github.io/OperateMyServer/maven/)
 2. Download **Kotlin For Forge**
    - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/kotlin-for-forge)
    - [Modrinth](https://modrinth.com/mod/kotlin-for-forge)
