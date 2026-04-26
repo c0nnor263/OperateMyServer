@@ -2,33 +2,90 @@
 [![](https://cf.way2muchnoise.eu/versions/1341025.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J61TEZDO)
 
+[![OMS Banner](./assets/banner.png)](https://conboi.gitbook.io/oms-wiki)
+
 # Operate My Server
 
-**OperateMyServer (OMS)** is a modular Minecraft Forge mod designed to give server owners fine-grained control over
-server behavior, automated actions, and event-based lifecycle management.
+**Operate My Server (OMS)** is a modular server-side utility mod for Forge that provides automated restarts, server condition handling, and lifecycle control.
+Lightweight, configurable, and designed to be extended through addons.
 
-Whether you're running a private server for friends or hosting a more complex public instance, OMS empowers you to build
-your own logic around restarts, monitoring, scheduled events, and beyond - using a clean addon-based architecture.
+---
 
-### Why Use OMS?
+## What is OMS?
+OMS is not just a restart mod.
+It is a small platform where server behavior is built from independent features grouped into addons.  
+Each feature can be enabled, disabled, configured, or extended without affecting the rest of the system.
 
-* Automate server restarts with fully configurable schedules and in-game warnings
-* React to server conditions like low TPS or empty player list
-* Interact with every feature via powerful in-game `/oms` commands
-* Modular system: each addon contains isolated features you can enable or disable
-* Live config reloads and runtime-safe caching
-* Easy to extend: write your own addons using a clean, documented API
+---
 
-### Who Is It For?
+## Core Capabilities
 
-* **Server Owners** – manage restarts, shutdowns, and conditions like TPS drop or idle server, while using your own
-  startup scripts
-* **Modpack Developers** – bundle smart server logic like scheduling, idle detection, and watchdogs into your pack
-* **Mod Developers** – build powerful lifecycle-based features and admin tools using the OMS addon API
+- Scheduled server restarts with player warnings  
+- Condition-based triggers (low TPS, empty server, etc.)  
+- Centralized restart and shutdown handling  
+- Modular addon + feature architecture  
+- Runtime config updates (when supported by feature)  
 
-### Requirements
+---
 
-* **Minecraft:** 1.20.1
-* **Forge:** 47.4.0 or latest stable version for 1.20.1
-* **Kotlin for Forge:** 4.11.0
-* **Server-side only** - no client installation required
+## Example Use Cases
+- Run daily restarts with warnings for players  
+- Restart the server when TPS drops for too long  
+- Restart automatically when no players are online  
+- Build your own automation logic using OMS API  
+
+---
+
+## Documentation
+Full documentation is available here:  
+https://conboi.gitbook.io/oms-wiki  
+
+Want to build your own addon?  
+See the [Development Guide](https://conboi.gitbook.io/oms-wiki/developer-guide) on the same wiki.
+
+---
+
+## Installation
+Download:
+
+1. Download **OMS**
+   - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
+   - Modrinth
+2. Download **Kotlin For Forge**
+   - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/kotlin-for-forge)
+   - [Modrinth](https://modrinth.com/mod/kotlin-for-forge)
+3. Place both `.jar` files into your `mods/` folder  
+
+Start the server normally - OMS will initialize automatically.
+
+---
+
+## Requirements
+- Minecraft 1.20.1  
+- Forge 47.4.0+  
+- KotlinForForge 4.11.0  
+
+Support for newer Minecraft and Forge versions is planned.
+
+---
+
+## Who Is It For
+**Server owners**  
+Automate restarts and react to server conditions
+
+**Modpack developers**  
+Bundle server-side automation into your pack
+
+**Mod developers**  
+Build lifecycle-driven features using OMS API
+
+---
+
+## Addons
+OMS supports addons - separate mods that extend functionality.
+Each addon can provide:
+- features  
+- commands  
+- configuration  
+
+Install addons like any other mod: drop the `.jar` into `mods/`.
