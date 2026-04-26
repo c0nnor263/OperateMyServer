@@ -36,6 +36,15 @@ Each feature can be enabled, disabled, configured, or extended without affecting
 
 ---
 
+## Requirements
+- Minecraft 1.20.1  
+- Forge 47.4.0+  
+- KotlinForForge 4.11.0  
+
+Support for newer Minecraft and Forge versions is planned.
+
+---
+
 ## Installation
 Download:
 
@@ -48,15 +57,6 @@ Download:
 3. Place both `.jar` files into your `mods/` folder  
 
 Start the server normally - OMS will initialize automatically.
-
----
-
-## Requirements
-- Minecraft 1.20.1  
-- Forge 47.4.0+  
-- KotlinForForge 4.11.0  
-
-Support for newer Minecraft and Forge versions is planned.
 
 ---
 
