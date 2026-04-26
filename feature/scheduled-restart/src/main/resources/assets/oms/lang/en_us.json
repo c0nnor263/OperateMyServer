@@ -1,0 +1,8 @@
+{
+  "oms.stop_reason.scheduled": "Server stopping as scheduled",
+  "oms.warning.restart": "The server will restart in %s.",
+  "oms.warning.autorestart.config_updated": "The auto-restart configuration has been updated. The closest scheduled restart will occur at %s.",
+  "oms.warning.autorestart.config_updated_skip_reset": "The auto-restart configuration has been updated. The closest scheduled restart at %s will not be skipped.",
+  "oms.command.autorestart.skip.success": "Successfully skipped the next scheduled restart at %s. The following restart will occur at %s.",
+  "oms.command.autorestart.skip.already_skipped": "The next scheduled restart has already been skipped. The following restart will occur at %s."
+}
