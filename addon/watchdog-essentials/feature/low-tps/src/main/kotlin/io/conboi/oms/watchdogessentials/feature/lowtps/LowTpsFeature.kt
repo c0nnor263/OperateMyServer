@@ -17,7 +17,7 @@ import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 class LowTpsFeature(
     configProvider: ConfigProvider<CLowTpsFeature>
 ) : OmsFeature<CLowTpsFeature>(configProvider) {
-
+    private var stopRequested = false
     override fun info(): FeatureInfo {
         return super.info().copy(
             id = CLowTpsFeature.NAME,
@@ -43,8 +43,9 @@ class LowTpsFeature(
         val server = event.server
         TpsMonitor.update(server)
         val avgTps = TpsMonitor.averageTpsOver(tpsCountTime.get())
-        if (avgTps < tpsThreshold.get()) {
+        if (!stopRequested && avgTps < tpsThreshold.get()) {
             LOG.warn("Low TPS detected (avg=$avgTps) for ${TimeFormatter.formatDuration(tpsCountTime.get())}s, threshold is ${config.tpsThreshold.get()}")
+            stopRequested = true
             FORGE_BUS.post(OMSActions.StopRequestedEvent(server, LowTpsStop))
         }
     }

@@ -189,6 +189,7 @@ abstract class FeatureManager(
         prioritizedFeatures.forEach {
             it.onOmsStopping(event, context)
         }
+        prioritizedFeatures = emptyList()
         registry.clear()
     }
 

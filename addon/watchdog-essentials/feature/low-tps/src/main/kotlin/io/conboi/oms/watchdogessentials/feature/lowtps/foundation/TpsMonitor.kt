@@ -12,7 +12,7 @@ internal object TpsMonitor {
     fun update(server: MinecraftServer) {
         val now = TimeHelper.currentTime
         history.addLast(TpsSnapshot(now, calculateGlobalTps(server)))
-        val cutoff = now - MAX_RETENTION_MINUTES
+        val cutoff = now - MAX_RETENTION_MINUTES * 60
         while (history.isNotEmpty() && history.first().time < cutoff) {
             history.removeFirst()
         }
@@ -20,7 +20,7 @@ internal object TpsMonitor {
 
     fun averageTpsOver(tpsCountTime: Duration): Double {
         val minutes = tpsCountTime.inWholeMinutes
-        val cutoff = TimeHelper.currentTime - minutes
+        val cutoff = TimeHelper.currentTime - minutes * 60
         val values = history.filter { it.time >= cutoff }.map { it.value }
 
         // Ensure we have enough data points and the requested duration is reasonable

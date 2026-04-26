@@ -108,6 +108,23 @@ class LowTpsFeatureTest : ShouldSpec({
             slot.captured.server shouldBe mockServer
             slot.captured.reason shouldBe LowTpsStop
         }
+
+        should("not trigger StopRequestedEvent multiple times when TPS below threshold") {
+            every { TpsMonitor.averageTpsOver(10.seconds) } returns 14.0
+
+            val slot = slot<OMSActions.StopRequestedEvent>()
+            every { FORGE_BUS.post(capture(slot)) } returns true
+
+            sut.onOmsTick(mockTickingEvent, mockAddonContext)
+            sut.onOmsTick(mockTickingEvent, mockAddonContext)
+
+            verify(exactly = 1) {
+                FORGE_BUS.post(any<OMSActions.StopRequestedEvent>())
+            }
+
+            slot.captured.server shouldBe mockServer
+            slot.captured.reason shouldBe LowTpsStop
+        }
     }
 
     context("info") {

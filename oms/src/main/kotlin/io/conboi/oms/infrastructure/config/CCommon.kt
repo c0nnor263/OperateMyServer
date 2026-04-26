@@ -5,9 +5,9 @@ import io.conboi.oms.common.infrastructure.config.ConfigBase
 class CCommon : ConfigBase() {
     override val name: String = "common"
 
-    val stopReasonLogging = b(
+    val loggingStopReason = b(
         false,
-        "stopReasonLogging",
+        "loggingStopReason",
         Comments.STOP_REASON_LOGGING
     )
 

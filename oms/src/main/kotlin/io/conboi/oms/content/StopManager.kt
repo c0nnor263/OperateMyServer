@@ -17,15 +17,16 @@ import net.minecraft.network.chat.Component
 
 internal object StopManager {
     const val HOOK_NAME = "StopManagerShutdownHook"
+    @Volatile
     private var explicitStopReason: StopReason? = null
-    private var stopReasonLoggingEnabled: Boolean = false
+    private var loggingStopReasonEnabled: Boolean = false
 
     fun isServerStopping(): Boolean {
         return explicitStopReason != null
     }
 
     fun installHook() {
-        stopReasonLoggingEnabled = OMSConfigs.server.common.stopReasonLogging.get()
+        loggingStopReasonEnabled = OMSConfigs.server.common.loggingStopReason.get()
         Runtime.getRuntime().addShutdownHook(
             Thread({
                 if (explicitStopReason == null) {
@@ -56,7 +57,7 @@ internal object StopManager {
         val stopCauseFile: Path = paths.common.resolve("stop_cause.json")
 
         FileUtil.writeSafe(stopCauseFile, content)
-        if (stopReasonLoggingEnabled) {
+        if (loggingStopReasonEnabled) {
             val logger = AddonLoggerRegistry.persistent("restart", { paths.logs })
             logger.info("Server stopping due to reason: $reasonName - $reasonMessage")
         }
