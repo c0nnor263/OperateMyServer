@@ -36,15 +36,6 @@ Each feature can be enabled, disabled, configured, or extended without affecting
 
 ---
 
-## Documentation
-Full documentation is available here:  
-https://conboi.gitbook.io/oms-wiki  
-
-Want to build your own addon?  
-See the [Development Guide](https://conboi.gitbook.io/oms-wiki/developer-guide) on the same wiki.
-
----
-
 ## Installation
 Download:
 
@@ -89,3 +80,12 @@ Each addon can provide:
 - configuration  
 
 Install addons like any other mod: drop the `.jar` into `mods/`.
+
+---
+
+## Documentation
+Full documentation is available here:  
+https://conboi.gitbook.io/oms-wiki  
+
+Want to build your own addon?  
+See the [Development Guide](https://conboi.gitbook.io/oms-wiki/developer-guide) on the same wiki.
