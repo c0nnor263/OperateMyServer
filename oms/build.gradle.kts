@@ -1,4 +1,3 @@
-
 import com.hypherionmc.modpublisher.properties.CurseEnvironment
 import com.hypherionmc.modpublisher.properties.ModLoader
 import plugins.modDisplayName
@@ -47,13 +46,19 @@ dependencies {
 
 publisher {
     apiKeys {
+        // Modrinth Token
+        modrinth(System.getenv("MODRINTH_FORGE_API_KEY"))
+        // Curseforge Token
         curseforge(System.getenv("CURSE_FORGE_API_KEY"))
     }
 
     curseID.set("1341025")
+    modrinthID.set("ZZEpAgHx")
     versionType.set("release")
     changelog.set(rootProject.file("CHANGELOG.md"))
     version.set(project.version.toString())
+    projectVersion.set(libs.versions.minecraft.get() + "-" + project.version.toString())
+    setJavaVersions(JavaVersion.VERSION_17)
     displayName.set("$modDisplayName $modVersion")
     setGameVersions(libs.versions.minecraft.get())
     setLoaders(ModLoader.FORGE, ModLoader.NEOFORGE)
@@ -61,6 +66,9 @@ publisher {
     artifact.set("build/libs/${project.base.archivesName.get()}-${project.version}.jar")
 
     curseDepends {
+        required("kotlin-for-forge")
+    }
+    modrinthDepends {
         required("kotlin-for-forge")
     }
 }
