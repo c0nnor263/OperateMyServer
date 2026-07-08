@@ -89,4 +89,19 @@ class TimeFormatterTest : ShouldSpec({
             formatted shouldBe "29.02 12:34"
         }
     }
+
+    context("formatDateTimeFileName") {
+
+        val zone = ZoneId.of("UTC")
+
+        should("format date and time for file name") {
+            val target = ZonedDateTime.of(
+                2025, 12, 25,
+                15, 45, 30, 0,
+                zone
+            )
+            val formatted = TimeFormatter.formatDateTimeFileName(target.toEpochSecond(), zone)
+            formatted shouldBe "2025-12-25_15-45-30"
+        }
+    }
 })

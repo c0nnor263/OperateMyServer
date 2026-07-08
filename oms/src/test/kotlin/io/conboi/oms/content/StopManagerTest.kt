@@ -250,7 +250,10 @@ class StopManagerTest : ShouldSpec({
 
             verify {
                 mockLogger.info(
-                    "Server stopping due to reason: TEST_REASON - Test reason message"
+                    "Server stopping due to reason: TEST_REASON - Test reason message\n" +
+                            "Stop cause written to: ${tempDir.resolve("stop_cause.json")}\n" +
+                            "Should restart: ${mockReason.shouldRestart}\n" +
+                            "Time: ${TimeFormatter.formatDateTime(time)}"
                 )
             }
         }

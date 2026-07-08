@@ -9,6 +9,7 @@ import kotlin.time.Duration
 object TimeFormatter {
     val HHmmFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     val ddMMHHmmFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM HH:mm")
+    val yyyyMMddHHmmssFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
 
     fun parseToLocalTimeOrNull(value: String): LocalTime? =
         runCatching { LocalTime.parse(value.trim()) }.getOrNull()
@@ -41,5 +42,14 @@ object TimeFormatter {
         }
 
         return target.format(formatter)
+    }
+
+    fun formatDateTimeFileName(
+        epochSeconds: Long,
+        zoneId: ZoneId = TimeHelper.zoneId
+    ): String {
+        return Instant.ofEpochSecond(epochSeconds)
+            .atZone(zoneId)
+            .format(yyyyMMddHHmmssFormatter)
     }
 }

@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class StopEntryLog(
     val reason: String,
     val message: String,
+    val shouldRestart: Boolean,
     val time: String
 )

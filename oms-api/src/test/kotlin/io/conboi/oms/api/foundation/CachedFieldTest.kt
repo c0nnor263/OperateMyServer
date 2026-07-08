@@ -331,4 +331,33 @@ class CachedFieldTest : ShouldSpec({
             ex.message shouldBe "lateinit property key has not been initialized"
         }
     }
+
+    context("operator getValue"){
+        should("return cached value when accessed via property delegate") {
+            var counter = 0
+            val field = CachedField(
+                key = { "k" },
+                value = { ++counter }
+            )
+
+            val delegate by field
+
+            delegate shouldBe 1
+        }
+
+        should("recompute value when key changes and accessed via property delegate") {
+            var key = "a"
+            var counter = 0
+            val field = CachedField(
+                key = { key },
+                value = { ++counter }
+            )
+
+            val delegate by field
+
+            delegate shouldBe 1
+            key = "b"
+            delegate shouldBe 2
+        }
+    }
 })

@@ -8,11 +8,11 @@ class CCommon : ConfigBase() {
     val loggingStopReason = b(
         false,
         "loggingStopReason",
-        Comments.STOP_REASON_LOGGING
+        Comments.LOGGING_STOP_REASON
     )
 
     object Comments {
-        const val STOP_REASON_LOGGING =
+        const val LOGGING_STOP_REASON =
             "If enabled, the server will log the reason for stopping to a persistent log file."
     }
 }

@@ -9,8 +9,12 @@ object TimeHelper {
 
     val zoneId: ZoneId = ZoneId.systemDefault()
 
-    val currentTime: Long
+    val currentEpochSeconds: Long
         get() = System.currentTimeMillis() / 1000
+
+    @Deprecated("Use currentEpochSeconds")
+    val currentTime: Long
+        get() = currentEpochSeconds
 
     @Volatile
     private var cachedOffsetSeconds: Long = zoneId.rules

@@ -1,5 +1,7 @@
 package io.conboi.oms.api.foundation
 
+import kotlin.reflect.KProperty
+
 /**
  * A cached, key-dependent value holder.
  *
@@ -37,6 +39,10 @@ class CachedField<K, V> internal constructor(
          * Creates a builder for constructing a [CachedField].
          */
         fun <K, V> builder() = Builder<K, V>()
+    }
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): V {
+        return get()
     }
 
     /**

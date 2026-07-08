@@ -40,17 +40,21 @@ internal object StopManager {
         val (server, reason) = event
         writeReason(reason)
 
-        server.playerList.broadcastSystemMessage(Component.translatable(reason.messageId), false)
+        server.playerList.broadcastSystemMessage(Component.translatable(reason.messageId, *reason.arguments), false)
         server.halt(false)
     }
 
     fun writeReason(reason: StopReason) {
         explicitStopReason = reason
         val reasonName = reason.name.uppercase()
-        val reasonMessage = Component.translatable(reason.messageId).string
-
-        val time = TimeFormatter.formatDateTime(TimeHelper.currentTime)
-        val entry = StopEntryLog(reasonName, reasonMessage, time)
+        val reasonMessage = Component.translatable(reason.messageId, *reason.arguments).string
+        val time = TimeFormatter.formatDateTime(TimeHelper.currentEpochSeconds)
+        val entry = StopEntryLog(
+            reason = reasonName,
+            message = reasonMessage,
+            shouldRestart = reason.shouldRestart,
+            time = time
+        )
         val content = OMSJson.encodeToString(StopEntryLog.serializer(), entry)
         val context = OmsAddons.oms.context
         val paths = context.paths
@@ -59,7 +63,12 @@ internal object StopManager {
         FileUtil.writeSafe(stopCauseFile, content)
         if (loggingStopReasonEnabled) {
             val logger = AddonLoggerRegistry.persistent("restart", { paths.logs })
-            logger.info("Server stopping due to reason: $reasonName - $reasonMessage")
+            logger.info(
+                "Server stopping due to reason: $reasonName - $reasonMessage\n" +
+                        "Stop cause written to: $stopCauseFile\n" +
+                        "Should restart: ${reason.shouldRestart}\n" +
+                        "Time: $time"
+            )
         }
     }
 }

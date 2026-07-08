@@ -11,6 +11,7 @@ REM === FUNCTIONS ===
 :read_cause
 set "LAST_REASON=UNKNOWN"
 set "LAST_MESSAGE=No message provided."
+set "LAST_SHOULD_RESTART=true"
 
 if exist "%CAUSE_FILE%" (
   for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command ^
@@ -21,8 +22,13 @@ if exist "%CAUSE_FILE%" (
     "(Get-Content -Raw '%CAUSE_FILE%') | ConvertFrom-Json | Select-Object -ExpandProperty message"`) do (
     set "LAST_MESSAGE=%%i"
   )
+  for /f "usebackq delims=" %%i in (`powershell -NoProfile -Command ^
+    "(Get-Content -Raw '%CAUSE_FILE%') | ConvertFrom-Json | Select-Object -ExpandProperty shouldRestart"`) do (
+    set "LAST_SHOULD_RESTART=%%i"
+  )
   echo [OMS] Reason: !LAST_REASON!
   echo [OMS] Message: !LAST_MESSAGE!
+  echo [OMS] Should restart: !LAST_SHOULD_RESTART!
   del "%CAUSE_FILE%" >nul 2>&1
 ) else (
   echo [OMS] No cause file found. Assuming CRASH.
@@ -37,8 +43,8 @@ echo [OMS] Server exited with code %errorlevel%.
 
 call :read_cause
 
-if /I "!LAST_REASON!"=="STOP" (
-  echo [OMS] STOP detected. Exiting loop.
+if /I "!LAST_SHOULD_RESTART!"=="false" (
+  echo [OMS] Restart not requested. Exiting loop.
   goto end
 )
 

@@ -37,4 +37,15 @@ interface StopReason {
      */
     val messageId: String
         get() = "$addonId.stop_reason.$name"
+
+    /**
+     * Arguments for the localization message associated with this stop reason.
+     */
+    val arguments: Array<out String?>
+        get() = emptyArray()
+
+    /**
+     * Indicates whether the process should be restarted after stopping
+     */
+    val shouldRestart: Boolean get() = true
 }
