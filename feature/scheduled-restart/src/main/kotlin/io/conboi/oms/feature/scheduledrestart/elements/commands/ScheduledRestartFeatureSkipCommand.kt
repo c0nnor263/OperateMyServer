@@ -8,7 +8,7 @@ import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.literal
 import io.conboi.oms.feature.scheduledrestart.ScheduledRestartFeature
-import io.conboi.oms.feature.scheduledrestart.content.SkipResult
+import io.conboi.oms.feature.scheduledrestart.foundation.SkipResult
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component

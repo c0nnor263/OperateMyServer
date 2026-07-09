@@ -1,4 +1,4 @@
-package io.conboi.oms.feature.scheduledrestart.content
+package io.conboi.oms.feature.scheduledrestart.foundation
 
 sealed class SkipResult {
     data class Skipped(val skippedRestartTime: Long, val nextRestartTime: Long) : SkipResult()

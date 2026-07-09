@@ -18,13 +18,20 @@ object TimeFormatter {
         runCatching { Duration.parse(value.trim()) }.getOrNull()
 
     fun formatDuration(duration: Duration): String {
-        val h = duration.inWholeHours
-        if (h > 0) return "${h}h"
+        if (duration.inWholeSeconds == 0L) return "0s"
+        if (duration.isNegative()) {
+            return "-${formatDuration(-duration)}"
+        }
 
-        val m = duration.inWholeMinutes
-        if (m > 0) return "${m}m"
+        val hours = duration.inWholeHours
+        val minutes = duration.inWholeMinutes % 60
+        val seconds = duration.inWholeSeconds % 60
 
-        return "${duration.inWholeSeconds}s"
+        return buildString {
+            if (hours > 0) append("${hours}h")
+            if (minutes > 0) append("${minutes}m")
+            if (seconds > 0) append("${seconds}s")
+        }
     }
 
     fun formatDateTime(

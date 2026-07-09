@@ -37,20 +37,44 @@ class TimeFormatterTest : ShouldSpec({
 
     context("formatDuration") {
 
-        should("format zero duration as seconds") {
+        should("format zero duration") {
             TimeFormatter.formatDuration(0.seconds) shouldBe "0s"
         }
 
-        should("format negative durations as seconds") {
+        should("format negative duration") {
             TimeFormatter.formatDuration((-5).seconds) shouldBe "-5s"
         }
 
-        should("format hours and ignore minutes") {
-            TimeFormatter.formatDuration(1.hours + 30.minutes) shouldBe "1h"
+        should("format seconds") {
+            TimeFormatter.formatDuration(42.seconds) shouldBe "42s"
         }
 
-        should("format minutes and ignore seconds") {
-            TimeFormatter.formatDuration(45.minutes + 30.seconds) shouldBe "45m"
+        should("format minutes") {
+            TimeFormatter.formatDuration(45.minutes) shouldBe "45m"
+        }
+
+        should("format hours") {
+            TimeFormatter.formatDuration(2.hours) shouldBe "2h"
+        }
+
+        should("format minutes and seconds") {
+            TimeFormatter.formatDuration(45.minutes + 30.seconds) shouldBe "45m30s"
+        }
+
+        should("format hours and minutes") {
+            TimeFormatter.formatDuration(1.hours + 30.minutes) shouldBe "1h30m"
+        }
+
+        should("format hours and seconds") {
+            TimeFormatter.formatDuration(1.hours + 2.seconds) shouldBe "1h2s"
+        }
+
+        should("format hours minutes and seconds") {
+            TimeFormatter.formatDuration(1.hours + 30.minutes + 2.seconds) shouldBe "1h30m2s"
+        }
+
+        should("omit zero units") {
+            TimeFormatter.formatDuration(2.hours) shouldBe "2h"
         }
     }
 

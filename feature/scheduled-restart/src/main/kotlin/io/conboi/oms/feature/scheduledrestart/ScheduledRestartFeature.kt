@@ -14,8 +14,8 @@ import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.infrastructure.log.LOG
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.literal
-import io.conboi.oms.feature.scheduledrestart.content.SkipResult
 import io.conboi.oms.feature.scheduledrestart.elements.commands.ScheduledRestartFeatureSkipCommand
+import io.conboi.oms.feature.scheduledrestart.foundation.SkipResult
 import io.conboi.oms.feature.scheduledrestart.foundation.reason.ScheduledStop
 import io.conboi.oms.feature.scheduledrestart.infrastructure.config.CScheduledRestartFeature
 import java.time.LocalTime
