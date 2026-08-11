@@ -71,7 +71,7 @@ class StopManagerTest : ShouldSpec({
             .set(StopManager, null)
 
         StopManager::class.java
-            .getDeclaredField("loggingStopReasonEnabled")
+            .getDeclaredField("logStopReasonToFileEnabled")
             .apply { isAccessible = true }
             .setBoolean(StopManager, false)
 
@@ -96,7 +96,7 @@ class StopManagerTest : ShouldSpec({
         } returns "Test reason message"
 
         every {
-            OMSConfigs.server.common.loggingStopReason.get()
+            OMSConfigs.server.common.logStopReasonToFile.get()
         } returns false
 
         every {
@@ -156,16 +156,16 @@ class StopManagerTest : ShouldSpec({
 
     context("installHook") {
 
-        should("capture loggingStopReasonEnabled from config") {
+        should("capture logStopReasonToFileEnabled from config") {
             val runtime = mockk<Runtime>()
             every { Runtime.getRuntime() } returns runtime
             every { runtime.addShutdownHook(any()) } just Runs
-            every { OMSConfigs.server.common.loggingStopReason.get() } returns true
+            every { OMSConfigs.server.common.logStopReasonToFile.get() } returns true
 
             StopManager.installHook()
 
             val field = StopManager::class.java
-                .getDeclaredField("loggingStopReasonEnabled")
+                .getDeclaredField("logStopReasonToFileEnabled")
                 .apply { isAccessible = true }
 
             field.getBoolean(StopManager) shouldBe true
@@ -232,7 +232,7 @@ class StopManagerTest : ShouldSpec({
     context("writeReason logging") {
 
         should("not log when installHook has not enabled stop reason logging") {
-            every { OMSConfigs.server.common.loggingStopReason.get() } returns true
+            every { OMSConfigs.server.common.logStopReasonToFile.get() } returns true
 
             StopManager.writeReason(mockReason)
 
@@ -241,11 +241,11 @@ class StopManagerTest : ShouldSpec({
             }
         }
 
-        should("log stop reason when loggingStopReason is enabled via installHook") {
+        should("log stop reason when logStopReasonToFile is enabled via installHook") {
             val runtime = mockk<Runtime>()
             every { Runtime.getRuntime() } returns runtime
             every { runtime.addShutdownHook(any()) } just Runs
-            every { OMSConfigs.server.common.loggingStopReason.get() } returns true
+            every { OMSConfigs.server.common.logStopReasonToFile.get() } returns true
             every { mockReason.shouldRestart } returns true
 
             StopManager.installHook()

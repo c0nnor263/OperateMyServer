@@ -19,14 +19,14 @@ internal object StopManager {
     const val HOOK_NAME = "StopManagerShutdownHook"
     @Volatile
     private var explicitStopReason: StopReason? = null
-    private var loggingStopReasonEnabled: Boolean = false
+    private var logStopReasonToFileEnabled: Boolean = false
 
     fun isServerStopping(): Boolean {
         return explicitStopReason != null
     }
 
     fun installHook() {
-        loggingStopReasonEnabled = OMSConfigs.server.common.loggingStopReason.get()
+        logStopReasonToFileEnabled = OMSConfigs.server.common.logStopReasonToFile.get()
         Runtime.getRuntime().addShutdownHook(
             Thread({
                 if (explicitStopReason == null) {
@@ -61,7 +61,7 @@ internal object StopManager {
         val stopCauseFile: Path = paths.common.resolve("stop_cause.json")
 
         FileUtil.writeSafe(stopCauseFile, content)
-        if (loggingStopReasonEnabled) {
+        if (logStopReasonToFileEnabled) {
             val logger = AddonLoggerRegistry.persistent("restart", { paths.logs })
             logger.info(
                 "Server stopping due to reason: $reasonName - $reasonMessage\n" +
