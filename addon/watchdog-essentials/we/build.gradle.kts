@@ -12,8 +12,9 @@ plugins {
 modDev {
     dependsOn(
         projects.addon.watchdogEssentials.common.path,
-        projects.addon.watchdogEssentials.feature.emptyServer.path,
         projects.addon.watchdogEssentials.feature.lowTps.path,
+        projects.addon.watchdogEssentials.feature.lowMemory.path,
+        projects.addon.watchdogEssentials.feature.emptyServer.path,
     )
 
     toml {

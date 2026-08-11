@@ -1,0 +1,10 @@
+{
+  "watchdogessentials.warning.low_memory": "Low memory warning: average available memory has stayed at %s%% for the last %s, below the %s%% threshold. This may cause lag or crashes.",
+  "watchdogessentials.stop_reason.low_memory_restart": "The server was restarted because average available memory stayed at %s%% for the last %s, below the %s%% threshold.",
+  "watchdogessentials.stop_reason.low_memory_shutdown": "The server was shut down because average available memory stayed at %s%% for the last %s, below the %s%% threshold.",
+  "watchdogessentials.command.low_memory.heapdump.requested": "Heap dump started. It may take a while. Check the console or logs for completion.",
+  "watchdogessentials.command.low_memory.report.requested": "Memory report started. It may take a while. Check the console or logs for completion.",
+  "watchdogessentials.command.low_memory.summary_over.default_window": "The summary uses the default time window of %s. To use a custom window, enter it as 'XhYmZs' (for example, '1h30m').",
+  "watchdogessentials.command.low_memory.summary_over.invalid_window": "The time window %s is invalid. Use the format 'XhYmZs' (for example, '1h30m').",
+  "watchdogessentials.command.low_memory.summary_over.window_exceeds_max": "The time window %s exceeds the maximum of %s. Using the allowed time window instead."
+}

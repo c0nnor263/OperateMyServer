@@ -4,6 +4,7 @@ import io.conboi.oms.api.foundation.addon.AddonContext
 import io.conboi.oms.api.foundation.addon.OmsAddon
 import io.conboi.oms.watchdogessentials.common.WatchDogEssentials
 import io.conboi.oms.watchdogessentials.feature.emptyserver.EmptyServerFeature
+import io.conboi.oms.watchdogessentials.feature.lowmemory.LowMemoryFeature
 import io.conboi.oms.watchdogessentials.feature.lowtps.LowTpsFeature
 import io.conboi.oms.watchdogessentials.infrastructure.config.WEConfigs
 
@@ -15,6 +16,9 @@ class WatchDogEssentialsAddon : OmsAddon(WatchDogEssentials.MOD_ID) {
         listOf(
             LowTpsFeature {
                 featureConfig.lowTps
+            },
+            LowMemoryFeature {
+                featureConfig.lowMemory
             },
             EmptyServerFeature {
                 featureConfig.emptyServer

@@ -22,6 +22,7 @@ include(":feature:scheduled-restart")
 include(":addon:watchdog-essentials:we")
 include(":addon:watchdog-essentials:common")
 include(":addon:watchdog-essentials:feature:low-tps")
+include(":addon:watchdog-essentials:feature:low-memory")
 include(":addon:watchdog-essentials:feature:empty-server")
 
 rootProject.name = "operate-my-server"
