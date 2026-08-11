@@ -89,7 +89,7 @@ class ScheduledRestartFeature(
     override fun onOmsTick(event: OMSLifecycle.TickingEvent, context: AddonContext) {
         super.onOmsTick(event, context)
         val server = event.server
-        val now = TimeHelper.currentTime
+        val now = TimeHelper.currentEpochSeconds
         val restartTime = if (isScheduledToSkip) {
             nextRestartTimeTarget.get()
         } else {
@@ -139,7 +139,7 @@ class ScheduledRestartFeature(
         }
     }
 
-    fun getRestartTime(currentTime: Long = TimeHelper.currentTime): Long {
+    fun getRestartTime(currentTime: Long = TimeHelper.currentEpochSeconds): Long {
         val restartTimes = restartTimes.get()
         return pickClosestTarget(restartTimes, currentTime).also {
             LOG.debug("Restart time is set to {}", TimeFormatter.formatDateTime(it))

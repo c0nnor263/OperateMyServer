@@ -75,7 +75,7 @@ class StopManagerTest : ShouldSpec({
             .apply { isAccessible = true }
             .setBoolean(StopManager, false)
 
-        every { TimeHelper.currentTime } returns time
+        every { TimeHelper.currentEpochSeconds } returns time
 
         every { mockAddonPaths.common } returns tempDir
         every { mockAddonPaths.logs } returns tempDir
@@ -88,6 +88,8 @@ class StopManagerTest : ShouldSpec({
 
         every { mockReason.name } returns "test_reason"
         every { mockReason.messageId } returns "oms.stop_reason.test_reason"
+        every { mockReason.arguments } returns emptyArray<String>()
+        every { mockReason.shouldRestart } returns false
 
         every {
             Component.translatable(mockReason.messageId).string
@@ -244,16 +246,18 @@ class StopManagerTest : ShouldSpec({
             every { Runtime.getRuntime() } returns runtime
             every { runtime.addShutdownHook(any()) } just Runs
             every { OMSConfigs.server.common.loggingStopReason.get() } returns true
+            every { mockReason.shouldRestart } returns true
 
             StopManager.installHook()
             StopManager.writeReason(mockReason)
 
+            val expectedTime = TimeFormatter.formatDateTime(time)
             verify {
                 mockLogger.info(
                     "Server stopping due to reason: TEST_REASON - Test reason message\n" +
                             "Stop cause written to: ${tempDir.resolve("stop_cause.json")}\n" +
-                            "Should restart: ${mockReason.shouldRestart}\n" +
-                            "Time: ${TimeFormatter.formatDateTime(time)}"
+                            "Should restart: true\n" +
+                            "Time: $expectedTime"
                 )
             }
         }

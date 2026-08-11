@@ -59,7 +59,7 @@ class ScheduledRestartFeatureTest : ShouldSpec({
 
     beforeEach {
         every { FORGE_BUS.post(any()) } returns true
-        every { TimeHelper.currentTime } returns nowEpoch
+        every { TimeHelper.currentEpochSeconds } returns nowEpoch
         every { mockServer.playerList } returns mockPlayers
         every { mockTickingEvent.server } returns mockServer
 
@@ -259,7 +259,7 @@ class ScheduledRestartFeatureTest : ShouldSpec({
 
         should("include Skip command") {
             sut.additionalCommands.map { it::class.simpleName } shouldContainExactly listOf(
-                "ScheduledRestartFeatureSkipCommand"
+                "SkipCommand"
             )
         }
     }
