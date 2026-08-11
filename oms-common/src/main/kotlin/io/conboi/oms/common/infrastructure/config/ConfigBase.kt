@@ -79,7 +79,9 @@ abstract class ConfigBase {
                 config.registerAll(builder)
                 if (config.baseDepth > depth) builder.pop(config.baseDepth - depth)
                 null
-            })
+            },
+            readable = false
+        )
         allValues.add(field)
         children.add(config)
         return config
@@ -129,4 +131,22 @@ abstract class ConfigBase {
             is Enum<*> -> v.name
             else -> v
         }
+
+    fun collectConfigData(): Map<String, Any> {
+        val result = LinkedHashMap<String, Any>()
+
+        for (cv in allValues) {
+            if (cv is ConfigGroup) continue
+            if (!cv.readable) continue
+
+            val normalizedValue = normalizeValue(cv.get()) ?: continue
+            result[cv.name] = normalizedValue
+        }
+
+        for (child in children.filterNotNull()) {
+            result[child.name] = child.collectConfigData()
+        }
+
+        return result
+    }
 }

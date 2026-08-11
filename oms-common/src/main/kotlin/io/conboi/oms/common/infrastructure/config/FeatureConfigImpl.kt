@@ -16,16 +16,6 @@ abstract class FeatureConfigImpl : ConfigBase(), FeatureConfig {
     }
 
     override fun getConfigData(): Map<String, Any> {
-        val result = LinkedHashMap<String, Any>()
-
-        for (cv in allValues) {
-            // Skip config groups (they have no actual value)
-            if (cv is ConfigGroup) continue
-
-            val v = cv.get() ?: continue
-            result[cv.name] = normalizeValue(v) ?: continue
-        }
-
-        return result
+        return collectConfigData()
     }
 }

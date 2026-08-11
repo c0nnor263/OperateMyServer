@@ -6,6 +6,7 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue
 open class CValue<V, T : ConfigValue<V>?>(
     var name: String,
     provider: IValueProvider<V, T?>,
+    val readable: Boolean = true,
     vararg comment: String?
 ) {
     protected var value: ConfigValue<V>? = null
