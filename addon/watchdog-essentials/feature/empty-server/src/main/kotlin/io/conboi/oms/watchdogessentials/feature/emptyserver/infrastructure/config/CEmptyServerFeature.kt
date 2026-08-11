@@ -24,10 +24,18 @@ class CEmptyServerFeature : FeatureConfigImpl() {
         minutes in MIN_RETENTION_MINUTES..MAX_RETENTION_MINUTES
     }
 
+    val shouldRestart = b(
+        true,
+        "should_restart",
+        Comments.SHOULD_RESTART
+    )
+
     object Comments {
         const val EMPTY_SERVER =
             "Feature to automatically shutdown the server when it is empty for a certain period of time"
         const val COUNT_TIME =
             "The time over for shutdown the server when it is empty. Default is 1h hour(\"1h\"). Minimum is 5 minutes(\"5m\")"
+        const val SHOULD_RESTART =
+            "Whether the server should be restarted after shutdown. Default is true"
     }
 }

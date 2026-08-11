@@ -14,6 +14,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -46,6 +47,7 @@ class EmptyServerFeatureTest : ShouldSpec({
     beforeEach {
         every { mockTickEvent.server } returns mockServer
         every { mockConfig.countTime.get() } returns "20s"
+        every { mockConfig.shouldRestart.get() } returns true
         every { mockConfigProvider.get() } returns mockConfig
 
         sut = EmptyServerFeature(mockConfigProvider)
@@ -91,10 +93,10 @@ class EmptyServerFeatureTest : ShouldSpec({
             val startEpoch = 1000L
             val nowEpoch = 1010L
 
-            every { TimeHelper.currentTime } returns startEpoch
+            every { TimeHelper.currentEpochSeconds } returns startEpoch
             sut.initTime()
 
-            every { TimeHelper.currentTime } returns nowEpoch
+            every { TimeHelper.currentEpochSeconds } returns nowEpoch
             every { TimeHelper.secondsBetween(startEpoch, nowEpoch) } returns 10L
 
             sut.onOmsTick(mockTickEvent, mockAddonContext)
@@ -106,10 +108,10 @@ class EmptyServerFeatureTest : ShouldSpec({
             val startEpoch = 1000L
             val nowEpoch = 2000L
 
-            every { TimeHelper.currentTime } returns startEpoch
+            every { TimeHelper.currentEpochSeconds } returns startEpoch
             sut.initTime()
 
-            every { TimeHelper.currentTime } returns nowEpoch
+            every { TimeHelper.currentEpochSeconds } returns nowEpoch
             every { TimeHelper.secondsBetween(startEpoch, nowEpoch) } returns 1000L
 
             every { LOG.info(any<String>()) } just Runs
@@ -120,18 +122,20 @@ class EmptyServerFeatureTest : ShouldSpec({
 
             slot.isCaptured shouldBe true
             slot.captured.server shouldBe mockServer
-            slot.captured.reason shouldBe EmptyServerStop
+            slot.captured.reason.shouldBeTypeOf<EmptyServerStop> { reason ->
+                reason.shouldRestart shouldBe true
+            }
         }
     }
 
     context("initTime") {
         should("store current time") {
             val start = 5000L
-            every { TimeHelper.currentTime } returns start
+            every { TimeHelper.currentEpochSeconds } returns start
 
             sut.initTime()
 
-            every { TimeHelper.currentTime } returns 5001L
+            every { TimeHelper.currentEpochSeconds } returns 5001L
             every { TimeHelper.secondsBetween(start, 5001L) } returns 1L
 
             sut.onOmsTick(mockTickEvent, mockAddonContext)
@@ -144,7 +148,7 @@ class EmptyServerFeatureTest : ShouldSpec({
         should("reset timer") {
             val start = 6000L
 
-            every { TimeHelper.currentTime } returns start
+            every { TimeHelper.currentEpochSeconds } returns start
             sut.initTime()
 
             sut.clearTime()
