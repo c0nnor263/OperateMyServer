@@ -167,7 +167,7 @@ class ScheduledRestartFeatureTest : ShouldSpec({
 
             checkCapturedTranslationKey(
                 slotMsg.captured,
-                "oms.warning.autorestart.config_updated",
+                "oms.warning.scheduledrestart.config_updated",
                 "06:00".literal().bold()
             )
         }

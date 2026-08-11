@@ -13,7 +13,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
-class ScheduledRestartFeatureSkipCommand(private val feature: ScheduledRestartFeature) : OMSCommandEntry() {
+class SkipCommand(private val feature: ScheduledRestartFeature) : OMSCommandEntry() {
 
     override fun init(): ArgumentBuilder<CommandSourceStack, *> {
         return Commands.literal("skip")
@@ -39,7 +39,7 @@ class ScheduledRestartFeatureSkipCommand(private val feature: ScheduledRestartFe
                 source.sendSuccess(
                     {
                         Component.translatable(
-                            "oms.command.autorestart.skip.success",
+                            "oms.command.scheduledrestart.skip.success",
                             TimeFormatter.formatDateTime(result.skippedRestartTime).literal().bold(),
                             TimeFormatter.formatDateTime(result.nextRestartTime).literal().bold()
                         )
@@ -50,7 +50,7 @@ class ScheduledRestartFeatureSkipCommand(private val feature: ScheduledRestartFe
             is SkipResult.AlreadySkipped -> {
                 source.sendFailure(
                     Component.translatable(
-                        "oms.command.autorestart.skip.already_skipped",
+                        "oms.command.scheduledrestart.skip.already_skipped",
                         TimeFormatter.formatDateTime(result.nextRestartTime).literal().bold(),
                     )
                 )

@@ -14,7 +14,7 @@ import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.infrastructure.log.LOG
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.literal
-import io.conboi.oms.feature.scheduledrestart.elements.commands.ScheduledRestartFeatureSkipCommand
+import io.conboi.oms.feature.scheduledrestart.elements.commands.SkipCommand
 import io.conboi.oms.feature.scheduledrestart.foundation.SkipResult
 import io.conboi.oms.feature.scheduledrestart.foundation.reason.ScheduledStop
 import io.conboi.oms.feature.scheduledrestart.infrastructure.config.CScheduledRestartFeature
@@ -31,7 +31,7 @@ class ScheduledRestartFeature(
     }
 
     override val additionalCommands: List<OMSCommandEntry> = listOf(
-        ScheduledRestartFeatureSkipCommand(this)
+        SkipCommand(this)
     )
 
     private var isScheduledToSkip = false
@@ -104,9 +104,9 @@ class ScheduledRestartFeature(
         super.onConfigUpdated(event)
         val key = if (isScheduledToSkip) {
             isScheduledToSkip = false
-            "oms.warning.autorestart.config_updated_skip_reset"
+            "oms.warning.scheduledrestart.config_updated_skip_reset"
         } else {
-            "oms.warning.autorestart.config_updated"
+            "oms.warning.scheduledrestart.config_updated"
         }
         restartTimeTarget.invalidate()
         val closestRestartTime = TimeFormatter.formatDateTime(restartTimeTarget.get())

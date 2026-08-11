@@ -20,9 +20,9 @@ import java.time.ZonedDateTime
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 
-class ScheduledRestartFeatureSkipCommandTest : ShouldSpec({
+class SkipCommandTest : ShouldSpec({
 
-    lateinit var sut: ScheduledRestartFeatureSkipCommand
+    lateinit var sut: SkipCommand
 
     val mockContext = mockk<CommandContext<CommandSourceStack>>(relaxed = true)
     val mockSource = mockk<CommandSourceStack>(relaxed = true)
@@ -34,7 +34,7 @@ class ScheduledRestartFeatureSkipCommandTest : ShouldSpec({
         every { mockFeatureInfo.id } returns CScheduledRestartFeature.NAME
         every { mockFeature.info() } returns mockFeatureInfo
 
-        sut = ScheduledRestartFeatureSkipCommand(mockFeature)
+        sut = SkipCommand(mockFeature)
     }
 
     afterEach {
@@ -77,7 +77,7 @@ class ScheduledRestartFeatureSkipCommandTest : ShouldSpec({
 
             checkCapturedTranslationKey(
                 slotSuccess.captured.get(),
-                "oms.command.autorestart.skip.success",
+                "oms.command.scheduledrestart.skip.success",
                 TimeFormatter.formatDateTime(skipped).literal().bold(),
                 TimeFormatter.formatDateTime(next).literal().bold()
             )
@@ -96,7 +96,7 @@ class ScheduledRestartFeatureSkipCommandTest : ShouldSpec({
 
             checkCapturedTranslationKey(
                 slotFail.captured,
-                "oms.command.autorestart.skip.already_skipped",
+                "oms.command.scheduledrestart.skip.already_skipped",
                 TimeFormatter.formatDateTime(next).literal().bold()
             )
         }

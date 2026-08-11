@@ -43,7 +43,7 @@ class CScheduledRestartFeature : FeatureConfigImpl() {
     }
 
     object Comments {
-        const val AUTO_RESTART =
+        const val SCHEDULED_RESTART =
             "This feature allows the server to automatically restart at specified times or when certain conditions are met."
         const val RESTART_TIMES =
             "Times in 24-hour format on which the server will automatically restart\n" +

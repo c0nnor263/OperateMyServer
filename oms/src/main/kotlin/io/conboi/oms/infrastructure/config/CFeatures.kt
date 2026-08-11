@@ -9,7 +9,7 @@ class CFeatures : ConfigBase() {
     val scheduledRestart = nested(
         0,
         { CScheduledRestartFeature() },
-        CScheduledRestartFeature.Comments.AUTO_RESTART
+        CScheduledRestartFeature.Comments.SCHEDULED_RESTART
     )
 }
 
