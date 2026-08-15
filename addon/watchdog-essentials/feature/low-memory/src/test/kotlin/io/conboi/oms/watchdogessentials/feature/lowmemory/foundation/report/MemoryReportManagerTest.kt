@@ -76,6 +76,23 @@ class MemoryReportManagerTest : ShouldSpec({
                 .resolve("reports")
         }
 
+        should("generate unique report names within the same second") {
+            val report = report()
+            val capturedPaths = mutableListOf<Path>()
+            every { mockWriter.write(capture(capturedPaths), report) } just Runs
+
+            sut.createReport(mockContext, report, 0.minutes)
+            sut.resetCooldown()
+            sut.createReport(mockContext, report, 0.minutes)
+
+            capturedPaths.size shouldBe 2
+            capturedPaths[0].fileName.toString().startsWith("memory-report-") shouldBe true
+            capturedPaths[1].fileName.toString().startsWith("memory-report-") shouldBe true
+            capturedPaths[0].fileName.toString().endsWith("-1.log") shouldBe true
+            capturedPaths[1].fileName.toString().endsWith("-2.log") shouldBe true
+            capturedPaths[0].fileName.toString() shouldBe capturedPaths[1].fileName.toString().replace("-2.log", "-1.log")
+        }
+
         should("skip a report while cooldown is active") {
             val report = report()
 

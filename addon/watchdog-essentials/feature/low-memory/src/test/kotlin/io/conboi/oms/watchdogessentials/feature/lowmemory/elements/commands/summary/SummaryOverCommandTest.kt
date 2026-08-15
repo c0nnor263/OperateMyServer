@@ -102,6 +102,22 @@ class SummaryOverCommandTest : ShouldSpec({
                 "bad-window"
             )
         }
+
+        should("return 0 and send non_positive_window when window is not positive") {
+            every { mockFeature.isEnabled() } returns true
+            every { mockFeature.averagingWindow } returns 5.minutes
+
+            val slotFail = captureFail(mockSource)
+            val result = sut.requestSummaryOver(mockContext, "0s")
+
+            result shouldBe 0
+
+            checkCapturedTranslationKey(
+                slotFail.captured,
+                "watchdogessentials.command.low_memory.summary_over.non_positive_window",
+                "0s"
+            )
+        }
     }
 
     context("window exceeds max") {

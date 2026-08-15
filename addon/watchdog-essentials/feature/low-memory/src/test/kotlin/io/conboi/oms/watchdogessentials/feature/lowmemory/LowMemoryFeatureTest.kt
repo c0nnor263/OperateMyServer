@@ -249,7 +249,7 @@ class LowMemoryFeatureTest : ShouldSpec({
                     "OMS detected that the server is running with less than ${ByteFormatter.format(
                         LowMemoryFeature.RECOMMENDED_SERVER_MAX_MEMORY
                     )} max JVM memory.\n" +
-                        "This may be enough for small/test servers, but is not recommended for production Minecraft servers"
+                        "This may be enough for small or test servers, but is not recommended for production Minecraft servers"
                 )
             }
         }

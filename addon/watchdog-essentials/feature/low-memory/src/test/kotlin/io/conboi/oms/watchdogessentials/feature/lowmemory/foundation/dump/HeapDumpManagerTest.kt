@@ -85,6 +85,22 @@ class HeapDumpManagerTest : ShouldSpec({
             pathSlot.captured.fileName.toString().endsWith(".hprof") shouldBe true
         }
 
+        should("generate unique heap dump names within the same second") {
+            val capturedPaths = mutableListOf<Path>()
+            every { writer.write(capture(capturedPaths)) } just Runs
+
+            sut.createHeapDump(context, 0.minutes)
+            sut.resetCooldown()
+            sut.createHeapDump(context, 0.minutes)
+
+            capturedPaths.size shouldBe 2
+            capturedPaths[0].fileName.toString().startsWith("heapdump-") shouldBe true
+            capturedPaths[1].fileName.toString().startsWith("heapdump-") shouldBe true
+            capturedPaths[0].fileName.toString().endsWith("-1.hprof") shouldBe true
+            capturedPaths[1].fileName.toString().endsWith("-2.hprof") shouldBe true
+            capturedPaths[0].fileName.toString() shouldBe capturedPaths[1].fileName.toString().replace("-2.hprof", "-1.hprof")
+        }
+
         should("skip a heap dump while cooldown is active") {
             sut.createHeapDump(context, 5.minutes)
             sut.createHeapDump(context, 5.minutes)
@@ -219,6 +235,26 @@ class HeapDumpManagerTest : ShouldSpec({
 
             should("release in-progress state after an SecurityException error") {
                 every { writer.write(any()) } throws SecurityException("Test error")
+
+                sut.createHeapDump(
+                    context = context,
+                    heapDumpCooldownDuration = Duration.ZERO,
+                )
+
+                every { writer.write(any()) } just Runs
+
+                sut.createHeapDump(
+                    context = context,
+                    heapDumpCooldownDuration = Duration.ZERO,
+                )
+
+                verify(exactly = 2) {
+                    writer.write(any())
+                }
+            }
+
+            should("release in-progress state after a runtime error") {
+                every { writer.write(any()) } throws IllegalStateException("Test error")
 
                 sut.createHeapDump(
                     context = context,

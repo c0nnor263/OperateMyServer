@@ -63,13 +63,13 @@ class CLowMemoryFeature : FeatureConfigImpl() {
 
     object Comments {
         const val LOW_MEMORY =
-            "This feature monitors the server's memory usage and takes action if it falls below a certain threshold. It is designed to help prevent crashes due to low memory conditions."
+        "This feature monitors the server's available memory and takes action if it falls below a certain threshold. It is designed to help prevent crashes due to low-memory conditions."
         const val CREATE_HEAP_DUMP_ON_ACTION =
             "If true, the server will create a heap dump when it is under low memory conditions. This can be useful for debugging memory issues. Default is false."
         const val STARTUP_CHECK =
-            "If true, the server will check its memory usage at startup and will warn if it is below the recommended threshold. Default is true."
+        "If true, the server will check its available memory at startup and warn if it is below the recommended threshold. Default is true."
         const val AVERAGING_WINDOW =
-            "The time over which the server's memory usage is averaged. Default is 5 minutes. Minimum is 1 minute, maximum is 10 minutes."
+        "The time over which the server's available memory is averaged. Default is 5 minutes. Minimum is 1 minute, maximum is 10 minutes."
         const val AVAILABLE_THRESHOLD_PERCENT =
             "The percentage of available memory below which the server is considered to be under low memory conditions. Default is 10%. Minimum is 1%, maximum is 50%."
         val CRITICAL_ACTION =

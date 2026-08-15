@@ -10,6 +10,7 @@ import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.report.
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -30,6 +31,7 @@ class MemoryReportManager(
 
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
     private val isInProgress: AtomicBoolean = AtomicBoolean(false)
+    private val fileSequence = AtomicLong(0L)
     private var nextAllowedEpochSeconds: Long = 0L
 
 
@@ -93,7 +95,7 @@ class MemoryReportManager(
         FileUtil.ensureDir(reportsDir)
 
         val time = TimeFormatter.formatDateTimeFileName(TimeHelper.currentEpochSeconds)
-        val fileName = "memory-report-$time.log"
+        val fileName = "memory-report-$time-${fileSequence.incrementAndGet()}.log"
         val output = reportsDir.resolve(fileName)
 
         reportWriter.write(output, report)

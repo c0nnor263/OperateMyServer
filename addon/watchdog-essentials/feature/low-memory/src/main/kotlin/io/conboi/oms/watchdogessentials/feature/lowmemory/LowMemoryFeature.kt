@@ -11,6 +11,7 @@ import io.conboi.oms.api.foundation.feature.OmsFeature
 import io.conboi.oms.api.foundation.feature.Priority
 import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.common.foundation.TimeFormatter
+import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.conboi.oms.watchdogessentials.feature.lowmemory.elements.commands.dump.HeapDumpCommand
 import io.conboi.oms.watchdogessentials.feature.lowmemory.elements.commands.report.MemoryReportCommand
@@ -35,11 +36,11 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-// TODO: Update OMS-Addon-Template
 class LowMemoryFeature(
     configProvider: ConfigProvider<CLowMemoryFeature>
 ) : OmsFeature<CLowMemoryFeature>(configProvider) {
     companion object {
+        // Internal check interval for memory monitoring and action dispatch.
         val TICK_TIMER_INTERVAL = 15.seconds
         val RECOMMENDED_SERVER_MAX_MEMORY = MemoryUnit.gb(2)
 
@@ -76,7 +77,7 @@ class LowMemoryFeature(
                 ?: DEFAULT_WARNING_COOLDOWN
         }
         onUpdate = { _, _ ->
-            warningCooldownLocal = 0.seconds
+            nextWarningAllowedEpochSeconds = 0L
         }
     }
 
@@ -129,7 +130,7 @@ class LowMemoryFeature(
     private var stopRequested: Boolean = false
     private var heapDumpRequested: Boolean = false
     private var memoryReportRequested: Boolean = false
-    private var warningCooldownLocal: Duration = 0.seconds
+    private var nextWarningAllowedEpochSeconds: Long = 0L
 
     override fun onOmsStarted(event: OMSLifecycle.StartingEvent, context: AddonContext) {
         super.onOmsStarted(event, context)
@@ -143,7 +144,7 @@ class LowMemoryFeature(
                         RECOMMENDED_SERVER_MAX_MEMORY
                     )
                 } max JVM memory.\n" +
-                        "This may be enough for small/test servers, but is not recommended for production Minecraft servers"
+                        "This may be enough for small or test servers, but is not recommended for production Minecraft servers"
             )
         }
     }
@@ -224,11 +225,11 @@ class LowMemoryFeature(
         )
         when (val action = criticalAction) {
             CriticalAction.WARNING -> {
-                if (warningCooldownLocal > 0.seconds) {
-                    warningCooldownLocal -= TICK_TIMER_INTERVAL
+                val now = TimeHelper.currentEpochSeconds
+                if (now < nextWarningAllowedEpochSeconds) {
                     return
                 }
-                warningCooldownLocal = warningCooldownDuration
+                nextWarningAllowedEpochSeconds = now + warningCooldownDuration.inWholeSeconds
                 server.playerList.broadcastSystemMessage(
                     Component.translatable(
                         "watchdogessentials.warning.low_memory",

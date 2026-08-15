@@ -15,6 +15,7 @@ import io.conboi.oms.watchdogessentials.feature.lowmemory.elements.commands.summ
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.ByteFormatter
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.model.RetentionSummary
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -73,6 +74,15 @@ class SummaryOverCommand(private val feature: LowMemoryFeature) : OMSCommandEntr
                     )
                     return 0
                 }
+            if (parsedWindowDuration <= 0.seconds) {
+                source.sendFailure(
+                    Component.translatable(
+                        "watchdogessentials.command.low_memory.summary_over.non_positive_window",
+                        window
+                    )
+                )
+                return 0
+            }
             retentionWindow = parsedWindowDuration
         }
 

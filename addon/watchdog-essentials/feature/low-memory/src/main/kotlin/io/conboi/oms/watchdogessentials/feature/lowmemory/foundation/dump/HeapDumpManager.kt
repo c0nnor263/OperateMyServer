@@ -9,6 +9,7 @@ import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.dump.Jv
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -29,6 +30,7 @@ class HeapDumpManager(
 
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
     private val isInProgress: AtomicBoolean = AtomicBoolean(false)
+    private val fileSequence = AtomicLong(0L)
     private var nextAllowedEpochSeconds: Long = 0L
 
     private fun isCooldownActive(): Boolean =
@@ -68,6 +70,8 @@ class HeapDumpManager(
             LOG.error("Failed to create heap dump due to unsupported operation", error)
         } catch (error: SecurityException) {
             LOG.error("Failed to create heap dump due to security restrictions", error)
+        } catch (error: RuntimeException) {
+            LOG.error("Failed to create heap dump", error)
         } finally {
             isInProgress.set(false)
         }
@@ -81,7 +85,7 @@ class HeapDumpManager(
         FileUtil.ensureDir(heapDumpDir)
 
         val time = TimeFormatter.formatDateTimeFileName(TimeHelper.currentEpochSeconds)
-        val fileName = "heapdump-$time.hprof"
+        val fileName = "heapdump-$time-${fileSequence.incrementAndGet()}.hprof"
         val output = heapDumpDir.resolve(fileName)
         heapDumpWriter.write(output)
         return output
