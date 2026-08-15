@@ -5,8 +5,9 @@ import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.addon.AddonContext
 import io.conboi.oms.api.foundation.feature.Priority
 import io.conboi.oms.api.infrastructure.config.ConfigProvider
+import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
-import io.conboi.oms.watchdogessentials.feature.lowtps.foundation.TpsMonitor
+import io.conboi.oms.watchdogessentials.feature.lowtps.foundation.TpsCalculator
 import io.conboi.oms.watchdogessentials.feature.lowtps.foundation.reason.LowTpsStop
 import io.conboi.oms.watchdogessentials.feature.lowtps.infrastructure.config.CLowTpsFeature
 import io.kotest.assertions.throwables.shouldThrow
@@ -35,17 +36,19 @@ class LowTpsFeatureTest : ShouldSpec({
     val mockAddonContext: AddonContext = mockk(relaxed = true)
 
     beforeSpec {
-        mockkObject(TpsMonitor)
+        mockkObject(TimeHelper)
+        mockkObject(TpsCalculator)
         mockkObject(FORGE_BUS)
         mockkObject(LOG)
     }
 
     beforeEach {
-        every { TpsMonitor.update(mockServer) } just Runs
+        every { TimeHelper.currentEpochSeconds } returns 1_000L
+        every { TpsCalculator.calculateGlobalTps(mockServer) } returns 20.0
         every { LOG.warn(any<String>()) } just Runs
         every { mockTickingEvent.server } returns mockServer
 
-        every { mockConfig.tpsCountTime.get() } returns "10s"
+        every { mockConfig.tpsAveragingWindow.get() } returns "10s"
         every { mockConfig.tpsThreshold.get() } returns 15
         every { mockConfigProvider.get() } returns mockConfig
 
@@ -57,31 +60,31 @@ class LowTpsFeatureTest : ShouldSpec({
         clearAllMocks()
     }
 
-    context("tpsCountTime") {
+    context("tpsAveragingWindow") {
 
         should("cache parsed duration") {
-            sut.tpsCountTime.get() shouldBe 10.seconds
+            sut.tpsAveragingWindow.get() shouldBe 10.seconds
 
-            every { mockConfig.tpsCountTime.get() } returns "5s"
-            sut.tpsCountTime.invalidate()
+            every { mockConfig.tpsAveragingWindow.get() } returns "5s"
+            sut.tpsAveragingWindow.invalidate()
 
-            sut.tpsCountTime.get() shouldBe 5.seconds
+            sut.tpsAveragingWindow.get() shouldBe 5.seconds
         }
 
-        should("throw if cannot parse tpsCountTime") {
-            every { mockConfig.tpsCountTime.get() } returns "??"
+        should("throw if cannot parse tpsAveragingWindow") {
+            every { mockConfig.tpsAveragingWindow.get() } returns "??"
 
             val ex = shouldThrow<IllegalStateException> {
-                sut.tpsCountTime.invalidate()
+                sut.tpsAveragingWindow.invalidate()
             }
-            ex.message shouldBe "Cannot parse tpsCountTime"
+            ex.message shouldBe "Cannot parse tpsAveragingWindow"
         }
     }
 
     context("onOmsTick") {
 
         should("not trigger StopRequestedEvent if TPS above threshold") {
-            every { TpsMonitor.averageTpsOver(10.seconds) } returns 20.0
+            every { TpsCalculator.calculateGlobalTps(mockServer) } returns 20.0
 
             sut.onOmsTick(mockTickingEvent, mockAddonContext)
 
@@ -89,7 +92,7 @@ class LowTpsFeatureTest : ShouldSpec({
         }
 
         should("not trigger StopRequestedEvent if TPS is exactly threshold") {
-            every { TpsMonitor.averageTpsOver(10.seconds) } returns 15.0
+            every { TpsCalculator.calculateGlobalTps(mockServer) } returns 15.0
 
             sut.onOmsTick(mockTickingEvent, mockAddonContext)
 
@@ -97,7 +100,7 @@ class LowTpsFeatureTest : ShouldSpec({
         }
 
         should("trigger StopRequestedEvent when TPS below threshold") {
-            every { TpsMonitor.averageTpsOver(10.seconds) } returns 14.0
+            every { TpsCalculator.calculateGlobalTps(mockServer) } returns 14.0
 
             val slot = slot<OMSActions.StopRequestedEvent>()
             every { FORGE_BUS.post(capture(slot)) } returns true
@@ -110,7 +113,7 @@ class LowTpsFeatureTest : ShouldSpec({
         }
 
         should("not trigger StopRequestedEvent multiple times when TPS below threshold") {
-            every { TpsMonitor.averageTpsOver(10.seconds) } returns 14.0
+            every { TpsCalculator.calculateGlobalTps(mockServer) } returns 14.0
 
             val slot = slot<OMSActions.StopRequestedEvent>()
             every { FORGE_BUS.post(capture(slot)) } returns true

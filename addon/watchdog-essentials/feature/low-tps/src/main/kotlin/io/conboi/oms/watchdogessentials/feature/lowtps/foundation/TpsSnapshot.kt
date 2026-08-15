@@ -1,6 +1,8 @@
 package io.conboi.oms.watchdogessentials.feature.lowtps.foundation
 
-internal data class TpsSnapshot(
-    val time: Long,
+import io.conboi.oms.common.foundation.snapshot.Snapshot
+
+data class TpsSnapshot(
+    override val createdAt: Long,
     val value: Double
-)
+) : Snapshot

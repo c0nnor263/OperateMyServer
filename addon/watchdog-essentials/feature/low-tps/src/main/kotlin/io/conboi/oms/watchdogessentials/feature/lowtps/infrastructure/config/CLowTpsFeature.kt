@@ -2,7 +2,7 @@ package io.conboi.oms.watchdogessentials.feature.lowtps.infrastructure.config
 
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.infrastructure.config.FeatureConfigImpl
-import io.conboi.oms.watchdogessentials.feature.lowtps.foundation.TpsMonitor
+import io.conboi.oms.watchdogessentials.feature.lowtps.foundation.TpsSnapshotHistory
 
 class CLowTpsFeature : FeatureConfigImpl() {
     companion object {
@@ -19,16 +19,15 @@ class CLowTpsFeature : FeatureConfigImpl() {
         Comments.TPS_THRESHOLD,
     )
 
-    val tpsCountTime = s(
+    val tpsAveragingWindow = s(
         "2m",
-        "tps_count_time",
-        Comments.TPS_COUNT_TIME
+        "tps_averaging_window",
+        Comments.TPS_AVERAGING_WINDOW
     ) { value ->
-        val tpsCountTime = value?.let {
+        val tpsAveragingWindow = value?.let {
             TimeFormatter.parseToDurationOrNull(it)
-        }
-        val minutes = tpsCountTime?.inWholeMinutes ?: return@s false
-        minutes in TpsMonitor.MIN_RETENTION_MINUTES..TpsMonitor.MAX_RETENTION_MINUTES
+        } ?: return@s false
+        tpsAveragingWindow in TpsSnapshotHistory.MIN_RETENTION_MINUTES..TpsSnapshotHistory.MAX_RETENTION_MINUTES
     }
 
     object Comments {
@@ -36,7 +35,7 @@ class CLowTpsFeature : FeatureConfigImpl() {
             "This feature monitors the server's TPS (ticks per second) and can trigger a restart if the TPS drops below a defined threshold."
         const val TPS_THRESHOLD =
             "The TPS threshold below which the server is considered to be under low TPS conditions"
-        const val TPS_COUNT_TIME =
-            "The time over for restarting the server when the TPS is below the threshold. Default is 2 minutes(\"2m\"). Minimum is 1 minute(\"1m\")"
+        const val TPS_AVERAGING_WINDOW =
+            "The time window over which the TPS is averaged to determine if it is below the threshold"
     }
 }
