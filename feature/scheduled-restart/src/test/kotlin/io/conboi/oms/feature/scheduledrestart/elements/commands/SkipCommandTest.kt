@@ -3,6 +3,7 @@ package io.conboi.oms.feature.scheduledrestart.elements.commands
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.common.foundation.TimeFormatter
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.literal
 import io.conboi.oms.feature.scheduledrestart.ScheduledRestartFeature
@@ -18,7 +19,6 @@ import io.mockk.every
 import io.mockk.mockk
 import java.time.ZonedDateTime
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
 
 class SkipCommandTest : ShouldSpec({
 
@@ -54,7 +54,7 @@ class SkipCommandTest : ShouldSpec({
             checkCapturedTranslationKey(
                 slotFail.captured,
                 "oms.command.feature.not_enabled",
-                Component.translatable(CScheduledRestartFeature.NAME)
+                OmsLang.translatable(CScheduledRestartFeature.NAME)
             )
         }
     }

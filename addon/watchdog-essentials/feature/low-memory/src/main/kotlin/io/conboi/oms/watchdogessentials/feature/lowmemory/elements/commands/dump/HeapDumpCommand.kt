@@ -4,10 +4,10 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.watchdogessentials.feature.lowmemory.LowMemoryFeature
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import net.minecraft.network.chat.Component
 
 class HeapDumpCommand(private val feature: LowMemoryFeature) : OMSCommandEntry() {
 
@@ -22,9 +22,9 @@ class HeapDumpCommand(private val feature: LowMemoryFeature) : OMSCommandEntry()
 
         if (!feature.isEnabled()) {
             source.sendFailure(
-                Component.translatable(
+                OmsLang.translatable(
                     "oms.command.feature.not_enabled",
-                    Component.translatable(featureName)
+                    OmsLang.translatable(featureName)
                 )
             )
             return 0
@@ -34,7 +34,7 @@ class HeapDumpCommand(private val feature: LowMemoryFeature) : OMSCommandEntry()
 
         source.sendSuccess(
             {
-                Component.translatable(
+                OmsLang.translatable(
                     "watchdogessentials.command.low_memory.heapdump.requested",
                 )
             }, true

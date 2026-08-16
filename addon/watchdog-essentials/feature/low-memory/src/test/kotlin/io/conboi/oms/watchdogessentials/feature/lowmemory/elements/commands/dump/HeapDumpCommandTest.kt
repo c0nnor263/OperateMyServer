@@ -2,6 +2,7 @@ package io.conboi.oms.watchdogessentials.feature.lowmemory.elements.commands.dum
 
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.api.foundation.feature.FeatureInfo
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.testing.captureFail
 import io.conboi.oms.testing.captureSuccess
 import io.conboi.oms.testing.checkCapturedTranslationKey
@@ -13,7 +14,6 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
 
 
 class HeapDumpCommandTest : ShouldSpec({
@@ -50,7 +50,7 @@ class HeapDumpCommandTest : ShouldSpec({
             checkCapturedTranslationKey(
                 slotFail.captured,
                 "oms.command.feature.not_enabled",
-                Component.translatable(CLowMemoryFeature.NAME)
+                OmsLang.translatable(CLowMemoryFeature.NAME)
             )
         }
     }

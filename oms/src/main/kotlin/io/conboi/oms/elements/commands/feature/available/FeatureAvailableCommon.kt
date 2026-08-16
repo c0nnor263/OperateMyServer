@@ -4,11 +4,11 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.OmsAddons
 import io.conboi.oms.api.foundation.feature.OmsFeature
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.common.text.ComponentStyles.color
 import io.conboi.oms.common.text.ComponentStyles.literal
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
 
 class FeatureAvailableCommon {
     fun execute(ctx: CommandContext<CommandSourceStack>, available: Boolean): Int {
@@ -18,13 +18,13 @@ class FeatureAvailableCommon {
 
         val addonInstance = OmsAddons.get(modId)
         if (addonInstance == null) {
-            source.sendFailure(Component.translatable("oms.command.feature.not_found", name))
+            source.sendFailure(OmsLang.translatable("oms.command.feature.not_found", name))
             return 0
         }
 
         val feature = addonInstance.context.featureManager.getFeatureById<OmsFeature<*>>(featureId)
         if (feature == null) {
-            source.sendFailure(Component.translatable("oms.command.feature.not_found", name))
+            source.sendFailure(OmsLang.translatable("oms.command.feature.not_found", name))
             return 0
         }
 
@@ -41,7 +41,7 @@ class FeatureAvailableCommon {
 
         if (feature.isEnabled()) {
             source.sendFailure(
-                Component.translatable("oms.command.feature.already_enabled", name),
+                OmsLang.translatable("oms.command.feature.already_enabled", name),
             )
             return
         }
@@ -49,7 +49,7 @@ class FeatureAvailableCommon {
         feature.enable()
         source.sendSuccess(
             {
-                Component.translatable(
+                OmsLang.translatable(
                     "oms.command.feature.enabled", name
                         .literal()
                         .color(
@@ -65,7 +65,7 @@ class FeatureAvailableCommon {
         val source = ctx.source
         if (!feature.isEnabled()) {
             source.sendFailure(
-                Component.translatable("oms.command.feature.already_disabled", name)
+                OmsLang.translatable("oms.command.feature.already_disabled", name)
             )
             return
         }
@@ -73,7 +73,7 @@ class FeatureAvailableCommon {
         feature.disable()
         source.sendSuccess(
             {
-                Component.translatable(
+                OmsLang.translatable(
                     "oms.command.feature.disabled",
                     name
                         .literal()

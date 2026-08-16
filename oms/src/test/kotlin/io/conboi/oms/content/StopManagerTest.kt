@@ -11,6 +11,7 @@ import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.foundation.reason.CrashStop
 import io.conboi.oms.common.infrastructure.OMSJson
 import io.conboi.oms.common.infrastructure.file.FileUtil
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.infrastructure.config.OMSConfigs
 import io.conboi.oms.infrastructure.file.StopEntryLog
 import io.conboi.oms.infrastructure.log.AddonLoggerRegistry
@@ -92,7 +93,7 @@ class StopManagerTest : ShouldSpec({
         every { mockReason.shouldRestart } returns false
 
         every {
-            Component.translatable(mockReason.messageId).string
+            OmsLang.translatable(mockReason.messageId).string
         } returns "Test reason message"
 
         every {
@@ -222,7 +223,7 @@ class StopManagerTest : ShouldSpec({
             verify {
                 mockServer.playerList.broadcastSystemMessage(capture(componentSlot), false)
             }
-            componentSlot.captured.string shouldBe Component.translatable(mockReason.messageId).string
+            componentSlot.captured.string shouldBe OmsLang.translatable(mockReason.messageId).string
 
             verify { mockServer.halt(false) }
             verify { FileUtil.writeSafe(any(), any()) }

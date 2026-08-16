@@ -5,13 +5,13 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import io.conboi.oms.common.foundation.TimeFormatter
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.literal
 import io.conboi.oms.feature.scheduledrestart.ScheduledRestartFeature
 import io.conboi.oms.feature.scheduledrestart.foundation.SkipResult
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import net.minecraft.network.chat.Component
 
 class SkipCommand(private val feature: ScheduledRestartFeature) : OMSCommandEntry() {
 
@@ -26,9 +26,9 @@ class SkipCommand(private val feature: ScheduledRestartFeature) : OMSCommandEntr
 
         if (!feature.isEnabled()) {
             source.sendFailure(
-                Component.translatable(
+                OmsLang.translatable(
                     "oms.command.feature.not_enabled",
-                    Component.translatable(featureName)
+                    OmsLang.translatable(featureName)
                 )
             )
             return 0
@@ -38,7 +38,7 @@ class SkipCommand(private val feature: ScheduledRestartFeature) : OMSCommandEntr
             is SkipResult.Skipped -> {
                 source.sendSuccess(
                     {
-                        Component.translatable(
+                        OmsLang.translatable(
                             "oms.command.scheduledrestart.skip.success",
                             TimeFormatter.formatDateTime(result.skippedRestartTime).literal().bold(),
                             TimeFormatter.formatDateTime(result.nextRestartTime).literal().bold()
@@ -49,7 +49,7 @@ class SkipCommand(private val feature: ScheduledRestartFeature) : OMSCommandEntr
 
             is SkipResult.AlreadySkipped -> {
                 source.sendFailure(
-                    Component.translatable(
+                    OmsLang.translatable(
                         "oms.command.scheduledrestart.skip.already_skipped",
                         TimeFormatter.formatDateTime(result.nextRestartTime).literal().bold(),
                     )

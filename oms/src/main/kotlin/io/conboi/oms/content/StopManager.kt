@@ -8,12 +8,12 @@ import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.foundation.reason.CrashStop
 import io.conboi.oms.common.infrastructure.OMSJson
 import io.conboi.oms.common.infrastructure.file.FileUtil
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.infrastructure.config.OMSConfigs
 import io.conboi.oms.infrastructure.file.StopEntryLog
 import io.conboi.oms.infrastructure.log.AddonLoggerRegistry
 import io.conboi.oms.oms
 import java.nio.file.Path
-import net.minecraft.network.chat.Component
 
 internal object StopManager {
     const val HOOK_NAME = "StopManagerShutdownHook"
@@ -40,14 +40,14 @@ internal object StopManager {
         val (server, reason) = event
         writeReason(reason)
 
-        server.playerList.broadcastSystemMessage(Component.translatable(reason.messageId, *reason.arguments), false)
+        server.playerList.broadcastSystemMessage(OmsLang.translatable(reason.messageId, *reason.arguments), false)
         server.halt(false)
     }
 
     fun writeReason(reason: StopReason) {
         explicitStopReason = reason
         val reasonName = reason.name.uppercase()
-        val reasonMessage = Component.translatable(reason.messageId, *reason.arguments).string
+        val reasonMessage = OmsLang.translatable(reason.messageId, *reason.arguments).string
         val time = TimeFormatter.formatDateTime(TimeHelper.currentEpochSeconds)
         val entry = StopEntryLog(
             reason = reasonName,

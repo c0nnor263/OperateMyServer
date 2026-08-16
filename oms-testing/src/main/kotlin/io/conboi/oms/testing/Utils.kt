@@ -11,13 +11,27 @@ fun checkCapturedTranslationKey(
     expectedKey: String,
     vararg expectedArgs: Any?
 ) {
-    val t = (captured as MutableComponent).contents as TranslatableContents
-    t.key shouldBe expectedKey
+    val contents = (captured as MutableComponent).contents
 
-    if (expectedArgs.isNotEmpty()) {
-        t.args.size shouldBe expectedArgs.size
-        expectedArgs.forEachIndexed { index, expected ->
-            compareComponentArg(t.args[index], expected)
+    when (contents) {
+        is TranslatableContents -> {
+            contents.key shouldBe expectedKey
+
+            if (expectedArgs.isNotEmpty()) {
+                contents.args.size shouldBe expectedArgs.size
+
+                expectedArgs.forEachIndexed { index, expected ->
+                    compareComponentArg(contents.args[index], expected)
+                }
+            }
+        }
+
+        else -> {
+            val expected = Component
+                .translatable(expectedKey, *expectedArgs)
+                .string
+
+            captured.string shouldBe expected
         }
     }
 }

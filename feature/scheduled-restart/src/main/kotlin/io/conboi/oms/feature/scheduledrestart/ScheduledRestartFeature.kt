@@ -11,6 +11,7 @@ import io.conboi.oms.api.foundation.feature.Priority
 import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.common.infrastructure.log.LOG
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.literal
@@ -19,7 +20,6 @@ import io.conboi.oms.feature.scheduledrestart.foundation.SkipResult
 import io.conboi.oms.feature.scheduledrestart.foundation.reason.ScheduledStop
 import io.conboi.oms.feature.scheduledrestart.infrastructure.config.CScheduledRestartFeature
 import java.time.LocalTime
-import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
@@ -111,7 +111,7 @@ class ScheduledRestartFeature(
         restartTimeTarget.invalidate()
         val closestRestartTime = TimeFormatter.formatDateTime(restartTimeTarget.get())
         event.server.playerList.broadcastSystemMessage(
-            Component.translatable(
+            OmsLang.translatable(
                 key,
                 closestRestartTime.literal().bold()
             ),
@@ -123,7 +123,7 @@ class ScheduledRestartFeature(
         warningTimes.get().forEach { duration ->
             if (remainingSec == duration.inWholeSeconds) {
                 server.playerList.broadcastSystemMessage(
-                    Component.translatable(
+                    OmsLang.translatable(
                         "oms.warning.restart",
                         TimeFormatter.formatDuration(duration).literal().bold()
                     ),

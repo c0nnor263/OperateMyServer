@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
 import io.conboi.oms.common.foundation.TimeFormatter
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.color
 import io.conboi.oms.common.text.ComponentStyles.literal
@@ -45,9 +46,9 @@ class SummaryOverCommand(private val feature: LowMemoryFeature) : OMSCommandEntr
 
         if (!feature.isEnabled()) {
             source.sendFailure(
-                Component.translatable(
+                OmsLang.translatable(
                     "oms.command.feature.not_enabled",
-                    Component.translatable(featureName)
+                    OmsLang.translatable(featureName)
                 )
             )
             return 0
@@ -57,7 +58,7 @@ class SummaryOverCommand(private val feature: LowMemoryFeature) : OMSCommandEntr
         var retentionWindow: Duration
         if (window == null) {
             source.sendSystemMessage(
-                Component.translatable(
+                OmsLang.translatable(
                     "watchdogessentials.command.low_memory.summary_over.default_window",
                     TimeFormatter.formatDuration(defaultWindow)
                 )
@@ -67,7 +68,7 @@ class SummaryOverCommand(private val feature: LowMemoryFeature) : OMSCommandEntr
             val parsedWindowDuration = TimeFormatter.parseToDurationOrNull(window)
                 ?: run {
                     source.sendFailure(
-                        Component.translatable(
+                        OmsLang.translatable(
                             "watchdogessentials.command.low_memory.summary_over.invalid_window",
                             window
                         )
@@ -76,7 +77,7 @@ class SummaryOverCommand(private val feature: LowMemoryFeature) : OMSCommandEntr
                 }
             if (parsedWindowDuration <= 0.seconds) {
                 source.sendFailure(
-                    Component.translatable(
+                    OmsLang.translatable(
                         "watchdogessentials.command.low_memory.summary_over.non_positive_window",
                         window
                     )
@@ -88,7 +89,7 @@ class SummaryOverCommand(private val feature: LowMemoryFeature) : OMSCommandEntr
 
         if (retentionWindow > defaultWindow) {
             source.sendSystemMessage(
-                Component.translatable(
+                OmsLang.translatable(
                     "watchdogessentials.command.low_memory.summary_over.window_exceeds_max",
                     TimeFormatter.formatDuration(retentionWindow),
                     TimeFormatter.formatDuration(defaultWindow)

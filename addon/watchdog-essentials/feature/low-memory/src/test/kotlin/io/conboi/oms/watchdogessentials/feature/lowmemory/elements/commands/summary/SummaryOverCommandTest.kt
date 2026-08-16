@@ -3,6 +3,7 @@ package io.conboi.oms.watchdogessentials.feature.lowmemory.elements.commands.sum
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.common.foundation.TimeFormatter
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.testing.captureFail
 import io.conboi.oms.testing.captureSuccess
 import io.conboi.oms.testing.checkCapturedTranslationKey
@@ -57,7 +58,7 @@ class SummaryOverCommandTest : ShouldSpec({
             checkCapturedTranslationKey(
                 slotFail.captured,
                 "oms.command.feature.not_enabled",
-                Component.translatable(CLowMemoryFeature.NAME)
+                OmsLang.translatable(CLowMemoryFeature.NAME)
             )
         }
     }

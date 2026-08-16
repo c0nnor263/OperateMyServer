@@ -12,6 +12,7 @@ import io.conboi.oms.api.foundation.feature.Priority
 import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.conboi.oms.watchdogessentials.feature.lowmemory.elements.commands.dump.HeapDumpCommand
 import io.conboi.oms.watchdogessentials.feature.lowmemory.elements.commands.report.MemoryReportCommand
@@ -32,7 +33,6 @@ import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.config.
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
@@ -249,7 +249,7 @@ class LowMemoryFeature(
                 }
                 nextWarningAllowedEpochSeconds = now + warningCooldownDuration.inWholeSeconds
                 server.playerList.broadcastSystemMessage(
-                    Component.translatable(
+                    OmsLang.translatable(
                         "watchdogessentials.warning.low_memory",
                         *args.toArray()
                     ),

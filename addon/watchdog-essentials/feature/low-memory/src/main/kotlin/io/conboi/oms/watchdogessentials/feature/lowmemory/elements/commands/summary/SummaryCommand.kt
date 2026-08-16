@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.common.text.ComponentStyles.bold
 import io.conboi.oms.common.text.ComponentStyles.color
 import io.conboi.oms.common.text.ComponentStyles.literal
@@ -47,9 +48,9 @@ class SummaryCommand(private val feature: LowMemoryFeature) : OMSCommandEntry() 
 
         if (!feature.isEnabled()) {
             source.sendFailure(
-                Component.translatable(
+                OmsLang.translatable(
                     "oms.command.feature.not_enabled",
-                    Component.translatable(featureName)
+                    OmsLang.translatable(featureName)
                 )
             )
             return 0
