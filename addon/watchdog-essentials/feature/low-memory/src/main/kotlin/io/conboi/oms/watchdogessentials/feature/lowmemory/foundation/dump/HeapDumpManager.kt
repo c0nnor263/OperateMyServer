@@ -7,9 +7,12 @@ import io.conboi.oms.common.infrastructure.file.FileUtil
 import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.dump.JvmHeapDumpWriter
 import java.io.IOException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.io.path.name
+import kotlin.streams.asSequence
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -22,10 +25,15 @@ import kotlinx.coroutines.launch
 
 class HeapDumpManager(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val heapDumpWriter: JvmHeapDumpWriter = JvmHeapDumpWriter()
+    private val heapDumpWriter: HeapDumpWriter = JvmHeapDumpWriter(),
+    private val maxRetainedHeapDumps: Int
 ) {
     companion object {
         val DEFAULT_HEAP_DUMP_COOLDOWN: Duration = 5.minutes
+    }
+
+    init {
+        require(maxRetainedHeapDumps > 0) { "maxRetainedHeapDumps must be greater than 0" }
     }
 
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -88,7 +96,32 @@ class HeapDumpManager(
         val fileName = "heapdump-$time-${fileSequence.incrementAndGet()}.hprof"
         val output = heapDumpDir.resolve(fileName)
         heapDumpWriter.write(output)
+        pruneOldHeapDumps(heapDumpDir)
         return output
+    }
+
+    private fun pruneOldHeapDumps(heapDumpDir: Path) {
+        try {
+            val heapDumpFiles = Files.list(heapDumpDir).use { stream ->
+                stream.asSequence()
+                    .filter { Files.isRegularFile(it) }
+                    .filter {
+                        val fileName = it.name
+                        fileName.startsWith("heapdump-") && fileName.endsWith(".hprof")
+                    }
+                    .sortedBy { it.name }
+                    .toList()
+            }
+
+            val filesToDelete = heapDumpFiles.size - maxRetainedHeapDumps
+            if (filesToDelete <= 0) return
+
+            heapDumpFiles
+                .take(filesToDelete)
+                .forEach { Files.deleteIfExists(it) }
+        } catch (error: IOException) {
+            LOG.warn("Failed to rotate heap dump files", error)
+        }
     }
 
     fun resetCooldown() {

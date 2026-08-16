@@ -2,6 +2,7 @@ package io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.dump
 
 import io.conboi.oms.api.foundation.addon.AddonContext
 import io.conboi.oms.api.infrastructure.file.AddonPaths
+import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.infrastructure.file.FileUtil
 import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.dump.JvmHeapDumpWriter
@@ -83,6 +84,31 @@ class HeapDumpManagerTest : ShouldSpec({
                 .resolve("heap-dumps")
             pathSlot.captured.fileName.toString().startsWith("heapdump-") shouldBe true
             pathSlot.captured.fileName.toString().endsWith(".hprof") shouldBe true
+        }
+
+        should("rotate old heap dumps and keep only the newest files") {
+            val rotatingWriter = object : HeapDumpWriter {
+                override fun write(output: Path) {
+                    Files.createDirectories(output.parent)
+                    Files.writeString(output, "heap dump")
+                }
+            }
+            val rotatingSut = HeapDumpManager(
+                dispatcher = testDispatcher,
+                heapDumpWriter = rotatingWriter,
+                maxRetainedHeapDumps = 2,
+            )
+
+            rotatingSut.createHeapDump(context, 0.minutes)
+            rotatingSut.createHeapDump(context, 0.minutes)
+            rotatingSut.createHeapDump(context, 0.minutes)
+
+            val heapDumpDir = paths.addonRoot.resolve("low-memory").resolve("heap-dumps")
+            val timestamp = TimeFormatter.formatDateTimeFileName(1_000L)
+            heapDumpDir.toFile().listFiles()?.map { it.name }?.sorted() shouldBe listOf(
+                "heapdump-$timestamp-2.hprof",
+                "heapdump-$timestamp-3.hprof",
+            )
         }
 
         should("generate unique heap dump names within the same second") {

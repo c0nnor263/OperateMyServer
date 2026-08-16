@@ -2,6 +2,7 @@ package io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.report
 
 import io.conboi.oms.api.foundation.addon.AddonContext
 import io.conboi.oms.api.infrastructure.file.AddonPaths
+import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.CriticalAction
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.model.MemoryReport
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.model.MemorySnapshot
@@ -74,6 +75,32 @@ class MemoryReportManagerTest : ShouldSpec({
                 .resolve("addon")
                 .resolve("low-memory")
                 .resolve("reports")
+        }
+
+        should("rotate old reports and keep only the newest files") {
+            val rotatingWriter = object : MemoryReportWriter {
+                override fun write(output: Path, report: MemoryReport) {
+                    Files.createDirectories(output.parent)
+                    Files.writeString(output, "report")
+                }
+            }
+            val rotatingSut = MemoryReportManager(
+                dispatcher = testDispatcher,
+                reportWriter = rotatingWriter,
+                maxRetainedReports = 2,
+            )
+            val report = report()
+
+            rotatingSut.createReport(mockContext, report, 0.minutes)
+            rotatingSut.createReport(mockContext, report, 0.minutes)
+            rotatingSut.createReport(mockContext, report, 0.minutes)
+
+            val reportsDir = tempDir.resolve("addon").resolve("low-memory").resolve("reports")
+            val timestamp = TimeFormatter.formatDateTimeFileName(1_000L)
+            reportsDir.toFile().listFiles()?.map { it.name }?.sorted() shouldBe listOf(
+                "memory-report-$timestamp-2.log",
+                "memory-report-$timestamp-3.log",
+            )
         }
 
         should("generate unique report names within the same second") {

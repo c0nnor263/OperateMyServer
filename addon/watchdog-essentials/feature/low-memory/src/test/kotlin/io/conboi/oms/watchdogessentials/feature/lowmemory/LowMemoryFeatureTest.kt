@@ -19,6 +19,7 @@ import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.model.Reten
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.report.MemoryReportManager
 import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.config.CLowMemoryFeature
 import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.config.cooldown.CCooldowns
+import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.config.retention.CRetentions
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -44,6 +45,7 @@ class LowMemoryFeatureTest : ShouldSpec({
 
     val mockConfig: CLowMemoryFeature = mockk(relaxed = true)
     val mockCooldowns = mockk<CCooldowns>(relaxed = true)
+    val mockRetentions = mockk<CRetentions>(relaxed = true)
     val mockConfigProvider = mockk<ConfigProvider<CLowMemoryFeature>>()
 
     val mockServer = mockk<MinecraftServer>(relaxed = true)
@@ -67,6 +69,7 @@ class LowMemoryFeatureTest : ShouldSpec({
     beforeEach {
         every { mockConfigProvider.get() } returns mockConfig
         every { mockConfig.cooldowns } returns mockCooldowns
+        every { mockConfig.retentions } returns mockRetentions
 
         every { mockConfig.isEnabled() } returns true
         every { mockConfig.enable() } just Runs
@@ -79,6 +82,8 @@ class LowMemoryFeatureTest : ShouldSpec({
         every { mockCooldowns.warning.get() } returns "10s"
         every { mockCooldowns.memoryReport.get() } returns "3m"
         every { mockCooldowns.heapDump.get() } returns "5m"
+        every { mockRetentions.heapDump.get() } returns 10
+        every { mockRetentions.memoryReport.get() } returns 20
 
         every { mockTickingEvent.server } returns mockServer
         every { mockServer.playerList } returns mockPlayers
@@ -436,7 +441,32 @@ private inline fun <reified T> LowMemoryFeature.cachedFieldDelegate(fieldName: S
 }
 
 private fun LowMemoryFeature.injectPrivate(fieldName: String, value: Any) {
-    val field: Field = javaClass.getDeclaredField(fieldName)
-    field.isAccessible = true
-    field.set(this, value)
+    val fieldNameToCacheKey = when (fieldName) {
+        "heapDumpManager" -> 10
+        "memoryReportManager" -> 20
+        else -> null
+    }
+    println("Injecting $fieldName with value $value and cache key $fieldNameToCacheKey")
+
+    if (fieldNameToCacheKey == null) {
+        val field: Field = javaClass.getDeclaredField(fieldName)
+        field.isAccessible = true
+        field.set(this, value)
+        return
+    }
+
+    runCatching {
+        val delegateField = javaClass.getDeclaredField("$fieldName\$delegate")
+        delegateField.isAccessible = true
+        val delegate = delegateField.get(this)
+        val delegateClass = delegate.javaClass
+
+        val cachedKeyField = delegateClass.getDeclaredField("cachedKey")
+        cachedKeyField.isAccessible = true
+        cachedKeyField.set(delegate, fieldNameToCacheKey)
+
+        val cachedValueField = delegateClass.getDeclaredField("cachedValue")
+        cachedValueField.isAccessible = true
+        cachedValueField.set(delegate, value)
+    }.getOrElse { throw it }
 }

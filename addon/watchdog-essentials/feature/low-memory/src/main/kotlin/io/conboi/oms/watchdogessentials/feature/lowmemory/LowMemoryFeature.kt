@@ -103,12 +103,32 @@ class LowMemoryFeature(
         }
     }
 
+    val retentionHeapDump: Int by configField {
+        key = { config.retentions.heapDump.get() }
+        value = { config.retentions.heapDump.get() }
+    }
+
+    val retentionMemoryReport: Int by configField {
+        key = { config.retentions.memoryReport.get() }
+        value = { config.retentions.memoryReport.get() }
+    }
+
     val memorySnapshotHistory: MemorySnapshotHistory by cachedField {
         key = { averagingWindow }
         value = {
             MemorySnapshotHistory(retentionWindow = averagingWindow, checkInterval = TICK_TIMER_INTERVAL)
         }
     }
+
+    val heapDumpManager: HeapDumpManager by cachedField {
+        key = { retentionHeapDump }
+        value = { HeapDumpManager(maxRetainedHeapDumps = retentionHeapDump) }
+    }
+    val memoryReportManager: MemoryReportManager by cachedField {
+        key = { retentionMemoryReport }
+        value = { MemoryReportManager(maxRetainedReports = retentionMemoryReport) }
+    }
+
 
     override fun info(): FeatureInfo {
         return super.info().copy(
@@ -124,8 +144,6 @@ class LowMemoryFeature(
     )
 
     private val tickTimer: TickTimer = TickTimer(TICK_TIMER_INTERVAL.inWholeSeconds.toInt() * 20)
-    private val heapDumpManager: HeapDumpManager = HeapDumpManager()
-    private val memoryReportManager: MemoryReportManager = MemoryReportManager()
 
     private var stopRequested: Boolean = false
     private var heapDumpRequested: Boolean = false

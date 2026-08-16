@@ -8,9 +8,12 @@ import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.model.MemoryReport
 import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.report.MemoryReportWriterImpl
 import java.io.IOException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.io.path.name
+import kotlin.streams.asSequence
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -23,10 +26,15 @@ import kotlinx.coroutines.launch
 
 class MemoryReportManager(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val reportWriter: MemoryReportWriter = MemoryReportWriterImpl()
+    private val reportWriter: MemoryReportWriter = MemoryReportWriterImpl(),
+    private val maxRetainedReports: Int
 ) {
     companion object {
         val DEFAULT_MEMORY_REPORT_COOLDOWN = 3.minutes
+    }
+
+    init {
+        require(maxRetainedReports > 0) { "maxRetainedReports must be greater than 0" }
     }
 
     private val scope = CoroutineScope(dispatcher + SupervisorJob())
@@ -99,7 +107,32 @@ class MemoryReportManager(
         val output = reportsDir.resolve(fileName)
 
         reportWriter.write(output, report)
+        pruneOldReports(reportsDir)
         return output
+    }
+
+    private fun pruneOldReports(reportsDir: Path) {
+        try {
+            val reportFiles = Files.list(reportsDir).use { stream ->
+                stream.asSequence()
+                    .filter { Files.isRegularFile(it) }
+                    .filter {
+                        val fileName = it.name
+                        fileName.startsWith("memory-report-") && fileName.endsWith(".log")
+                    }
+                    .sortedBy { it.name }
+                    .toList()
+            }
+
+            val filesToDelete = reportFiles.size - maxRetainedReports
+            if (filesToDelete <= 0) return
+
+            reportFiles
+                .take(filesToDelete)
+                .forEach { Files.deleteIfExists(it) }
+        } catch (error: IOException) {
+            LOG.warn("Failed to rotate memory report files", error)
+        }
     }
 
     fun resetCooldown() {

@@ -34,6 +34,7 @@ class CCooldowns : ConfigBase() {
         } ?: return@s false
         cooldown in 10.seconds..Long.MAX_VALUE.seconds
     }
+
     val memoryReport = s(
         "3m",
         "memory_report",

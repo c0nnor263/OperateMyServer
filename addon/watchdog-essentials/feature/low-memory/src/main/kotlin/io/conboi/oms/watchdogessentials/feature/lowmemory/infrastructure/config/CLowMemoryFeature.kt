@@ -5,6 +5,7 @@ import io.conboi.oms.common.infrastructure.config.FeatureConfigImpl
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.CriticalAction
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.MemorySnapshotHistory
 import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.config.cooldown.CCooldowns
+import io.conboi.oms.watchdogessentials.feature.lowmemory.infrastructure.config.retention.CRetentions
 
 class CLowMemoryFeature : FeatureConfigImpl() {
     companion object {
@@ -18,6 +19,12 @@ class CLowMemoryFeature : FeatureConfigImpl() {
             0,
             { CCooldowns() },
             CCooldowns.Comments.COOLDOWNS
+        )
+    val retentions =
+        nested(
+            0,
+            { CRetentions() },
+            CRetentions.Comments.RETENTIONS
         )
 
     val createHeapDumpOnAction = b(
