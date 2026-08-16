@@ -17,7 +17,17 @@ read_cause() {
   if [[ -f "$CAUSE_FILE" ]]; then
     LAST_REASON=$(jq -r '.reason // "UNKNOWN"' "$CAUSE_FILE" 2>/dev/null)
     LAST_MESSAGE=$(jq -r '.message // "No message provided."' "$CAUSE_FILE" 2>/dev/null)
-    LAST_SHOULD_RESTART=$(jq -r '.shouldRestart // true' "$CAUSE_FILE" 2>/dev/null)
+    LAST_SHOULD_RESTART=$(jq -r '
+       if has("shouldRestart") then
+         .shouldRestart
+       else
+         false
+       end
+     ' "$CAUSE_FILE" 2>/dev/null)
+
+     if [[ "$LAST_SHOULD_RESTART" != "true" && "$LAST_SHOULD_RESTART" != "false" ]]; then
+       LAST_SHOULD_RESTART=false
+     fi
     echo "[OMS] Reason: $LAST_REASON"
     echo "[OMS] Message: $LAST_MESSAGE"
     echo "[OMS] Should restart: $LAST_SHOULD_RESTART"
