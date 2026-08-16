@@ -1,4 +1,7 @@
 package io.conboi.oms.watchdogessentials.feature.emptyserver.foundation
 
-internal const val MAX_RETENTION_MINUTES = 24 * 60L
-internal const val MIN_RETENTION_MINUTES = 5L
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+
+internal val MAX_RETENTION_DURATION = 1.days
+internal val MIN_RETENTION_DURATION = 5.minutes
