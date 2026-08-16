@@ -1,16 +1,31 @@
 package io.conboi.oms.common.infrastructure.lang
 
+import java.util.Optional
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Style
 import net.minecraft.server.level.ServerPlayer
 
 object OmsLang {
     fun translatable(
         key: String,
         vararg arguments: Any?
-    ): Component {
-        return Component.literal(
-            Component.translatable(key, *arguments).string
+    ): MutableComponent {
+        val translated = Component.translatable(key, *arguments)
+        val result = Component.empty()
+
+        translated.visit(
+            { style, text ->
+                result.append(
+                    Component.literal(text).withStyle(style)
+                )
+
+                Optional.empty<Unit>()
+            },
+            Style.EMPTY
         )
+
+        return result
     }
 
     fun translatable(
