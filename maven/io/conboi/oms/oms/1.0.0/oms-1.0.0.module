@@ -10,7 +10,7 @@
   },
   "createdBy": {
     "gradle": {
-      "version": "9.4.0"
+      "version": "9.7.0"
     }
   },
   "variants": [
@@ -29,11 +29,11 @@
         {
           "name": "oms-1.0.0.jar",
           "url": "oms-1.0.0.jar",
-          "size": 211938,
-          "sha512": "03b58687b8ac1d26887b73a801e00b5326fdd1357157fbd22a94a4d9904cef1a5ac42d082b650e5252890c8a2df6ada26e55014f2f6b869f32e4d4aed7888b8c",
-          "sha256": "d72bb28433ddca540f7b19c6dcecfdfe5c1e1170829da83bae2cd216724b789b",
-          "sha1": "af904cabfc5afc424140b4d524bbd9378c46d8b3",
-          "md5": "54c1edb64a6f5e676fa3c1d0cbc7bec4"
+          "size": 219868,
+          "sha512": "ef235e4ea350377e601e2f706c56189c7fb0f3dd83798be57e6bebdf9c4597fc7e71414326632e0abcffb3f3a80b150288220840c2732a209328b27fc38633df",
+          "sha256": "8f22f2a5eecf655f0521059c1ac0d8160033d39d1fa3a8d587044ff751d65a50",
+          "sha1": "c13cc962debddea74e5198fd394cd584f7f5a928",
+          "md5": "f6121647840b5d0d56438b3ef2dce6db"
         }
       ]
     },
@@ -52,11 +52,11 @@
         {
           "name": "oms-1.0.0.jar",
           "url": "oms-1.0.0.jar",
-          "size": 211938,
-          "sha512": "03b58687b8ac1d26887b73a801e00b5326fdd1357157fbd22a94a4d9904cef1a5ac42d082b650e5252890c8a2df6ada26e55014f2f6b869f32e4d4aed7888b8c",
-          "sha256": "d72bb28433ddca540f7b19c6dcecfdfe5c1e1170829da83bae2cd216724b789b",
-          "sha1": "af904cabfc5afc424140b4d524bbd9378c46d8b3",
-          "md5": "54c1edb64a6f5e676fa3c1d0cbc7bec4"
+          "size": 219868,
+          "sha512": "ef235e4ea350377e601e2f706c56189c7fb0f3dd83798be57e6bebdf9c4597fc7e71414326632e0abcffb3f3a80b150288220840c2732a209328b27fc38633df",
+          "sha256": "8f22f2a5eecf655f0521059c1ac0d8160033d39d1fa3a8d587044ff751d65a50",
+          "sha1": "c13cc962debddea74e5198fd394cd584f7f5a928",
+          "md5": "f6121647840b5d0d56438b3ef2dce6db"
         }
       ]
     },
@@ -72,11 +72,11 @@
         {
           "name": "oms-1.0.0-sources.jar",
           "url": "oms-1.0.0-sources.jar",
-          "size": 24866,
-          "sha512": "80a0e5a2089429119fff1feed068f659585653939a44dbb16ec7d2f140dbc93f0079d590a40a7e70efa2fb3c3933262b6e94a47b07cf47facc5f202206380f76",
-          "sha256": "773fafe46aea398b1b4786f7737ac81ac455796dbd16fedb93e7c7db5f486a34",
-          "sha1": "b80a04982767ec664cca70946bbdf31c8f2e2c7b",
-          "md5": "021aa2197731024a9fb29415fc6c3230"
+          "size": 25006,
+          "sha512": "c9d850af57aa0406666d8ab9788068a0316c7d19119a94c3d5c5038d767c7a575c3bed5ad30f839afb835dceb071c552110c39b4a1aeaf2b187b66db4f0095f3",
+          "sha256": "0b60a4996b9546ce157feb93ce100c6d54397e7c684fec61353a16fae577a949",
+          "sha1": "96748bab010565bd1555f7fa5e3e94322a3c2de6",
+          "md5": "00dabb290ccbcf9090c64e8442a563a0"
         }
       ]
     }
