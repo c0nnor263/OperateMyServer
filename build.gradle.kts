@@ -17,6 +17,9 @@ subprojects {
         forkEvery = 50
         reports.html.required = false
         reports.junitXml.required = false
+
+        logger.lifecycle("UP-TO-DATE check for $name is disabled, forcing it to run.")
+        outputs.upToDateWhen { false }
     }
 }
 
