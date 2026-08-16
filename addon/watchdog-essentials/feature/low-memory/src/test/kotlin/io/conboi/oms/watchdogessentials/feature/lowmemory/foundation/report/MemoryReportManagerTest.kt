@@ -50,7 +50,7 @@ class MemoryReportManagerTest : ShouldSpec({
         every { io.conboi.oms.common.foundation.TimeHelper.currentEpochSeconds } returns 1_000L
         every { mockContext.paths } returns paths
 
-        sut = MemoryReportManager(dispatcher = testDispatcher, reportWriter = mockWriter)
+        sut = MemoryReportManager(dispatcher = testDispatcher, reportWriter = mockWriter, 5)
     }
 
     afterEach {

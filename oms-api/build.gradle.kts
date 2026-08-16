@@ -81,7 +81,7 @@ tasks.register("publishOmsApi") {
         "Runs tests, checks remote version, publishes oms-api to local Maven (GitHub Pages) and updates index.html"
 
     dependsOn(
-        "jvmKotest",
+        "test",
         "checkRemoteVersionNotPublished",
         "publishOmsApiPublicationToOperateMyServerPagesRepository"
     )

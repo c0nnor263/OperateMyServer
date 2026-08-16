@@ -130,7 +130,7 @@ val checkRemoteVersionNotPublished =
 
 
 val generateIndexHtmlTask = tasks.register<GenerateIndexHtmlTask>("generateIndexHtml") {
-    title.set("Index of /gh-pages")
+    this.title.set("Index of /gh-pages")
     outputDir.set(rootProject.projectDir.resolve("gh-pages"))
 }
 
@@ -140,10 +140,18 @@ tasks.register("publishOperateMyServer") {
         "Runs tests, checks remote version, publishes OperateMyServer to local Maven (GitHub Pages) and updates index.html"
 
     dependsOn(
-        "jvmKotest",
+        "test",
         "checkRemoteVersionNotPublished",
         "publishOmsPublicationToOperateMyServerPagesRepository"
     )
 
     finalizedBy(generateIndexHtmlTask)
+}
+
+tasks.named("publishMod"){
+    dependsOn(
+        "test",
+        "publishCurseforge",
+        "publishModrinth"
+    )
 }

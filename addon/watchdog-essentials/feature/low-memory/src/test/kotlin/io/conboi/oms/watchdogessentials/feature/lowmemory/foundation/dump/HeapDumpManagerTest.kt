@@ -57,7 +57,7 @@ class HeapDumpManagerTest : ShouldSpec({
         every { FileUtil.ensureDir(any()) } returns Unit
         every { writer.write(any()) } just Runs
 
-        sut = HeapDumpManager(dispatcher = testDispatcher, heapDumpWriter = writer)
+        sut = HeapDumpManager(dispatcher = testDispatcher, heapDumpWriter = writer, 3)
     }
 
     afterEach {

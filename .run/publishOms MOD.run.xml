@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="publishOperateMyServer Curse/Modrinth" type="GradleRunConfiguration" factoryName="Gradle" folderName="Publishing">
+  <configuration default="false" name="publishOms MOD" type="GradleRunConfiguration" factoryName="Gradle" folderName="Publishing">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
