@@ -30,8 +30,7 @@ The core mod provides restart and lifecycle handling. Addons can build on top of
 
 ## Features
 
-OMS core provides:
-
+OMS includes:
 * Scheduled server restarts with player warnings
 * Centralized restart & shutdown handling
 * Modular feature system
@@ -75,6 +74,11 @@ Place both `.jar` files into your `mods/` folder.
 
 Start the server normally - OMS will initialize automatically.
 
+> [!NOTE]
+> For automatic restart functionality, run the server through the provided **OMS restart script**. OMS handles the controlled shutdown and restart request, while the script starts the Java process again.
+> 
+> See the [Restart Script Setup](https://conboi.gitbook.io/oms-wiki/addons/operatemyserver-addon/scheduled-restart/restart-script-setup)
+
 ---
 
 ## Basic usage
@@ -85,7 +89,7 @@ Restart the server manually:
 /oms restart
 ```
 
-View available OMS features:
+Explore and manage available OMS features:
 
 ```text
 /oms feature
@@ -123,17 +127,15 @@ Each addon can provide features, commands, configuration, server condition check
 Install addons like any other mod: drop the `.jar` into `mods/`.
 
 ### Existing addons
-*   **Watchdog Essentials** - server monitoring and automatic restart triggers.
+*   **Watchdog Essentials** - server monitoring and condition-based restart or shutdown actions.
     * [CurseForge](https://www.curseforge.com/minecraft/mc-mods/watchdog-essentials)
     * [Modrinth](https://modrinth.com/mod/watchdog-essentials)
     * [OMS Maven](https://c0nnor263.github.io/OperateMyServer/maven/)
     * [Wiki](https://conboi.gitbook.io/oms-wiki/addons/watchdog-essentials)
-        
-> More addons coming soon…
 
 ---
 
 ## Documentation
 Full documentation and guides are available on the [OMS Wiki](https://conboi.gitbook.io/oms-wiki)
 
-Want to build your own addon? See the [Development Guide](https://conboi.gitbook.io/oms-wiki/developer-guide) on the same wiki
+Want to build your own addon? See the [Developer Guide](https://conboi.gitbook.io/oms-wiki/developer-guide) on the same wiki.
