@@ -1,0 +1,84 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.conboi.oms.watchdogessentials",
+    "module": "watchdogessentials",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.7.0"
+    }
+  },
+  "variants": [
+    {
+      "name": "reobfRuntimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "watchdogessentials-1.0.0.jar",
+          "url": "watchdogessentials-1.0.0.jar",
+          "size": 527682,
+          "sha512": "b4b72217babacf1166c5875eb8eb3b71fa44b0e7397393727d3529e192e7adce8e006113a7aa133e1fc8c7cfe925be43905a0c9a42deee407b97ad10fde6b09a",
+          "sha256": "3ee42571bb66c79ef68668b16d24f629aba7aaeb29512f7e095b080be65e754e",
+          "sha1": "f90c4b773d6bde81c043073643bb2e74befd71bc",
+          "md5": "780b6e6f1822c4b91c7c09abe3cf8c6e"
+        }
+      ]
+    },
+    {
+      "name": "reobfApiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "watchdogessentials-1.0.0.jar",
+          "url": "watchdogessentials-1.0.0.jar",
+          "size": 527682,
+          "sha512": "b4b72217babacf1166c5875eb8eb3b71fa44b0e7397393727d3529e192e7adce8e006113a7aa133e1fc8c7cfe925be43905a0c9a42deee407b97ad10fde6b09a",
+          "sha256": "3ee42571bb66c79ef68668b16d24f629aba7aaeb29512f7e095b080be65e754e",
+          "sha1": "f90c4b773d6bde81c043073643bb2e74befd71bc",
+          "md5": "780b6e6f1822c4b91c7c09abe3cf8c6e"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "watchdogessentials-1.0.0-sources.jar",
+          "url": "watchdogessentials-1.0.0-sources.jar",
+          "size": 375147,
+          "sha512": "65e279f80c2682f96dd1932293396fb6eb82dceb3ae44976e87fd090083411275c476afd620204580f923f0e2617dbcf07f06b029fd71507ded3460fa08057f4",
+          "sha256": "9d90703138824dcc27065f6f8548232538b79d6ceac647d1aa93926c9f98f863",
+          "sha1": "42389176bc340f89dfa958cc5d0bfbe1e819b638",
+          "md5": "8d98573616e631d5ba2bdd95be2e7cfc"
+        }
+      ]
+    }
+  ]
+}
