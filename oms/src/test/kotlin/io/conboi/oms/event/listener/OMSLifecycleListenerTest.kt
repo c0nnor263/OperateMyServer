@@ -4,8 +4,8 @@ import io.conboi.oms.OmsAddons
 import io.conboi.oms.OperateMyServerAddon
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.addon.OmsAddon
-import io.conboi.oms.content.StopManager
 import io.conboi.oms.event.OMSInternal
+import io.conboi.oms.foundation.StopManager
 import io.conboi.oms.infrastructure.OmsStartLogger
 import io.conboi.oms.infrastructure.file.OMSRootPath
 import io.kotest.core.spec.style.ShouldSpec

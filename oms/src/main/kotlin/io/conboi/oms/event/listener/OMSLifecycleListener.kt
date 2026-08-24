@@ -6,6 +6,7 @@ import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.addon.OmsAddon
 import io.conboi.oms.common.OperateMyServer
 import io.conboi.oms.event.OMSInternal
+import io.conboi.oms.foundation.StopManager
 import io.conboi.oms.infrastructure.OmsStartLogger
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
@@ -43,6 +44,7 @@ internal object OMSLifecycleListener {
     @SubscribeEvent
     fun onTickingEvent(event: OMSLifecycle.TickingEvent) {
         OmsAddons.onOmsTick(event)
+        StopManager.onOmsTick(event)
     }
 
     @SubscribeEvent

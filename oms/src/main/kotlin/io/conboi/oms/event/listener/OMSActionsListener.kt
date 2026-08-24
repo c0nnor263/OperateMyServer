@@ -2,7 +2,7 @@ package io.conboi.oms.event.listener
 
 import io.conboi.oms.api.event.OMSActions
 import io.conboi.oms.common.OperateMyServer
-import io.conboi.oms.content.StopManager
+import io.conboi.oms.foundation.StopManager
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
 
@@ -10,6 +10,6 @@ import net.minecraftforge.fml.common.Mod
 internal object OMSActionsListener {
     @SubscribeEvent
     fun onStopRequestedEvent(event: OMSActions.StopRequestedEvent) {
-        StopManager.stop(event)
+        StopManager.scheduleStop(event)
     }
 }

@@ -6,7 +6,7 @@ import io.conboi.oms.api.permission.PermissionLevel
 import io.conboi.oms.api.permission.hasPermission
 import io.conboi.oms.common.foundation.reason.RegularStop
 import io.conboi.oms.common.infrastructure.lang.OmsLang
-import io.conboi.oms.content.StopManager
+import io.conboi.oms.foundation.StopManager
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 

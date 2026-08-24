@@ -1,7 +1,9 @@
-package io.conboi.oms.content
+package io.conboi.oms.foundation
 
 import io.conboi.oms.OmsAddons
 import io.conboi.oms.api.event.OMSActions
+import io.conboi.oms.api.event.OMSLifecycle
+import io.conboi.oms.api.foundation.TickTimer
 import io.conboi.oms.api.foundation.reason.StopReason
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
@@ -15,12 +17,18 @@ import io.conboi.oms.infrastructure.file.StopEntryLog
 import io.conboi.oms.infrastructure.log.AddonLoggerRegistry
 import io.conboi.oms.oms
 import java.nio.file.Path
+import kotlin.time.Duration.Companion.seconds
 
 internal object StopManager {
     const val HOOK_NAME = "StopManagerShutdownHook"
+    val SERVER_HALT_DELAY = 3.seconds
+
     @Volatile
     private var explicitStopReason: StopReason? = null
     private var logStopReasonToFileEnabled: Boolean = false
+    private var isStopScheduled: Boolean = false
+    private const val STOP_CAUSE_FILE_NAME = "stop_cause.json"
+    private val tickTimer = TickTimer(SERVER_HALT_DELAY.inWholeSeconds.toInt() * 20)
 
     fun isServerStopping(): Boolean {
         return explicitStopReason != null
@@ -37,13 +45,30 @@ internal object StopManager {
         )
     }
 
-    fun stop(event: OMSActions.StopRequestedEvent) {
+    fun onOmsTick(event: OMSLifecycle.TickingEvent) {
+        if (!isStopScheduled) return
+        val server = event.server
+        if (!tickTimer.shouldFire(server.tickCount)) return
+        if (server.isRunning) {
+            server.halt(false)
+        }
+    }
+
+    fun scheduleStop(event: OMSActions.StopRequestedEvent) {
+        if (isStopScheduled) return
         val (server, reason) = event
         writeReason(reason)
 
-        LOG.info("Stopping server due to reason: ${reason.name.uppercase()} - ${OmsLang.translatable(reason.messageId, *reason.arguments).string}")
+        LOG.info(
+            "Stopping server due to reason: ${reason.name.uppercase()} - ${
+                OmsLang.translatable(
+                    reason.messageId,
+                    *reason.arguments
+                ).string
+            }"
+        )
         server.playerList.broadcastSystemMessage(OmsLang.translatable(reason.messageId, *reason.arguments), false)
-        server.halt(false)
+        isStopScheduled = true
     }
 
     fun writeReason(reason: StopReason) {
@@ -60,7 +85,7 @@ internal object StopManager {
         val content = OMSJson.encodeToString(StopEntryLog.serializer(), entry)
         val context = OmsAddons.oms.context
         val paths = context.paths
-        val stopCauseFile: Path = paths.common.resolve("stop_cause.json")
+        val stopCauseFile: Path = paths.common.resolve(STOP_CAUSE_FILE_NAME)
 
         FileUtil.writeSafe(stopCauseFile, content)
         if (logStopReasonToFileEnabled) {

@@ -17,13 +17,19 @@ plugins {
     `maven-publish`
 }
 
+val omsModules = listOf(
+    projects.omsApi,
+    projects.omsCommon,
+    projects.feature.scheduledRestart
+)
+
 modDev {
     includeTest.set(true)
 
     dependsOn(
-        projects.omsApi.path,
-        projects.omsCommon.path,
-        projects.feature.scheduledRestart.path
+        *omsModules
+            .map { it.path }
+            .toTypedArray()
     )
 
     setupMod {
@@ -134,13 +140,24 @@ val generateIndexHtmlTask = tasks.register<GenerateIndexHtmlTask>("generateIndex
     outputDir.set(rootProject.projectDir.resolve("gh-pages"))
 }
 
+val testOperateMyServer = tasks.register("testOperateMyServer") {
+    group = "verification"
+    description = "Runs tests for all Operate My Server modules"
+
+    dependsOn(
+        omsModules.map { "${it.path}:test" }
+    )
+
+    dependsOn("test")
+}
+
 tasks.register("publishOperateMyServer") {
     group = "publishing"
     description =
         "Runs tests, checks remote version, publishes OperateMyServer to local Maven (GitHub Pages) and updates index.html"
 
     dependsOn(
-        "test",
+        testOperateMyServer,
         "checkRemoteVersionNotPublished",
         "publishOmsPublicationToOperateMyServerPagesRepository"
     )
@@ -148,9 +165,9 @@ tasks.register("publishOperateMyServer") {
     finalizedBy(generateIndexHtmlTask)
 }
 
-tasks.named("publishMod"){
+tasks.named("publishMod") {
     dependsOn(
-        "test",
+        testOperateMyServer,
         "publishCurseforge",
         "publishModrinth"
     )

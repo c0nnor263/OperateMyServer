@@ -1,8 +1,8 @@
 package io.conboi.oms.event.listener
 
 import io.conboi.oms.api.event.OMSLifecycle
-import io.conboi.oms.content.StopManager
 import io.conboi.oms.event.OMSInternal
+import io.conboi.oms.foundation.StopManager
 import io.kotest.core.spec.style.ShouldSpec
 import io.mockk.clearAllMocks
 import io.mockk.every

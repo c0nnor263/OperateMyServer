@@ -66,12 +66,13 @@ class EmptyServerFeature(
     }
 
     fun initTime() {
-        LOG.debug("EmptyServer timer started")
+        LOG.info("Last player logged out, initialized empty server timer.")
         emptyServerTime = TimeHelper.currentEpochSeconds
     }
 
     fun clearTime() {
-        LOG.debug("EmptyServer timer cleared")
+        if (emptyServerTime == null) return
+        LOG.info("Player logged in, cleared empty server timer.")
         emptyServerTime = null
     }
 }

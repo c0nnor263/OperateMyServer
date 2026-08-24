@@ -1,6 +1,5 @@
 package io.conboi.oms.watchdogessentials.feature.emptyserver.event
 
-import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.conboi.oms.watchdogessentials.feature.emptyserver.EmptyServerFeature
 import io.conboi.oms.watchdogessentials.feature.emptyserver.foundation.ServerAccess
 import net.minecraftforge.event.entity.player.PlayerEvent
@@ -12,7 +11,6 @@ internal class EmptyServerEvents(
     @SubscribeEvent
     fun onPlayerLoggedIn(event: PlayerEvent.PlayerLoggedInEvent) {
         feature.clearTime()
-        LOG.debug("Player logged in, cleared empty server timer.")
     }
 
     @SubscribeEvent
@@ -22,7 +20,6 @@ internal class EmptyServerEvents(
 
         if (playerCount <= 1) { // because the player who just logged out is still counted in playerCount
             feature.initTime()
-            LOG.debug("Last player logged out, initialized empty server timer.")
         }
     }
 }

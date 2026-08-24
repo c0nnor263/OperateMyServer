@@ -16,12 +16,18 @@ plugins {
     `maven-publish`
 }
 
+val watchdogModules = listOf(
+    projects.addon.watchdogEssentials.common,
+    projects.addon.watchdogEssentials.feature.lowTps,
+    projects.addon.watchdogEssentials.feature.lowMemory,
+    projects.addon.watchdogEssentials.feature.emptyServer,
+)
+
 modDev {
     dependsOn(
-        projects.addon.watchdogEssentials.common.path,
-        projects.addon.watchdogEssentials.feature.lowTps.path,
-        projects.addon.watchdogEssentials.feature.lowMemory.path,
-        projects.addon.watchdogEssentials.feature.emptyServer.path,
+        *watchdogModules
+            .map { it.path }
+            .toTypedArray()
     )
 
     toml {
@@ -142,13 +148,24 @@ val generateIndexHtmlTask = tasks.register<GenerateIndexHtmlTask>("generateIndex
     outputDir.set(rootProject.projectDir.resolve("gh-pages"))
 }
 
+val testWatchdogEssentials = tasks.register("testWatchdogEssentials") {
+    group = "verification"
+    description = "Runs tests for all Watchdog Essentials modules"
+
+    dependsOn(
+        watchdogModules.map { "${it.path}:test" }
+    )
+
+    dependsOn("test")
+}
+
 tasks.register("publishWatchdogEssentials") {
     group = "publishing"
     description =
         "Runs tests, checks remote version, publishes WatchdogEssentials to local Maven (GitHub Pages) and updates index.html"
 
     dependsOn(
-        "test",
+        testWatchdogEssentials,
         "checkRemoteVersionNotPublished",
         "publishWePublicationToOperateMyServerPagesRepository"
     )
@@ -158,7 +175,7 @@ tasks.register("publishWatchdogEssentials") {
 
 tasks.named("publishMod"){
     dependsOn(
-        "test",
+        testWatchdogEssentials,
         "publishCurseforge",
         "publishModrinth"
     )

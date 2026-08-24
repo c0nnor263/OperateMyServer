@@ -7,7 +7,7 @@ import io.conboi.oms.api.foundation.addon.OmsAddon
 import io.conboi.oms.api.foundation.feature.OmsFeature
 import io.conboi.oms.api.foundation.manager.FeatureManager
 import io.conboi.oms.api.infrastructure.file.AddonPaths
-import io.conboi.oms.content.StopManager
+import io.conboi.oms.foundation.StopManager
 import io.conboi.oms.foundation.addon.AddonInstance
 import io.conboi.oms.foundation.addon.DefaultAddonContextFactory
 import io.conboi.oms.infrastructure.file.OMSRootPath

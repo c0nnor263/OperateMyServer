@@ -1,7 +1,8 @@
-package io.conboi.oms.content
+package io.conboi.oms.foundation
 
 import io.conboi.oms.OmsAddons
 import io.conboi.oms.api.event.OMSActions
+import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.api.foundation.addon.AddonContext
 import io.conboi.oms.api.foundation.reason.StopReason
 import io.conboi.oms.api.infrastructure.file.AddonPaths
@@ -212,21 +213,48 @@ class StopManagerTest : ShouldSpec({
         }
     }
 
-    context("stop") {
+    context("scheduleStop") {
 
-        should("write reason, broadcast message and halt server") {
-            val event = OMSActions.StopRequestedEvent(mockServer, mockReason)
+        should("write reason, broadcast message and schedule halt server") {
+            val mockTickEvent = mockk<OMSLifecycle.TickingEvent>(relaxed = true)
+            val stopRequestedEvent = OMSActions.StopRequestedEvent(mockServer, mockReason)
             val componentSlot = slot<Component>()
+            every { mockServer.isRunning } returns true
+            every { mockServer.tickCount } returns StopManager.SERVER_HALT_DELAY.inWholeMilliseconds.toInt() * 20
+            every { mockTickEvent.server } returns mockServer
 
-            StopManager.stop(event)
-
+            StopManager.scheduleStop(stopRequestedEvent)
             verify {
                 mockServer.playerList.broadcastSystemMessage(capture(componentSlot), false)
             }
-            componentSlot.captured.string shouldBe OmsLang.translatable(mockReason.messageId).string
 
+            StopManager.onOmsTick(mockTickEvent)
+
+            componentSlot.captured.string shouldBe OmsLang.translatable(mockReason.messageId).string
             verify { mockServer.halt(false) }
             verify { FileUtil.writeSafe(any(), any()) }
+        }
+
+        should("not write reason, broadcast message and schedule halt server when stop is scheduled") {
+            val mockTickEvent = mockk<OMSLifecycle.TickingEvent>(relaxed = true)
+            val stopRequestedEvent = OMSActions.StopRequestedEvent(mockServer, mockReason)
+            val componentSlot = slot<Component>()
+            every { mockServer.isRunning } returns true
+            every { mockServer.tickCount } returns StopManager.SERVER_HALT_DELAY.inWholeMilliseconds.toInt() * 20
+            every { mockTickEvent.server } returns mockServer
+
+            StopManager.scheduleStop(stopRequestedEvent)
+            verify(exactly = 1) {
+                mockServer.playerList.broadcastSystemMessage(capture(componentSlot), false)
+            }
+
+            StopManager.onOmsTick(mockTickEvent)
+            StopManager.onOmsTick(mockTickEvent)
+            StopManager.onOmsTick(mockTickEvent)
+
+            componentSlot.captured.string shouldBe OmsLang.translatable(mockReason.messageId).string
+            verify(exactly = 1) { mockServer.halt(false) }
+            verify(exactly = 1) { FileUtil.writeSafe(any(), any()) }
         }
     }
 

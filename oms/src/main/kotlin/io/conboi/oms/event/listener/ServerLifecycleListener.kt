@@ -2,8 +2,8 @@ package io.conboi.oms.event.listener
 
 import io.conboi.oms.api.event.OMSLifecycle
 import io.conboi.oms.common.OperateMyServer
-import io.conboi.oms.content.StopManager
 import io.conboi.oms.event.OMSInternal
+import io.conboi.oms.foundation.StopManager
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.event.server.ServerStoppingEvent
