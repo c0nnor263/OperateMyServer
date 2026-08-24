@@ -1,3 +1,5 @@
+import io.kotest.framework.gradle.KotestGradleExtension
+
 plugins {
     idea
     alias(libs.plugins.kotlin) apply false
@@ -11,13 +13,17 @@ tasks.register("generateTemplates") {
 }
 
 subprojects {
+    plugins.withId("io.kotest") {
+        extensions.configure<KotestGradleExtension> {
+            alwaysRerunTests = true
+        }
+    }
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
         maxParallelForks = (java.lang.Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
         forkEvery = 50
         reports.html.required = false
         reports.junitXml.required = false
-        outputs.upToDateWhen { false }
     }
 }
 

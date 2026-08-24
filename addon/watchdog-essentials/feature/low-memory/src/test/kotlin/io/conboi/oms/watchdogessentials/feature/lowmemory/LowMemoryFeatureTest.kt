@@ -7,6 +7,7 @@ import io.conboi.oms.api.foundation.addon.AddonContext
 import io.conboi.oms.api.foundation.feature.Priority
 import io.conboi.oms.api.infrastructure.config.ConfigProvider
 import io.conboi.oms.common.foundation.TimeHelper
+import io.conboi.oms.testing.createMockPlayer
 import io.conboi.oms.watchdogessentials.common.infrastructure.LOG
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.ByteFormatter
 import io.conboi.oms.watchdogessentials.feature.lowmemory.foundation.CriticalAction
@@ -30,13 +31,19 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import java.lang.reflect.Field
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import net.minecraft.SharedConstants
+import net.minecraft.WorldVersion
+import net.minecraft.server.Bootstrap
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.players.PlayerList
+import net.minecraft.world.level.storage.DataVersion
+import net.minecraftforge.network.NetworkHooks
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 class LowMemoryFeatureTest : ShouldSpec({
@@ -60,10 +67,18 @@ class LowMemoryFeatureTest : ShouldSpec({
     val mockMemoryReportManager = mockk<MemoryReportManager>(relaxed = true)
 
     beforeSpec {
+        mockkStatic(SharedConstants::class)
+        mockkStatic(NetworkHooks::class)
         mockkObject(LOG)
         mockkObject(FORGE_BUS)
         mockkObject(RuntimeMemoryProvider)
         mockkObject(TimeHelper)
+
+        every { SharedConstants.getCurrentVersion() } returns mockk<WorldVersion> {
+            every { dataVersion } returns DataVersion(3459)
+        }
+        every { NetworkHooks.init() } just Runs
+        Bootstrap.bootStrap()
     }
 
     beforeEach {
@@ -86,9 +101,9 @@ class LowMemoryFeatureTest : ShouldSpec({
         every { mockRetentions.memoryReport.get() } returns 20
 
         every { mockTickingEvent.server } returns mockServer
+        every { mockPlayers.players } returns emptyList()
         every { mockServer.playerList } returns mockPlayers
         every { mockServer.tickCount } returns 300
-        every { mockPlayers.broadcastSystemMessage(any(), false) } just Runs
         every { FORGE_BUS.post(any()) } returns true
         every { LOG.warn(any<String>()) } just Runs
         every { LOG.error(any<String>(), any<Throwable>()) } just Runs
@@ -283,6 +298,7 @@ class LowMemoryFeatureTest : ShouldSpec({
 
     context("onOmsTick") {
         should("not run low-memory logic before the timer fires") {
+            val mockPlayer = createMockPlayer(playerList = mockPlayers)
             every { mockServer.tickCount } returns 299
 
             sut.onOmsTick(mockTickingEvent, mockAddonContext)
@@ -291,10 +307,11 @@ class LowMemoryFeatureTest : ShouldSpec({
             verify(exactly = 0) { mockMemoryReportManager.createReport(any(), any(), any()) }
             verify(exactly = 0) { mockHeapDumpManager.createHeapDump(any(), any()) }
             verify(exactly = 0) { FORGE_BUS.post(any()) }
-            verify(exactly = 0) { mockPlayers.broadcastSystemMessage(any(), any()) }
+            verify(exactly = 0) { mockPlayer.sendSystemMessage(any(), any()) }
         }
 
         should("create a report, heap dump and stop event when action is restart") {
+            val mockPlayer = createMockPlayer(playerList = mockPlayers)
             every { mockConfig.criticalAction.get() } returns CriticalAction.RESTART.name
             every { mockConfig.createHeapDumpOnAction.get() } returns true
 
@@ -318,7 +335,7 @@ class LowMemoryFeatureTest : ShouldSpec({
                 mockHeapDumpManager.createHeapDump(mockAddonContext, 5.minutes)
             }
             verify(exactly = 1) { FORGE_BUS.post(any()) }
-            verify(exactly = 0) { mockPlayers.broadcastSystemMessage(any(), any()) }
+            verify(exactly = 0) { mockPlayer.sendSystemMessage(any(), any()) }
 
             reportSlot.captured.action shouldBe CriticalAction.RESTART
             reportSlot.captured.currentSnapshot shouldBe lowSnapshot()
@@ -349,7 +366,8 @@ class LowMemoryFeatureTest : ShouldSpec({
             stopSlot.captured.reason.name shouldBe "low_memory_shutdown"
         }
 
-        should("broadcast warning once until cooldown expires and reset on config update") {
+        should("send warning once until cooldown expires and reset on config update") {
+            val mockPlayer = createMockPlayer(playerList = mockPlayers)
             every { mockConfig.criticalAction.get() } returns CriticalAction.WARNING.name
             every { mockConfig.createHeapDumpOnAction.get() } returns false
 
@@ -360,13 +378,14 @@ class LowMemoryFeatureTest : ShouldSpec({
             sut.cachedFieldDelegate<Duration>("warningCooldownDuration").invalidate()
             sut.onOmsTick(mockTickingEvent, mockAddonContext)
 
-            verify(exactly = 2) { mockPlayers.broadcastSystemMessage(any(), false) }
+            verify(exactly = 2) { mockPlayer.sendSystemMessage(any(), false) }
             verify(exactly = 3) { mockMemoryReportManager.createReport(mockAddonContext, any(), 3.minutes) }
             verify(exactly = 0) { mockHeapDumpManager.createHeapDump(any(), any()) }
             verify(exactly = 0) { FORGE_BUS.post(any()) }
         }
 
         should("stop processing low memory after a stop has been requested") {
+            val mockPlayer = createMockPlayer(playerList = mockPlayers)
             every { mockConfig.criticalAction.get() } returns CriticalAction.RESTART.name
             every { mockConfig.createHeapDumpOnAction.get() } returns true
 
@@ -378,10 +397,11 @@ class LowMemoryFeatureTest : ShouldSpec({
             verify(exactly = 1) { mockMemoryReportManager.createReport(mockAddonContext, any(), 3.minutes) }
             verify(exactly = 1) { mockHeapDumpManager.createHeapDump(mockAddonContext, 5.minutes) }
             verify(exactly = 1) { FORGE_BUS.post(any()) }
-            verify(exactly = 0) { mockPlayers.broadcastSystemMessage(any(), any()) }
+            verify(exactly = 0) { mockPlayer.sendSystemMessage(any(), any()) }
         }
 
         should("stop processing low memory if averageAvailableMemoryPercent is above threshold") {
+            val mockPlayer = createMockPlayer(playerList = mockPlayers)
             every { mockConfig.criticalAction.get() } returns CriticalAction.WARNING.name
             every { mockConfig.createHeapDumpOnAction.get() } returns false
 
@@ -394,7 +414,7 @@ class LowMemoryFeatureTest : ShouldSpec({
 
             sut.onOmsTick(mockTickingEvent, mockAddonContext)
 
-            verify(exactly = 0) { mockPlayers.broadcastSystemMessage(any(), any()) }
+            verify(exactly = 0) { mockPlayer.sendSystemMessage(any(), any()) }
             verify(exactly = 0) { mockMemoryReportManager.createReport(any(), any(), any()) }
             verify(exactly = 0) { mockHeapDumpManager.createHeapDump(any(), any()) }
         }
@@ -446,7 +466,6 @@ private fun LowMemoryFeature.injectPrivate(fieldName: String, value: Any) {
         "memoryReportManager" -> 20
         else -> null
     }
-    println("Injecting $fieldName with value $value and cache key $fieldNameToCacheKey")
 
     if (fieldNameToCacheKey == null) {
         val field: Field = javaClass.getDeclaredField(fieldName)

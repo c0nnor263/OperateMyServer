@@ -13,13 +13,17 @@ import io.conboi.oms.feature.scheduledrestart.foundation.SkipResult
 import io.conboi.oms.feature.scheduledrestart.foundation.reason.ScheduledStop
 import io.conboi.oms.feature.scheduledrestart.infrastructure.config.CScheduledRestartFeature
 import io.conboi.oms.testing.checkCapturedTranslationKey
+import io.conboi.oms.testing.createMockPlayer
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import java.time.Instant
@@ -28,9 +32,14 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import kotlin.time.Duration
+import net.minecraft.SharedConstants
+import net.minecraft.WorldVersion
 import net.minecraft.network.chat.Component
+import net.minecraft.server.Bootstrap
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.players.PlayerList
+import net.minecraft.world.level.storage.DataVersion
+import net.minecraftforge.network.NetworkHooks
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
 class ScheduledRestartFeatureTest : ShouldSpec({
@@ -53,13 +62,22 @@ class ScheduledRestartFeatureTest : ShouldSpec({
     )
 
     beforeSpec {
+        mockkStatic(SharedConstants::class)
+        mockkStatic(NetworkHooks::class)
         mockkObject(TimeHelper)
         mockkObject(FORGE_BUS)
+
+        every { SharedConstants.getCurrentVersion() } returns mockk<WorldVersion> {
+            every { dataVersion } returns DataVersion(3459)
+        }
+        every { NetworkHooks.init() } just Runs
+        Bootstrap.bootStrap()
     }
 
     beforeEach {
         every { FORGE_BUS.post(any()) } returns true
         every { TimeHelper.currentEpochSeconds } returns nowEpoch
+        every { mockPlayers.players } returns emptyList()
         every { mockServer.playerList } returns mockPlayers
         every { mockTickingEvent.server } returns mockServer
 
@@ -160,8 +178,9 @@ class ScheduledRestartFeatureTest : ShouldSpec({
         }
 
         should("send config updated message") {
+            val mockPlayer = createMockPlayer(playerList = mockPlayers)
             val slotMsg = slot<Component>()
-            every { mockPlayers.broadcastSystemMessage(capture(slotMsg), false) } returns Unit
+            every { mockPlayer.sendSystemMessage(capture(slotMsg), false) } returns Unit
 
             sut.onConfigUpdated(mockTickingEvent)
 
