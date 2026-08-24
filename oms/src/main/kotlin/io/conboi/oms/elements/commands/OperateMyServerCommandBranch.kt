@@ -4,6 +4,8 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import io.conboi.oms.api.elements.commands.OMSCommandBranch
 import io.conboi.oms.api.elements.commands.OMSCommandEntry
+import io.conboi.oms.api.permission.PermissionLevel
+import io.conboi.oms.api.permission.hasPermission
 import io.conboi.oms.elements.commands.feature.FeatureCommand
 import io.conboi.oms.elements.commands.utilities.RestartCommand
 import net.minecraft.commands.CommandSourceStack
@@ -22,7 +24,7 @@ internal class OperateMyServerCommandBranch : OMSCommandBranch() {
         groupBuilder: LiteralArgumentBuilder<CommandSourceStack>?
     ) {
         val builder = Commands.literal("oms")
-            .requires { it.hasPermission(4) }
+            .requires { it.hasPermission(PermissionLevel.OWNER) }
         super.register(dispatcher, builder)
     }
 }

@@ -9,6 +9,8 @@ import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
 import io.conboi.oms.api.foundation.feature.Priority
 import io.conboi.oms.api.infrastructure.config.ConfigProvider
+import io.conboi.oms.api.permission.PermissionLevel
+import io.conboi.oms.api.permission.hasPermission
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.infrastructure.lang.OmsLang
@@ -110,13 +112,23 @@ class ScheduledRestartFeature(
         }
         restartTimeTarget.invalidate()
         val closestRestartTime = TimeFormatter.formatDateTime(restartTimeTarget.get())
-        event.server.playerList.broadcastSystemMessage(
-            OmsLang.translatable(
-                key,
-                closestRestartTime.literal().bold()
-            ),
-            false
+
+        LOG.info(
+            "Scheduled restart configuration updated. Skip state was reset. Closest restart: {}",
+            closestRestartTime
         )
+
+        event.server.playerList.players
+            .filter { it.hasPermission(PermissionLevel.OWNER) }
+            .forEach {
+                it.sendSystemMessage(
+                    OmsLang.translatable(
+                        key,
+                        closestRestartTime.literal().bold()
+                    ),
+                    false
+                )
+            }
     }
 
     fun handleWarnings(remainingSec: Long, server: MinecraftServer) {

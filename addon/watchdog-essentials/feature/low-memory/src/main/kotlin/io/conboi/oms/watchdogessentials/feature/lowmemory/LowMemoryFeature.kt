@@ -10,6 +10,8 @@ import io.conboi.oms.api.foundation.feature.FeatureInfo
 import io.conboi.oms.api.foundation.feature.OmsFeature
 import io.conboi.oms.api.foundation.feature.Priority
 import io.conboi.oms.api.infrastructure.config.ConfigProvider
+import io.conboi.oms.api.permission.PermissionLevel
+import io.conboi.oms.api.permission.hasPermission
 import io.conboi.oms.common.foundation.TimeFormatter
 import io.conboi.oms.common.foundation.TimeHelper
 import io.conboi.oms.common.infrastructure.lang.OmsLang
@@ -248,13 +250,17 @@ class LowMemoryFeature(
                     return
                 }
                 nextWarningAllowedEpochSeconds = now + warningCooldownDuration.inWholeSeconds
-                server.playerList.broadcastSystemMessage(
-                    OmsLang.translatable(
-                        "watchdogessentials.warning.low_memory",
-                        *args.toArray()
-                    ),
-                    false
-                )
+                server.playerList.players
+                    .filter { it.hasPermission(PermissionLevel.OWNER) }
+                    .forEach {
+                        it.sendSystemMessage(
+                            OmsLang.translatable(
+                                "watchdogessentials.warning.low_memory",
+                                *args.toArray()
+                            ),
+                            false
+                        )
+                    }
             }
 
             else -> {

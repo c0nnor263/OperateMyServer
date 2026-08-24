@@ -2,6 +2,8 @@ package io.conboi.oms.elements.commands.vanilla
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
+import io.conboi.oms.api.permission.PermissionLevel
+import io.conboi.oms.api.permission.hasPermission
 import io.conboi.oms.common.foundation.reason.RegularStop
 import io.conboi.oms.common.infrastructure.lang.OmsLang
 import io.conboi.oms.content.StopManager
@@ -14,7 +16,7 @@ internal class OverrideStopCommand {
 
         dispatcher.register(
             Commands.literal("stop")
-                .requires { source -> source.hasPermission(4) }
+                .requires { source -> source.hasPermission(PermissionLevel.OWNER) }
                 .executes { context ->
                     val source = context.source
                     StopManager.writeReason(RegularStop)

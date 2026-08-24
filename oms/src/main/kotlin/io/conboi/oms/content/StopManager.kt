@@ -9,6 +9,7 @@ import io.conboi.oms.common.foundation.reason.CrashStop
 import io.conboi.oms.common.infrastructure.OMSJson
 import io.conboi.oms.common.infrastructure.file.FileUtil
 import io.conboi.oms.common.infrastructure.lang.OmsLang
+import io.conboi.oms.common.infrastructure.log.LOG
 import io.conboi.oms.infrastructure.config.OMSConfigs
 import io.conboi.oms.infrastructure.file.StopEntryLog
 import io.conboi.oms.infrastructure.log.AddonLoggerRegistry
@@ -40,6 +41,7 @@ internal object StopManager {
         val (server, reason) = event
         writeReason(reason)
 
+        LOG.info("Stopping server due to reason: ${reason.name.uppercase()} - ${OmsLang.translatable(reason.messageId, *reason.arguments).string}")
         server.playerList.broadcastSystemMessage(OmsLang.translatable(reason.messageId, *reason.arguments), false)
         server.halt(false)
     }

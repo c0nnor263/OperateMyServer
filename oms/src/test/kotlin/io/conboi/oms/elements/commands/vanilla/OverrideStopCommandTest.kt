@@ -2,6 +2,8 @@ package io.conboi.oms.elements.commands.vanilla
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.tree.LiteralCommandNode
+import io.conboi.oms.api.permission.PermissionLevel
+import io.conboi.oms.api.permission.hasPermission
 import io.conboi.oms.common.foundation.reason.RegularStop
 import io.conboi.oms.content.StopManager
 import io.kotest.core.spec.style.ShouldSpec
@@ -27,7 +29,7 @@ class OverrideStopCommandTest : ShouldSpec({
         mockkObject(StopManager)
         every { StopManager.writeReason(any()) } just Runs
 
-        every { mockSource.hasPermission(4) } returns true
+        every { mockSource.hasPermission(PermissionLevel.OWNER) } returns true
         every { mockSource.server } returns mockServer
 
         sut = OverrideStopCommand()
