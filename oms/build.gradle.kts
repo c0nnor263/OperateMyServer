@@ -55,7 +55,7 @@ publisher {
     curseID.set("1341025")
     modrinthID.set("ZZEpAgHx")
     versionType.set("release")
-    changelog.set(rootProject.file("CHANGELOG.md"))
+    changelog.set(file("CHANGELOG.md"))
     version.set(project.version.toString())
     projectVersion.set(libs.versions.minecraft.get() + "-" + project.version.toString())
     setJavaVersions(JavaVersion.VERSION_17)

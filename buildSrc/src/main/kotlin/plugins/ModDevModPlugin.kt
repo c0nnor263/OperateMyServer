@@ -127,6 +127,7 @@ class ModDevModPlugin : Plugin<Project> {
             this.modId.set(this@configureMergeLangFilesTask.modId)
             outputDir.set(mergedLangDir)
             projectPaths.set(modDev.dependentProjects)
+            outputs.upToDateWhen { false }
         }
 
         tasks.withType(ProcessResources::class.java).configureEach {
