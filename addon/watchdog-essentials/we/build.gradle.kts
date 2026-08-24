@@ -43,7 +43,7 @@ modDev {
 }
 
 dependencies {
-    modLocalRuntime(projects.oms)
+    modLocalRuntime(libs.oms)
     modCompileOnly(libs.omsApi)
     implementation(projects.omsCommon)
 
