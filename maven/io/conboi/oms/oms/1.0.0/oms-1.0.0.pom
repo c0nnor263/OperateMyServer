@@ -9,8 +9,8 @@
   <groupId>io.conboi.oms</groupId>
   <artifactId>oms</artifactId>
   <version>1.0.0</version>
-  <name>Operate My Server</name>
-  <description>Mod that allows you to operate your server from within Minecraft. Includes commands to start/stop/restart the server, view server status, and more.</description>
+  <name>Operate My Server - OMS</name>
+  <description>Modular server utility for automated restarts, monitoring, and lifecycle control</description>
   <url>https://github.com/c0nnor263/OperateMyServer</url>
   <licenses>
     <license>
