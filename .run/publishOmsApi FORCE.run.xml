@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="publishOmsApi FORCE" type="GradleRunConfiguration" factoryName="Gradle" folderName="MAVEN">
+  <configuration default="false" name="publishOmsApi FORCE" type="GradleRunConfiguration" factoryName="Gradle" folderName="MAVEN OMS-API">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="publishOperateMyServer FORCE" type="GradleRunConfiguration" factoryName="Gradle" folderName="MAVEN OMS">
+  <configuration default="false" name="publishWatchdogEssentials FORCE" type="GradleRunConfiguration" factoryName="Gradle" folderName="MAVEN WE">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value=":oms:publishOperateMyServer" />
+          <option value="addon:watchdog-essentials:we:publishWatchdogEssentials" />
         </list>
       </option>
       <option name="vmOptions" />
