@@ -77,6 +77,11 @@ class StopManagerTest : ShouldSpec({
             .apply { isAccessible = true }
             .setBoolean(StopManager, false)
 
+        StopManager::class.java
+            .getDeclaredField("isStopScheduled")
+            .apply { isAccessible = true }
+            .setBoolean(StopManager, false)
+
         every { TimeHelper.currentEpochSeconds } returns time
 
         every { mockAddonPaths.common } returns tempDir
@@ -220,18 +225,14 @@ class StopManagerTest : ShouldSpec({
             val stopRequestedEvent = OMSActions.StopRequestedEvent(mockServer, mockReason)
             val componentSlot = slot<Component>()
             every { mockServer.isRunning } returns true
-            every { mockServer.tickCount } returns StopManager.SERVER_HALT_DELAY.inWholeMilliseconds.toInt() * 20
             every { mockTickEvent.server } returns mockServer
 
             StopManager.scheduleStop(stopRequestedEvent)
+
             verify {
                 mockServer.playerList.broadcastSystemMessage(capture(componentSlot), false)
             }
-
-            StopManager.onOmsTick(mockTickEvent)
-
             componentSlot.captured.string shouldBe OmsLang.translatable(mockReason.messageId).string
-            verify { mockServer.halt(false) }
             verify { FileUtil.writeSafe(any(), any()) }
         }
 
@@ -240,21 +241,51 @@ class StopManagerTest : ShouldSpec({
             val stopRequestedEvent = OMSActions.StopRequestedEvent(mockServer, mockReason)
             val componentSlot = slot<Component>()
             every { mockServer.isRunning } returns true
+            every { mockTickEvent.server } returns mockServer
+
+            StopManager.scheduleStop(stopRequestedEvent)
+            StopManager.scheduleStop(stopRequestedEvent)
+            StopManager.scheduleStop(stopRequestedEvent)
+            StopManager.scheduleStop(stopRequestedEvent)
+
+            verify(exactly = 1) {
+                mockServer.playerList.broadcastSystemMessage(capture(componentSlot), false)
+            }
+            componentSlot.captured.string shouldBe OmsLang.translatable(mockReason.messageId).string
+            verify(exactly = 1) { FileUtil.writeSafe(any(), any()) }
+        }
+    }
+
+    context("onOmsTick") {
+        should("halt the server when stop is scheduled and server is running") {
+            val mockTickEvent = mockk<OMSLifecycle.TickingEvent>(relaxed = true)
+            val stopRequestedEvent = OMSActions.StopRequestedEvent(mockServer, mockReason)
+            every { mockServer.isRunning } returns true
             every { mockServer.tickCount } returns StopManager.SERVER_HALT_DELAY.inWholeMilliseconds.toInt() * 20
             every { mockTickEvent.server } returns mockServer
 
             StopManager.scheduleStop(stopRequestedEvent)
-            verify(exactly = 1) {
-                mockServer.playerList.broadcastSystemMessage(capture(componentSlot), false)
-            }
-
-            StopManager.onOmsTick(mockTickEvent)
-            StopManager.onOmsTick(mockTickEvent)
             StopManager.onOmsTick(mockTickEvent)
 
-            componentSlot.captured.string shouldBe OmsLang.translatable(mockReason.messageId).string
             verify(exactly = 1) { mockServer.halt(false) }
-            verify(exactly = 1) { FileUtil.writeSafe(any(), any()) }
+        }
+
+        should("not halt the server when server is not running") {
+            val mockTickEvent = mockk<OMSLifecycle.TickingEvent>(relaxed = true)
+            val stopRequestedEvent = OMSActions.StopRequestedEvent(mockServer, mockReason)
+            every { mockServer.isRunning } returns true
+            every { mockServer.tickCount } returns StopManager.SERVER_HALT_DELAY.inWholeMilliseconds.toInt() * 20
+            every { mockServer.halt(any()) } answers {
+                every { mockServer.isRunning } returns false
+            }
+            every { mockTickEvent.server } returns mockServer
+
+            StopManager.scheduleStop(stopRequestedEvent)
+            StopManager.onOmsTick(mockTickEvent)
+            StopManager.onOmsTick(mockTickEvent)
+            StopManager.onOmsTick(mockTickEvent)
+
+            verify(exactly = 1) { mockServer.halt(false) }
         }
     }
 
