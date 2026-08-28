@@ -29,11 +29,11 @@
         {
           "name": "watchdogessentials-1.0.0.jar",
           "url": "watchdogessentials-1.0.0.jar",
-          "size": 527564,
-          "sha512": "033ab91ead2909bc3bcb981d04e9f87834e7f6325883538ac853428b92a07028d62e446e879d870b6e8905e7f1a23c815778d2d24ca7deee42fb9c24d89764b0",
-          "sha256": "ad57581592f79183d9fb955c50f5d410f45a749360517d3ff3e95988b30eaa1c",
-          "sha1": "42826a566b8a6842c3584c74d987eeea96d66d48",
-          "md5": "f762a471d89184c9390e5c02a34272df"
+          "size": 160728,
+          "sha512": "44075f162774a5150d3fae830df514fe37bb55922237b4832d10d807108e9a1633324f9f59dbebaad83585133375ba8b2a86c0a925e664472a4f0446c99ac01f",
+          "sha256": "5b7d9e9b20489295e2c114f0d367caf8b86ba16bf02071e78b56e679f8e5dca0",
+          "sha1": "4b469d1d1b8422d843c3370cd962c709ef14f895",
+          "md5": "b74ff607e857eaf5c27ce4e7ed887a9f"
         }
       ]
     },
@@ -52,11 +52,11 @@
         {
           "name": "watchdogessentials-1.0.0.jar",
           "url": "watchdogessentials-1.0.0.jar",
-          "size": 527564,
-          "sha512": "033ab91ead2909bc3bcb981d04e9f87834e7f6325883538ac853428b92a07028d62e446e879d870b6e8905e7f1a23c815778d2d24ca7deee42fb9c24d89764b0",
-          "sha256": "ad57581592f79183d9fb955c50f5d410f45a749360517d3ff3e95988b30eaa1c",
-          "sha1": "42826a566b8a6842c3584c74d987eeea96d66d48",
-          "md5": "f762a471d89184c9390e5c02a34272df"
+          "size": 160728,
+          "sha512": "44075f162774a5150d3fae830df514fe37bb55922237b4832d10d807108e9a1633324f9f59dbebaad83585133375ba8b2a86c0a925e664472a4f0446c99ac01f",
+          "sha256": "5b7d9e9b20489295e2c114f0d367caf8b86ba16bf02071e78b56e679f8e5dca0",
+          "sha1": "4b469d1d1b8422d843c3370cd962c709ef14f895",
+          "md5": "b74ff607e857eaf5c27ce4e7ed887a9f"
         }
       ]
     },
@@ -72,11 +72,11 @@
         {
           "name": "watchdogessentials-1.0.0-sources.jar",
           "url": "watchdogessentials-1.0.0-sources.jar",
-          "size": 375147,
-          "sha512": "65e279f80c2682f96dd1932293396fb6eb82dceb3ae44976e87fd090083411275c476afd620204580f923f0e2617dbcf07f06b029fd71507ded3460fa08057f4",
-          "sha256": "9d90703138824dcc27065f6f8548232538b79d6ceac647d1aa93926c9f98f863",
-          "sha1": "42389176bc340f89dfa958cc5d0bfbe1e819b638",
-          "md5": "8d98573616e631d5ba2bdd95be2e7cfc"
+          "size": 8310,
+          "sha512": "7153273915d294c0255dc80d7f8aa1adabbd7daaefa2193c831eaf091e64f083bd3d3dd37d50a08af293471a2e4ccc98a2c9993ea0d8d61c63189fdbe9da7364",
+          "sha256": "7f5d3aa9d72fc29b6c4c06dcfaa6e476e5131f0e9440d7c54ee9081a383933fd",
+          "sha1": "f145540af3f41d815bdb7dc7f4375b13d286adc0",
+          "md5": "32029315ee1a9403f972292815c649ef"
         }
       ]
     }
