@@ -29,11 +29,11 @@
         {
           "name": "watchdogessentials-1.0.0.jar",
           "url": "watchdogessentials-1.0.0.jar",
-          "size": 527682,
-          "sha512": "b4b72217babacf1166c5875eb8eb3b71fa44b0e7397393727d3529e192e7adce8e006113a7aa133e1fc8c7cfe925be43905a0c9a42deee407b97ad10fde6b09a",
-          "sha256": "3ee42571bb66c79ef68668b16d24f629aba7aaeb29512f7e095b080be65e754e",
-          "sha1": "f90c4b773d6bde81c043073643bb2e74befd71bc",
-          "md5": "780b6e6f1822c4b91c7c09abe3cf8c6e"
+          "size": 527564,
+          "sha512": "033ab91ead2909bc3bcb981d04e9f87834e7f6325883538ac853428b92a07028d62e446e879d870b6e8905e7f1a23c815778d2d24ca7deee42fb9c24d89764b0",
+          "sha256": "ad57581592f79183d9fb955c50f5d410f45a749360517d3ff3e95988b30eaa1c",
+          "sha1": "42826a566b8a6842c3584c74d987eeea96d66d48",
+          "md5": "f762a471d89184c9390e5c02a34272df"
         }
       ]
     },
@@ -52,11 +52,11 @@
         {
           "name": "watchdogessentials-1.0.0.jar",
           "url": "watchdogessentials-1.0.0.jar",
-          "size": 527682,
-          "sha512": "b4b72217babacf1166c5875eb8eb3b71fa44b0e7397393727d3529e192e7adce8e006113a7aa133e1fc8c7cfe925be43905a0c9a42deee407b97ad10fde6b09a",
-          "sha256": "3ee42571bb66c79ef68668b16d24f629aba7aaeb29512f7e095b080be65e754e",
-          "sha1": "f90c4b773d6bde81c043073643bb2e74befd71bc",
-          "md5": "780b6e6f1822c4b91c7c09abe3cf8c6e"
+          "size": 527564,
+          "sha512": "033ab91ead2909bc3bcb981d04e9f87834e7f6325883538ac853428b92a07028d62e446e879d870b6e8905e7f1a23c815778d2d24ca7deee42fb9c24d89764b0",
+          "sha256": "ad57581592f79183d9fb955c50f5d410f45a749360517d3ff3e95988b30eaa1c",
+          "sha1": "42826a566b8a6842c3584c74d987eeea96d66d48",
+          "md5": "f762a471d89184c9390e5c02a34272df"
         }
       ]
     },
