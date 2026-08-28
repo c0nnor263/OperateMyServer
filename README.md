@@ -38,7 +38,7 @@ OMS includes:
 * Server-side configuration
 * Addon support for extra server automation and monitoring features
 
-Condition-based triggers such as low TPS detection and empty server detection are provided through addons like [**Watchdog Essentials**](https://conboi.gitbook.io/oms-wiki/addons/watchdog-essentials).
+Condition-based triggers such as low TPS detection and empty server detection are provided through addons like [**Watchdog Essentials**](https://www.curseforge.com/minecraft/mc-mods/watchdog-essentials).
 
 ---
 
