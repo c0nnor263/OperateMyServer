@@ -2,7 +2,7 @@
 [![](https://cf.way2muchnoise.eu/versions/1341025.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J61TEZDO)
 
-[![OMS Banner](./assets/banner.png)](https://conboi.gitbook.io/oms-wiki)
+[![OMS Banner](./assets/banner.png)](https://www.curseforge.com/minecraft/mc-mods/operate-my-server)
 
 # Operate My Server
 
