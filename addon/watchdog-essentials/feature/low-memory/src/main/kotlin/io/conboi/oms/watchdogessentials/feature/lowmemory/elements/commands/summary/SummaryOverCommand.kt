@@ -100,7 +100,7 @@ class SummaryOverCommand(private val feature: LowMemoryFeature) : OMSCommandEntr
 
         source.sendSuccess(
             { feature.requestSummaryOver(retentionWindow).toComponent() },
-            true
+            false
         )
 
         return Command.SINGLE_SUCCESS

@@ -22,3 +22,5 @@ classes/
 /*/logs/
 /**/logs/
 logs/
+/output/
+/models/*

@@ -25,4 +25,4 @@ include(":addon:watchdog-essentials:feature:low-tps")
 include(":addon:watchdog-essentials:feature:low-memory")
 include(":addon:watchdog-essentials:feature:empty-server")
 
-rootProject.name = "operate-my-server"
+rootProject.name = "OperateMyServer"

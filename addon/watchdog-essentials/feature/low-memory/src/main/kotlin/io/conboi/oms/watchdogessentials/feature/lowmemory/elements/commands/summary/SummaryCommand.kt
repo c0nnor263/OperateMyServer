@@ -58,7 +58,7 @@ class SummaryCommand(private val feature: LowMemoryFeature) : OMSCommandEntry() 
 
         source.sendSuccess(
             { feature.requestSummary().toComponent() },
-            true
+            false
         )
 
         return Command.SINGLE_SUCCESS
